@@ -1,0 +1,37 @@
+.selectCommon {
+  .listSelect {
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+
+    width: 500px;
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    border-radius: var(--Dimension-Corner-Radius-modal, 12px);
+    background: var(--Colors-Neutral-Surface-bg, #1b1d19);
+    border: 1px solid var(--Colors-Neutral-Border-border-default, #232521);
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    transition: all 0.5s;
+    transform: translateY(100%);
+
+    &.active {
+      transform: translateY(0);
+    }
+
+    .header {
+      text-align: center;
+
+      .close {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+      }
+    }
+  }
+}

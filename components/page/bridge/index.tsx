@@ -16,6 +16,7 @@ const Bridge = () => {
   const ref = useRef();
 
   const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState(0);
   const [step, setStep] = useState(tonAddress ? 2 : 1);
 
   useOnClickOutside(ref, () => setOpen(false));
@@ -29,7 +30,10 @@ const Bridge = () => {
         <div className={styles.handler}>
           <div className={styles.select}></div>
           <div className={styles.input}>
-            <InputBridge />
+            <InputBridge
+              amount={amount}
+              onChangeAmount={(val) => setAmount(val)}
+            />
           </div>
           <div className={styles.destination}>
             <p>Destination address</p>

@@ -23,7 +23,7 @@ import NumberFormat from "react-number-format";
 export type NetworkType = "Oraichain" | "Ton";
 
 const InputBridge: FC<{
-  networkTo: NetworkType;
+  networkTo?: NetworkType;
   disabled?: boolean;
   onChangeAmount?: (amount: number | undefined) => void;
   amount: number;
@@ -44,21 +44,24 @@ const InputBridge: FC<{
 
   return (
     <div className={styles.inputBridge}>
-      <div className={styles.header}></div>
+      <div className={styles.header}>
+        <span className={styles.bal}>Balance:</span> {0.00553293}{" "}
+        {token?.symbol}
+      </div>
       <div className={styles.content}>
         <SelectCommon
           open={open}
           onClose={() => setOpen(false)}
           title="Select a token"
           triggerElm={
-            <div className={styles.token}>
+            <div className={styles.token} onClick={() => setOpen(true)}>
               {!token ? (
-                <div>
+                <div className={styles.info}>
                   <SelectOptionIcon />
                   Select token
                 </div>
               ) : (
-                <div>
+                <div className={styles.info}>
                   <token.Icon />
                   {token.symbol}
                 </div>
@@ -73,7 +76,14 @@ const InputBridge: FC<{
               : TonTokenList
             ).map((e, key) => {
               return (
-                <div className={styles.tokenItem} key={`token-${key}`}>
+                <div
+                  className={styles.tokenItem}
+                  key={`token-${key}`}
+                  onClick={() => {
+                    setToken(e);
+                    setOpen(false);
+                  }}
+                >
                   <e.Icon />
                   <div className={styles.info}>
                     <p>{e.symbol}</p>

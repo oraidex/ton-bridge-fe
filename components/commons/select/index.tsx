@@ -20,7 +20,7 @@ const SelectCommon: FC<
         <div className={styles.header}>
           <span>{title}</span>
 
-          <CloseIcon className={styles.close} />
+          <CloseIcon className={styles.close} onClick={() => onClose()} />
         </div>
         {children}
       </div>

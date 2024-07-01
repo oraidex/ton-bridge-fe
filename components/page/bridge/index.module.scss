@@ -13,6 +13,9 @@
   border: 1px solid var(--Colors-Neutral-Border-border-default, #232521);
   background: var(--Colors-Neutral-Surface-bg-swap, #1b1d19);
 
+  // for list
+  overflow: hidden;
+
   /* Shadow/1 */
   box-shadow: 0px 4px 24px 0px rgba(0, 0, 0, 0.05);
 
@@ -43,6 +46,10 @@
       align-items: flex-start;
       gap: 12px;
       align-self: stretch;
+
+      .input {
+        width: 100%;
+      }
 
       .destination {
         display: flex;
