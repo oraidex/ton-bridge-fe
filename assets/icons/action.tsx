@@ -25,7 +25,7 @@ export const CloseIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
   );
 };
 
-export const SwapIcon = () => {
+export const SwapIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       width="28"
@@ -33,6 +33,7 @@ export const SwapIcon = () => {
       viewBox="0 0 28 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <rect
         x="26.75"
@@ -64,7 +65,7 @@ export const SwapIcon = () => {
   );
 };
 
-export const SearchIcon = () => {
+export const SearchIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -72,6 +73,7 @@ export const SearchIcon = () => {
       height="20"
       viewBox="0 0 20 20"
       fill="none"
+      {...props}
     >
       <path
         fill-rule="evenodd"

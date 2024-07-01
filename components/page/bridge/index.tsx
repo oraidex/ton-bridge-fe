@@ -9,17 +9,17 @@ import { useRef, useState } from "react";
 import styles from "./index.module.scss";
 import ConnectButton from "@/components/layout/connectButton";
 import InputBridge from "./inputBridge";
+import { SwapIcon } from "@/assets/icons/action";
+import { TonNetworkICon } from "@/assets/icons/network";
+import { OraiIcon } from "@/assets/icons/token";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
-  const ref = useRef();
 
-  const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState(0);
-  const [step, setStep] = useState(tonAddress ? 2 : 1);
-
-  useOnClickOutside(ref, () => setOpen(false));
+  const [amount, setAmount] = useState(null);
+  const [fromNetwork, setFromNetwork] = useState(NetworkList.ton);
+  const [toNetwork, setToNetwork] = useState(NetworkList.oraichain);
 
   return (
     <div className={styles.swapWrapper}>
@@ -28,7 +28,30 @@ const Bridge = () => {
       <div className={styles.content}>
         <div className={styles.divider}></div>
         <div className={styles.handler}>
-          <div className={styles.select}></div>
+          <div className={styles.select}>
+            <div className={styles.fromTo}>
+              <h2>From</h2>
+              <div className={styles.networkItem}>
+                <fromNetwork.Icon />
+                {fromNetwork.name}
+              </div>
+            </div>
+            <SwapIcon
+              className={styles.switch}
+              onClick={() => {
+                const [currentTo, currentFrom] = [toNetwork, fromNetwork];
+                setFromNetwork(currentTo);
+                setToNetwork(currentFrom);
+              }}
+            />
+            <div className={styles.fromTo}>
+              <h2>To</h2>
+              <div className={styles.networkItem}>
+                <toNetwork.Icon />
+                {toNetwork.name}
+              </div>
+            </div>
+          </div>
           <div className={styles.input}>
             <InputBridge
               amount={amount}
@@ -65,3 +88,16 @@ const Bridge = () => {
 };
 
 export default Bridge;
+
+export const NetworkList = {
+  ton: {
+    name: "TON",
+    id: "TON",
+    Icon: TonNetworkICon,
+  },
+  oraichain: {
+    name: "Oraichain",
+    id: "Oraichain",
+    Icon: OraiIcon,
+  },
+};

@@ -19,6 +19,7 @@ import {
 } from "@/assets/icons/token";
 import { ArrowDownIcon } from "@/assets/icons/arrow";
 import NumberFormat from "react-number-format";
+import { SearchIcon } from "@/assets/icons/action";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -37,6 +38,7 @@ const InputBridge: FC<{
   const tonAddress = useAuthTonAddress();
   const ref = useRef();
 
+  const [txtSearch, setTxtSearch] = useState(null);
   const [open, setOpen] = useState(false);
   const [token, setToken] = useState(null);
 
@@ -70,6 +72,17 @@ const InputBridge: FC<{
             </div>
           }
         >
+          <div className={styles.search}>
+            <SearchIcon className={styles.searchIcon} />
+            <input
+              className={styles.searchInput}
+              type="text"
+              value={txtSearch}
+              onChange={(e) => setTxtSearch(e.target.value)}
+              placeholder="Search by address, asset, type"
+            />
+          </div>
+
           <div className={styles.list}>
             {(networkTo === "Oraichain"
               ? OraichainTokenList
@@ -95,24 +108,28 @@ const InputBridge: FC<{
           </div>
         </SelectCommon>
 
-        <NumberFormat
-          placeholder="0"
-          thousandSeparator
-          className={styles.input}
-          decimalScale={6}
-          disabled={disabled}
-          type="text"
-          value={amount}
-          onChange={() => {}}
-          isAllowed={(values) => {
-            const { floatValue } = values;
-            // allow !floatValue to let user can clear their input
-            return !floatValue || (floatValue >= 0 && floatValue <= 1e14);
-          }}
-          onValueChange={({ floatValue }) => {
-            onChangeAmount && onChangeAmount(floatValue);
-          }}
-        />
+        <div className={styles.inputWrapper}>
+          <NumberFormat
+            placeholder="0"
+            thousandSeparator
+            className={styles.input}
+            decimalScale={6}
+            disabled={disabled}
+            type="text"
+            value={amount}
+            onChange={() => {}}
+            isAllowed={(values) => {
+              const { floatValue } = values;
+              // allow !floatValue to let user can clear their input
+              return !floatValue || (floatValue >= 0 && floatValue <= 1e14);
+            }}
+            onValueChange={({ floatValue }) => {
+              onChangeAmount && onChangeAmount(floatValue);
+            }}
+          />
+
+          <span className={styles.suffix}>≈ $0.00</span>
+        </div>
       </div>
     </div>
   );

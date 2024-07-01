@@ -47,6 +47,56 @@
       gap: 12px;
       align-self: stretch;
 
+      .select {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        align-self: stretch;
+
+        .switch {
+          cursor: pointer;
+
+          &:hover {
+            filter: brightness(1.25);
+          }
+        }
+
+        .fromTo {
+          display: flex;
+          padding: 16px;
+          flex-direction: column;
+          gap: 16px;
+          flex: 1 0 0;
+          border-radius: 8px;
+          background: var(--Colors-Neutral-Surface-bg-swap-pair, #232521);
+
+          h2 {
+            color: var(--Colors-Neutral-Text-body, #979995);
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 150%; /* 18px */
+            letter-spacing: 0.012px;
+          }
+
+          .networkItem {
+            display: flex;
+            height: 24px;
+            align-items: center;
+            gap: 8px;
+
+            color: var(--Colors-Neutral-Text-text-token-name, #f7f7f7);
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 150%; /* 24px */
+
+            svg {
+              width: 24px;
+              height: 24px;
+            }
+          }
+        }
+      }
+
       .input {
         width: 100%;
       }
