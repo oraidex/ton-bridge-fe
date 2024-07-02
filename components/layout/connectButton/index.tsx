@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styles from "./index.module.scss";
 import classNames from "classnames";
 import { CloseIcon } from "@/assets/icons/action";
@@ -28,13 +28,17 @@ import {
 } from "@/stores/authentication/useAuthenticationStore";
 import useOnClickOutside from "@/hooks/useOnclickOutside";
 import { useInactiveConnect } from "@/hooks/useMetamask";
-import { WalletType } from "@oraichain/oraidex-common";
 import Keplr from "@/libs/keplr";
 import { keplrCheck, setStorageKey } from "@/helper";
 import { initClient } from "@/libs/utils";
 import Loader from "@/components/commons/loader/Loader";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
-import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
+import {
+  TonConnectButton,
+  useTonAddress,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react";
 
 export type ConnectStatus =
   | "init"
@@ -66,16 +70,12 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   useOnClickOutside(ref, () => setOpen(false));
 
   const [tonConnectUiHandler] = useTonConnectUI();
+  const userFriendlyAddress = useTonAddress();
+  const tonWalletConnect = useTonWallet();
+
+  console.log("first", { userFriendlyAddress, tonWalletConnect });
 
   const connect = useInactiveConnect();
-
-  // @ts-ignore
-  const isCheckOwallet = window.owallet?.isOwallet;
-  const version = window?.keplr?.version;
-  const isCheckKeplr = !!version && keplrCheck("keplr");
-  const isMetamask = window?.ethereum?.isMetaMask;
-  //@ts-ignore
-  const isTronLink = window?.tronWeb?.isTronLink;
 
   const handleConnectWalletInOraichainNetwork = async (
     walletType: OraiWallet // WalletType | "eip191"
@@ -101,12 +101,19 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   };
 
   const handleConnectWalletInTonNetwork = async () => {
-    console.log("tonConnectUiHandler", tonConnectUiHandler);
-    await tonConnectUiHandler.openModal();
-    const acc = tonConnectUiHandler.account;
+    try {
+      console.log("tonConnectUiHandler", tonConnectUiHandler);
+      tonConnectUiHandler.openSingleWalletModal("mytonwallet");
 
-    console.log("acc", acc);
-    // setOpen(false);
+      // const connectedWallet = await tonConnectUiHandler.openModal();
+
+      const acc = tonConnectUiHandler.account;
+
+      console.log("acc", acc);
+      // setOpen(false);
+    } catch (error) {
+      console.log("error connect", error);
+    }
   };
 
   const handleDisconnectOraichain = (walletType: OraiWallet) => {
@@ -116,14 +123,31 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     }
   };
 
-  const handleDisconnectTon = (walletType: TonWallet) => {
-    if (oraiAddress && walletType === tonWallet) {
+  const handleDisconnectTon = async (walletType: TonWallet) => {
+    await tonConnectUiHandler.disconnect();
+    const acc = tonConnectUiHandler.account;
+
+    console.log("acc", acc);
+
+    if (tonAddress && walletType === tonWallet) {
       handleSetTonAddress({ tonAddress: undefined }),
         handleSetTonWallet({ tonWallet: undefined });
     }
   };
 
   const hasInstalledWallet = (wallet: OraiWallet | TonWallet) => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    // @ts-ignore
+    const isCheckOwallet = window.owallet?.isOwallet;
+    const version = window?.keplr?.version;
+    const isCheckKeplr = !!version && keplrCheck("keplr");
+    const isMetamask = window?.ethereum?.isMetaMask;
+    //@ts-ignore
+    const isTronLink = window?.tronWeb?.isTronLink;
+
     switch (wallet) {
       case OraiWallet.Keplr:
         return isCheckKeplr;
@@ -137,6 +161,14 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
         return true;
     }
   };
+
+  // useEffect(() => {
+  //   handleSetTonAddress({ tonAddress: userFriendlyAddress });
+  // }, [userFriendlyAddress]);
+
+  // useEffect(() => {
+  //   handleSetTonWallet({ tonWallet: tonWalletConnect?.["name"] });
+  // }, [tonWalletConnect]);
 
   return (
     <div
@@ -212,7 +244,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                           step === 1
                             ? handleDisconnectOraichain(e.name)
                             : handleDisconnectTon(e.name);
-                          // handleDisconnectOraichain(e.name);
 
                           return;
                         }

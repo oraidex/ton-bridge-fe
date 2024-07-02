@@ -1,6 +1,5 @@
 "use client";
 
-import useOnClickOutside from "@/hooks/useOnclickOutside";
 import {
   useAuthOraiAddress,
   useAuthTonAddress,

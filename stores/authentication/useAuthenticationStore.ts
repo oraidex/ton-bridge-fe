@@ -10,8 +10,8 @@ export enum OraiWallet {
 }
 
 export enum TonWallet {
-  TonKeeper = "TonKeeper",
-  MyTonWallet = "MyTonWallet",
+  TonKeeper = "Tonkeeper",
+  MyTonWallet = "Mytonwallet",
 }
 
 export type WalletNetwork = {

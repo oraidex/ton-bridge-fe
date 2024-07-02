@@ -7,7 +7,6 @@ import {
 } from "@/stores/authentication/selector";
 import { FC, useRef, useState } from "react";
 import styles from "./index.module.scss";
-import ConnectButton from "@/components/layout/connectButton";
 import SelectCommon from "@/components/commons/select";
 import { SelectOptionIcon } from "@/assets/icons/network";
 import {

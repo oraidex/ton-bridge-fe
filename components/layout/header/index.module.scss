@@ -14,3 +14,39 @@
   border-bottom: 1px solid #494949;
   background: #181a17;
 }
+
+.button {
+  cursor: pointer;
+
+  display: flex;
+  height: 52px;
+  padding: 8px 0px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 8px;
+
+  border-radius: var(--Dimension-Corner-Radius-dropdown, 99px);
+
+  display: flex;
+  height: 40px;
+  padding: 8px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: var(--Dimension-Corner-Radius-button, 99px);
+  background: var(--Colors-Primary-Surface-default, #aee67f);
+
+  color: var(--Colors-Neutral-Text-text-btn-default, #292f23);
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+
+  transition: all ease-in-out 300ms;
+
+  &:hover {
+    filter: brightness(1.25);
+  }
+}

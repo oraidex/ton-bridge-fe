@@ -351,9 +351,9 @@ export const checkVersionWallet = () => {
   return window.keplr && window.keplr.version.slice(0, 3) === "0.9"; // TODO: hardcode version of owallet
 };
 
-//@ts-ignore
-const walletIsOwallet = window?.keplr?.isOwallet;
 export const keplrCheck = (type: WalletCosmosType) => {
+  //@ts-ignore
+  const walletIsOwallet = window?.keplr?.isOwallet;
   return (
     type === "keplr" &&
     window.keplr &&
@@ -363,6 +363,8 @@ export const keplrCheck = (type: WalletCosmosType) => {
 };
 
 export const owalletCheck = (type: WalletCosmosType) => {
+  //@ts-ignore
+  const walletIsOwallet = window?.keplr?.isOwallet;
   return type === "owallet" && walletIsOwallet;
 };
 
