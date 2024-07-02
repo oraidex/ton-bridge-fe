@@ -11,6 +11,7 @@ import InputBridge from "./inputBridge";
 import { SwapIcon } from "@/assets/icons/action";
 import { TonNetworkICon } from "@/assets/icons/network";
 import { OraiIcon } from "@/assets/icons/token";
+import { reduceString } from "@/libs/utils";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -19,6 +20,11 @@ const Bridge = () => {
   const [amount, setAmount] = useState(null);
   const [fromNetwork, setFromNetwork] = useState(NetworkList.ton);
   const [toNetwork, setToNetwork] = useState(NetworkList.oraichain);
+
+  const destinationAddress =
+    toNetwork.id === NetworkList.oraichain.id
+      ? oraiAddress || ""
+      : tonAddress || "";
 
   return (
     <div className={styles.swapWrapper}>
@@ -59,7 +65,11 @@ const Bridge = () => {
           </div>
           <div className={styles.destination}>
             <p>Destination address</p>
-            <p className={styles.addressTo}>{oraiAddress || ""}</p>
+            <p className={styles.addressTo} title={destinationAddress}>
+              {toNetwork.id === NetworkList.oraichain.id
+                ? oraiAddress || ""
+                : reduceString(tonAddress || "", 12, 12)}
+            </p>
           </div>
         </div>
         <div className={styles.divider}></div>

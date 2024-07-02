@@ -1,0 +1,36 @@
+.connectedInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .item {
+    cursor: pointer;
+    display: flex;
+    height: 40px;
+    padding: 8px;
+    align-items: center;
+    gap: 12px;
+    border-radius: 28px;
+    border: 1px solid var(--Colors-Neutral-Border-border-default, #232521);
+
+    svg {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    color: var(--Colors-Neutral-Text-text-token-name, #f7f7f7);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 150%; /* 21px */
+
+    .copy {
+      width: 16px;
+      height: 16px;
+
+      &:hover {
+        filter: brightness(1.25);
+      }
+    }
+  }
+}
