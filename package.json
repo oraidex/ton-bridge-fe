@@ -20,6 +20,8 @@
     "@oraichain/orai-bitcoin": "^2.0.0",
     "@oraichain/oraidex-common": "^1.0.88-beta.1",
     "@tanstack/react-query": "^5.49.2",
+    "@tonconnect/ui": "^2.0.5",
+    "@tonconnect/ui-react": "^2.0.5",
     "@walletconnect/browser-utils": "^1.8.0",
     "@walletconnect/ethereum-provider": "^1.7.8",
     "big-integer": "^1.6.52",

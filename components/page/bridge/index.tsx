@@ -81,6 +81,7 @@ const Bridge = () => {
           ) : (
             <ConnectButton fullWidth />
           )}
+          {/* <button className={styles.bridgeBtn}>Bridge</button> */}
         </div>
       </div>
     </div>

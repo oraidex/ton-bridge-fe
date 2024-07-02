@@ -34,6 +34,7 @@ import { keplrCheck, setStorageKey } from "@/helper";
 import { initClient } from "@/libs/utils";
 import Loader from "@/components/commons/loader/Loader";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
+import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 
 export type ConnectStatus =
   | "init"
@@ -63,6 +64,8 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   const [step, setStep] = useState(oraiAddress ? 2 : 1);
 
   useOnClickOutside(ref, () => setOpen(false));
+
+  const [tonConnectUiHandler] = useTonConnectUI();
 
   const connect = useInactiveConnect();
 
@@ -97,8 +100,13 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     }
   };
 
-  const handleConnectWalletInTonNetwork = () => {
-    setOpen(false);
+  const handleConnectWalletInTonNetwork = async () => {
+    console.log("tonConnectUiHandler", tonConnectUiHandler);
+    await tonConnectUiHandler.openModal();
+    const acc = tonConnectUiHandler.account;
+
+    console.log("acc", acc);
+    // setOpen(false);
   };
 
   const handleDisconnectOraichain = (walletType: OraiWallet) => {
@@ -125,7 +133,8 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
         return isCheckOwallet;
 
       default:
-        return false;
+        // case ton connect. for @ton-connect/ui-react handle
+        return true;
     }
   };
 
@@ -203,6 +212,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                           step === 1
                             ? handleDisconnectOraichain(e.name)
                             : handleDisconnectTon(e.name);
+                          // handleDisconnectOraichain(e.name);
 
                           return;
                         }
@@ -210,6 +220,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                         if (step === 1) {
                           handleConnectWalletInOraichainNetwork(e.name);
                         } else {
+                          handleConnectWalletInTonNetwork();
                           console.log("connect Ton");
                         }
                       }}
@@ -230,6 +241,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                   );
                 }
               )}
+              {/* {step !== 1 && <TonConnectButton />} */}
             </div>
           </div>
         </div>
@@ -260,13 +272,18 @@ const OraichainWallet = [
 
 const TonNetWorkWallet = [
   {
-    icon: TonKeeperIcon,
+    icon: TonNetworkICon,
     name: TonWallet.TonKeeper,
     id: "TonKeeper",
   },
-  {
-    icon: MyTonWalletIcon,
-    name: TonWallet.MyTonWallet,
-    id: "MyTonWallet",
-  },
+  // {
+  //   icon: TonKeeperIcon,
+  //   name: TonWallet.TonKeeper,
+  //   id: "TonKeeper",
+  // },
+  // {
+  //   icon: MyTonWalletIcon,
+  //   name: TonWallet.MyTonWallet,
+  //   id: "MyTonWallet",
+  // },
 ];
