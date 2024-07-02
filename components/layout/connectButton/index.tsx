@@ -16,23 +16,118 @@ import {
 } from "@/assets/icons/wallet";
 import {
   useAuthOraiAddress,
+  useAuthOraiWallet,
   useAuthTonAddress,
+  useAuthTonWallet,
+  useAuthenticationActions,
 } from "@/stores/authentication/selector";
 import {
   OraiWallet,
   TonWallet,
+  WalletNetwork,
 } from "@/stores/authentication/useAuthenticationStore";
 import useOnClickOutside from "@/hooks/useOnclickOutside";
+import { useInactiveConnect } from "@/hooks/useMetamask";
+import { WalletType } from "@oraichain/oraidex-common";
+import Keplr from "@/libs/keplr";
+import { keplrCheck, setStorageKey } from "@/helper";
+import { initClient } from "@/libs/utils";
+import Loader from "@/components/commons/loader/Loader";
+import { TToastType, displayToast } from "@/contexts/toasts/Toast";
+
+export type ConnectStatus =
+  | "init"
+  | "confirming-switch"
+  | "confirming-disconnect"
+  | "loading"
+  | "failed"
+  | "success";
 
 const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   const oraiAddress = useAuthOraiAddress();
+  const oraiWallet = useAuthOraiWallet();
   const tonAddress = useAuthTonAddress();
+  const tonWallet = useAuthTonWallet();
   const ref = useRef();
+  const {
+    handleSetOraiAddress,
+    handleSetOraiWallet,
+    handleSetTonAddress,
+    handleSetTonWallet,
+  } = useAuthenticationActions();
+  const [connectStatus, setConnectStatus] = useState<OraiWallet | "init">(
+    "init"
+  );
 
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(tonAddress ? 2 : 1);
+  const [step, setStep] = useState(oraiAddress ? 2 : 1);
 
   useOnClickOutside(ref, () => setOpen(false));
+
+  const connect = useInactiveConnect();
+
+  // @ts-ignore
+  const isCheckOwallet = window.owallet?.isOwallet;
+  const version = window?.keplr?.version;
+  const isCheckKeplr = !!version && keplrCheck("keplr");
+  const isMetamask = window?.ethereum?.isMetaMask;
+  //@ts-ignore
+  const isTronLink = window?.tronWeb?.isTronLink;
+
+  const handleConnectWalletInOraichainNetwork = async (
+    walletType: OraiWallet // WalletType | "eip191"
+  ) => {
+    setConnectStatus(walletType);
+    try {
+      window.Keplr = new Keplr(walletType);
+      setStorageKey("typeWallet", walletType);
+      await initClient();
+      const oraiAddr = await window.Keplr.getKeplrAddr();
+      handleSetOraiAddress({ oraiAddress: oraiAddr });
+      handleSetOraiWallet({ oraiWallet: walletType });
+      setStep(2);
+      displayToast(TToastType.TX_INFO, {
+        message: `Connect to Oraichain successfully!`,
+      });
+    } catch (error) {
+      console.trace({ errorCosmos: error });
+      throw new Error(error?.message ?? JSON.stringify(error));
+    } finally {
+      setConnectStatus("init");
+    }
+  };
+
+  const handleConnectWalletInTonNetwork = () => {
+    setOpen(false);
+  };
+
+  const handleDisconnectOraichain = (walletType: OraiWallet) => {
+    if (oraiAddress && walletType === oraiWallet) {
+      handleSetOraiAddress({ oraiAddress: undefined }),
+        handleSetOraiWallet({ oraiWallet: undefined });
+    }
+  };
+
+  const handleDisconnectTon = (walletType: TonWallet) => {
+    if (oraiAddress && walletType === tonWallet) {
+      handleSetTonAddress({ tonAddress: undefined }),
+        handleSetTonWallet({ tonWallet: undefined });
+    }
+  };
+
+  const hasInstalledWallet = (wallet: OraiWallet | TonWallet) => {
+    switch (wallet) {
+      case OraiWallet.Keplr:
+        return isCheckKeplr;
+      case OraiWallet.Metamask:
+        return isMetamask;
+      case OraiWallet.OWallet:
+        return isCheckOwallet;
+
+      default:
+        return false;
+    }
+  };
 
   return (
     <div
@@ -86,12 +181,52 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
             <div className={styles.right}>
               {(step === 1 ? OraichainWallet : TonNetWorkWallet).map(
                 (e, ind) => {
+                  const isConnected =
+                    (oraiAddress && oraiWallet === e.name) ||
+                    (tonAddress && tonWallet === e.name);
+                  const isNotInstall = !hasInstalledWallet(e.name);
+
                   return (
-                    <div key={`${e.id}-${ind}`} className={styles.walletItem}>
+                    <button
+                      disabled={isNotInstall}
+                      key={`${e.id}-${ind}`}
+                      className={classNames(styles.walletItem, {
+                        [styles.notInstalled]: isNotInstall,
+                      })}
+                      title={
+                        isNotInstall
+                          ? `${e.name} is not installed!`
+                          : `${e.name}`
+                      }
+                      onClick={() => {
+                        if (isConnected) {
+                          step === 1
+                            ? handleDisconnectOraichain(e.name)
+                            : handleDisconnectTon(e.name);
+
+                          return;
+                        }
+
+                        if (step === 1) {
+                          handleConnectWalletInOraichainNetwork(e.name);
+                        } else {
+                          console.log("connect Ton");
+                        }
+                      }}
+                    >
                       <e.icon />
                       <span>{e.name}</span>
-                      <div className={styles.status}>Connect</div>
-                    </div>
+                      <div
+                        className={classNames(styles.status, {
+                          [styles.connected]: isConnected,
+                        })}
+                      >
+                        {connectStatus === e.name && (
+                          <Loader width={14} height={14} />
+                        )}
+                        {isConnected ? "Connected" : "Connect"}
+                      </div>
+                    </button>
                   );
                 }
               )}

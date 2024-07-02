@@ -1,17 +1,46 @@
+import { NetworkType, WalletType } from "@oraichain/oraidex-common";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 export enum OraiWallet {
-  OWallet = "Owallet",
-  Metamask = "Metamask",
-  Keplr = "Keplr",
+  OWallet = "owallet",
+  Metamask = "eip191",
+  Keplr = "keplr",
 }
 
 export enum TonWallet {
   TonKeeper = "TonKeeper",
   MyTonWallet = "MyTonWallet",
 }
+
+export type WalletNetwork = {
+  icon: React.FunctionComponent<
+    React.SVGProps<SVGSVGElement> & {
+      title?: string;
+    }
+  >;
+  name: string;
+  nameRegistry?: WalletType;
+  isActive: boolean;
+  suffixName?: string;
+};
+
+export type ChainWallet = {
+  icon: React.FunctionComponent<
+    React.SVGProps<SVGSVGElement> & {
+      title?: string;
+    }
+  >;
+  name: string;
+  chainName: string;
+};
+
+export type WalletProvider = {
+  networkType: NetworkType;
+  networks: any[];
+  wallets: WalletNetwork[];
+};
 
 interface Authentication {
   oraiAddress?: string;
@@ -82,7 +111,7 @@ const useAuthenticationStore = create<
       },
     })),
     {
-      name: "Authentication",
+      name: "Zus:Authentication",
       partialize: ({ oraiAddress, oraiWallet, tonAddress, tonWallet }) => ({
         oraiAddress,
         oraiWallet,

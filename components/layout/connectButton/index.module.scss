@@ -166,6 +166,12 @@
         font-size: 12px;
         font-weight: 500;
         line-height: 150%; /* 18px */
+        text-transform: capitalize;
+
+        &.notInstalled {
+          filter: brightness(0.5);
+          cursor: not-allowed;
+        }
 
         svg {
           width: 40px;
@@ -185,6 +191,12 @@
           font-size: 12px;
           font-weight: 500;
           line-height: 100%; /* 18px */
+
+          &.connected {
+            background: var(--Colors-Neutral-Surface-bg-section-2, #aee67f);
+
+            color: var(--Colors-Neutral-Text-body, #232521);
+          }
         }
 
         &:hover {

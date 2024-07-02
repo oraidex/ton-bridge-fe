@@ -17,7 +17,7 @@ export const ThemeProvider = (props: React.PropsWithChildren<{}>) => {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
-      {props.children}
+      <div className={`app ${theme}`}>{props.children}</div>
     </ThemeContext.Provider>
   );
 };
