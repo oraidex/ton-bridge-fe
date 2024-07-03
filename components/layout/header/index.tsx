@@ -7,6 +7,7 @@ import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 
 const Header = () => {
   const [tonConnectUi] = useTonConnectUI();
+
   return (
     <div className={styles.header}>
       <OraiDEXLogo />

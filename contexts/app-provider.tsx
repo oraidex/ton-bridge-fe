@@ -1,16 +1,27 @@
 "use client";
 
 import { network } from "@/constants/networks";
+import { getListAddressCosmos } from "@/helper";
+import { useLoadToken } from "@/hooks/useLoadToken";
 import { getCosmWasmClient } from "@/libs/cosmjs";
+import Keplr from "@/libs/keplr";
+import Metamask from "@/libs/metamask";
 import { polyfill } from "@/polyfill";
-import { useAuthOraiWallet } from "@/stores/authentication/selector";
+import {
+  useAuthOraiAddress,
+  useAuthOraiWallet,
+  useAuthTonAddress,
+  useAuthenticationActions,
+} from "@/stores/authentication/selector";
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import {
   HttpClient,
   Tendermint37Client,
   WebsocketClient,
 } from "@cosmjs/tendermint-rpc";
+import { isMobile } from "@walletconnect/browser-utils";
 import React, { useEffect, useState } from "react";
+import { TToastType, displayToast } from "./toasts/Toast";
 
 if (typeof window !== "undefined") {
   polyfill();
@@ -28,6 +39,57 @@ if (typeof window !== "undefined") {
 
 export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const walletType = useAuthOraiWallet();
+  const mobileMode = isMobile();
+  const cosmosWallet = useAuthOraiWallet();
+  const oraiAddress = useAuthOraiAddress();
+  const tonAddress = useAuthTonAddress();
+  const { handleSetOraiWallet, handleSetOraiAddress } =
+    useAuthenticationActions();
+
+  const { loadToken } = useLoadToken();
+
+  const keplrHandler = async () => {
+    try {
+      let metamaskAddress, oraiAddress, tronAddress, btcAddress;
+
+      if (mobileMode) {
+        window.tronWebDapp = window.tronWeb;
+        window.tronLinkDapp = window.tronLink;
+        window.ethereumDapp = window.ethereum;
+        window.Keplr = new Keplr("owallet");
+        window.Metamask = new Metamask(window.tronWebDapp);
+      }
+
+      if (cosmosWallet || mobileMode) {
+        oraiAddress = await window.Keplr.getKeplrAddr();
+
+        if (oraiAddress) {
+          handleSetOraiAddress({ oraiAddress });
+        }
+      }
+      loadToken({
+        oraiAddress,
+        tonAddress,
+      });
+    } catch (error) {
+      console.log("Error: ", error.message);
+      displayToast(TToastType.TX_INFO, {
+        message: `There is an unexpected error with Cosmos wallet. Please try again!`,
+      });
+    }
+  };
+
+  useEffect(() => {
+    // just auto connect keplr in mobile mode
+    (mobileMode || oraiAddress) && keplrHandler();
+  }, [mobileMode]);
+
+  useEffect(() => {
+    window.addEventListener("keplr_keystorechange", keplrHandler);
+    return () => {
+      window.removeEventListener("keplr_keystorechange", keplrHandler);
+    };
+  }, []);
 
   useEffect(() => {
     // if (typeof window !== "undefined") {
@@ -41,6 +103,10 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
     // @ts-ignore
     // window.client = new CosmWasmClient(new Tendermint37Client(rpcClient));
     // }
+    loadToken({
+      oraiAddress,
+      tonAddress,
+    });
   }, []);
 
   useEffect(() => {

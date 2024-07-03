@@ -2,7 +2,7 @@ import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { cosmosTokens, evmTokens } from "@/constants/bridgeTokens";
 import { CoinGeckoId } from "@oraichain/oraidex-common";
-import { usePriceActions, usePricesCache } from "@/stores/prices/selector";
+import { useTokenActions, usePricesCache } from "@/stores/token/selector";
 
 /**
  * Constructs the URL to retrieve prices from CoinGecko.
@@ -39,7 +39,7 @@ export const useCoinGeckoPrices = <T extends CoinGeckoId>(
 
   // use cached first then update by query, if is limited then return cached version
   const cachePrices = usePricesCache();
-  const { handleSetPricesCache: setCachePrices } = usePriceActions();
+  const { handleSetPricesCache: setCachePrices } = useTokenActions();
 
   return useQuery({
     initialData: cachePrices,

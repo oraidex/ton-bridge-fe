@@ -1,7 +1,7 @@
 "use client";
 
 import { THEME, TonConnectUIProvider } from "@tonconnect/ui-react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import TonConnect, {
   CHAIN,
   WalletInfoCurrentlyEmbedded,
@@ -21,6 +21,11 @@ export const CustomTonProvider = (props: React.PropsWithChildren<{}>) => {
   const connector = new TonConnect({
     manifestUrl: "http://localhost:3000/manifest.json",
   });
+
+  // useEffect(() => {
+  //   // auto connect
+  //   connector.restoreConnection();
+  // }, []);
 
   return (
     <CustomTonContext.Provider value={{ connector }}>

@@ -121,6 +121,8 @@
           font-size: 16px;
           font-weight: 400;
           line-height: 150%; /* 24px */
+
+          word-break: break-all;
         }
       }
     }
@@ -176,6 +178,11 @@
         font-size: 16px;
         font-weight: 500;
         line-height: 150%; /* 24px */
+
+        &:disabled {
+          cursor: not-allowed;
+          filter: brightness(0.7);
+        }
       }
     }
   }

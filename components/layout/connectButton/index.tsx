@@ -1,19 +1,17 @@
 "use client";
 
-import { FC, useEffect, useRef, useState } from "react";
-import styles from "./index.module.scss";
-import classNames from "classnames";
 import { CloseIcon } from "@/assets/icons/action";
-import { OraiIcon } from "@/assets/icons/token";
 import { StepLineIcon } from "@/assets/icons/arrow";
 import { TonNetworkICon } from "@/assets/icons/network";
-import {
-  KeplrIcon,
-  MetamaskIcon,
-  MyTonWalletIcon,
-  OwalletIcon,
-  TonKeeperIcon,
-} from "@/assets/icons/wallet";
+import { OraiIcon } from "@/assets/icons/token";
+import Loader from "@/components/commons/loader/Loader";
+import { OraichainWallet, TonNetWorkWallet } from "@/constants/wallets";
+import { useTonConnector } from "@/contexts/custom-ton-provider";
+import { TToastType, displayToast } from "@/contexts/toasts/Toast";
+import { keplrCheck, setStorageKey } from "@/helper";
+import useOnClickOutside from "@/hooks/useOnclickOutside";
+import Keplr from "@/libs/keplr";
+import { initClient } from "@/libs/utils";
 import {
   useAuthOraiAddress,
   useAuthOraiWallet,
@@ -24,29 +22,17 @@ import {
 import {
   OraiWallet,
   TonWallet,
-  WalletNetwork,
 } from "@/stores/authentication/useAuthenticationStore";
-import useOnClickOutside from "@/hooks/useOnclickOutside";
-import { useInactiveConnect } from "@/hooks/useMetamask";
-import Keplr from "@/libs/keplr";
-import { keplrCheck, setStorageKey } from "@/helper";
-import { initClient } from "@/libs/utils";
-import Loader from "@/components/commons/loader/Loader";
-import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import {
-  TonConnectButton,
-  useTonAddress,
-  useTonConnectUI,
-  useTonWallet,
-} from "@tonconnect/ui-react";
-import TonConnect, {
   CHAIN,
   WalletInfoCurrentlyEmbedded,
   isWalletInfoCurrentlyEmbedded,
   toUserFriendlyAddress,
 } from "@tonconnect/sdk";
+import classNames from "classnames";
+import { FC, useEffect, useRef, useState } from "react";
 import ConnectedInfo from "../connectedInfo";
-import { useTonConnector } from "@/contexts/custom-ton-provider";
+import styles from "./index.module.scss";
 // import { CHAIN, toUserFriendlyAddress } from "@tonconnect/ui";
 
 export type ConnectStatus =
@@ -364,39 +350,3 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 };
 
 export default ConnectButton;
-
-const OraichainWallet = [
-  {
-    icon: OwalletIcon,
-    id: OraiWallet.OWallet,
-    name: "Owallet",
-  },
-  {
-    icon: MetamaskIcon,
-    id: OraiWallet.Metamask,
-    name: "Metamask",
-  },
-  {
-    icon: KeplrIcon,
-    id: OraiWallet.Keplr,
-    name: "Keplr",
-  },
-];
-
-const TonNetWorkWallet = [
-  // {
-  //   icon: TonNetworkICon,
-  //   id: TonWallet.TonKeeper,
-  //   name: "TonKeeper",
-  // },
-  {
-    icon: TonKeeperIcon,
-    id: TonWallet.TonKeeper,
-    name: "Tonkeeper",
-  },
-  // {
-  //   icon: MyTonWalletIcon,
-  //   id: TonWallet.MyTonWallet,
-  //   name: "MyTonWallet",
-  // },
-];
