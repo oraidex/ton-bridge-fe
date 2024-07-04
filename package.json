@@ -21,6 +21,7 @@
     "@oraichain/orai-bitcoin": "^2.0.0",
     "@oraichain/oraidex-common": "^1.0.88-beta.1",
     "@oraichain/ton-bridge-contracts": "^0.13.0",
+    "@oraichain/tonbridge-contracts-sdk": "^1.2.1",
     "@orbs-network/ton-access": "^2.3.3",
     "@tanstack/react-query": "^5.49.2",
     "@ton/core": "~0",

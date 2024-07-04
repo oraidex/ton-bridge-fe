@@ -15,3 +15,8 @@ export const SEND_TON_TRANFERS_CONFIG: Partial<SendTransferInterface> = {
 };
 
 export const TON_SCAN = "https://tonviewer.com";
+
+export const ARG_BRIDGE_TO_TON = {
+  CHANNEL: "channel-0",
+  CRC_SRC: 3724195509,
+};

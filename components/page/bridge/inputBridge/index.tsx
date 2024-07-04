@@ -55,14 +55,14 @@ const InputBridge: FC<{
     .toNumber();
 
   const displayBalance =
-    networkTo === "Oraichain"
+    networkTo === "Ton"
       ? toDisplay(amounts?.[token?.denom] || "0", token?.decimal)
       : balance;
 
   return (
     <div className={styles.inputBridge}>
       <div className={styles.header}>
-        <span className={styles.bal}>Balance:</span>
+        <span className={styles.bal}>Balance: </span>
         {token ? displayBalance : "--"} {token?.symbol}
       </div>
       <div className={styles.content}>

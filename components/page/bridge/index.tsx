@@ -21,24 +21,39 @@ import {
   toNano,
 } from "@ton/core";
 import { JettonOpCodes } from "@oraichain/ton-bridge-contracts";
-import { SEND_TON_TRANFERS_CONFIG, TON_SCAN } from "@/constants/config";
-import { BigDecimal } from "@oraichain/oraidex-common";
+import {
+  ARG_BRIDGE_TO_TON,
+  SEND_TON_TRANFERS_CONFIG,
+  TON_SCAN,
+} from "@/constants/config";
+import {
+  BigDecimal,
+  handleSentFunds,
+  toAmount,
+} from "@oraichain/oraidex-common";
 import {
   TonInteractionContract,
   TonNetwork,
   TonTokensContract,
+  network,
 } from "@/constants/networks";
 import { Base64 } from "@tonconnect/protocol";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { getTransactionUrl, handleErrorTransaction } from "@/helper";
 import { TonClient, JettonMaster, JettonWallet } from "ton";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
+import { TonTokenList } from "@/constants/tokens";
+import { toBinary } from "@cosmjs/cosmwasm-stargate";
+import Loader from "@/components/commons/loader/Loader";
+import { useLoadToken } from "@/hooks/useLoadToken";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
   const { connector } = useTonConnector();
 
+  const { loadToken } = useLoadToken();
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
   const [token, setToken] = useState(null);
@@ -107,12 +122,11 @@ const Bridge = () => {
       ? oraiAddress || ""
       : tonAddress || "";
 
-  const handleBridge = async () => {
+  const handleBridgeFromTon = async () => {
     try {
       if (!token || !amount) {
         throw "Not valid!";
       }
-      console.log({ amount });
 
       setLoading(true);
 
@@ -131,6 +145,7 @@ const Bridge = () => {
         validUntil: 100000,
         messages: [
           {
+            // address: jettonWalletAddress.toString(), // dia chi token
             address: jettonWalletAddress.toString(), // dia chi token
             amount: toNano(1).toString(), // gas
             payload: Base64.encode(
@@ -186,20 +201,103 @@ const Bridge = () => {
         .toString("hex");
       console.log("This is txhash:", txHash);
 
-      displayToast(TToastType.TX_SUCCESSFUL, {
-        customLink:
-          fromNetwork.id === "Ton"
-            ? `${TON_SCAN}/transaction/${txHash}`
-            : getTransactionUrl(fromNetwork.id as any, txHash),
-      });
+      if (txHash) {
+        displayToast(TToastType.TX_SUCCESSFUL, {
+          customLink: `${TON_SCAN}/transaction/${txHash}`,
+        });
+
+        loadToken({ oraiAddress, tonAddress });
+      }
       // setTimeout(async () => {
       //   const data = await client.traces.getTrace(txHash);
       //   console.log({ data });
       // }, 30000);
     } catch (error) {
-      // console.log("error Bridge :>>", error);
+      console.log("error Bridge from TON :>>", error);
 
-      console.trace({ error });
+      handleErrorTransaction(error, {
+        tokenName: token.symbol,
+        chainName: toNetwork.name,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBridgeFromOraichain = async () => {
+    try {
+      if (!token || !amount) {
+        throw "Not valid!";
+      }
+
+      setLoading(true);
+
+      console.log("data: >>", {
+        amount,
+        token,
+        destinationAddress,
+      });
+
+      const tonBridgeClient = new TonbridgeBridgeClient(
+        window.client,
+        oraiAddress,
+        network.CW_TON_BRIDGE
+      );
+
+      let tx;
+
+      const msg = {
+        crcSrc: ARG_BRIDGE_TO_TON.CRC_SRC,
+        denom: TonTokenList.find((tk) => tk.coingeckoId === token.coingeckoId)
+          .contractAddress,
+        localChannelId: ARG_BRIDGE_TO_TON.CHANNEL,
+        to: tonAddress,
+      };
+      const funds = handleSentFunds({
+        denom: token.denom,
+        amount,
+      });
+
+      console.log("msg", msg);
+
+      if (!token.contractAddress) {
+        console.log("258", 258);
+        tx = await tonBridgeClient.bridgeToTon(msg, "auto", null, funds);
+      } else {
+        console.log("261", 261);
+        tx = await window.client.execute(
+          oraiAddress,
+          token.contractAddress,
+          {
+            send: {
+              contract: network.CW_TON_BRIDGE,
+              amount: toAmount(amount).toString(),
+              msg: toBinary({
+                crc_src: msg.crcSrc,
+                denom: msg.denom,
+                local_channel_id: msg.localChannelId,
+                to: msg.to,
+              }),
+            },
+          },
+          "auto"
+        );
+      }
+
+      console.log("tx", tx);
+
+      if (tx?.transactionHash) {
+        displayToast(TToastType.TX_SUCCESSFUL, {
+          customLink: getTransactionUrl(
+            fromNetwork.id as any,
+            tx.transactionHash
+          ),
+        });
+        loadToken({ oraiAddress, tonAddress });
+      }
+    } catch (error) {
+      console.log("error Bridge from Oraichain :>>", error);
+
       handleErrorTransaction(error, {
         tokenName: token.symbol,
         chainName: toNetwork.name,
@@ -278,12 +376,15 @@ const Bridge = () => {
         <div className={styles.button}>
           {oraiAddress && tonAddress ? (
             <button
-              disabled={loading || !token}
+              disabled={loading || !token || !amount}
               onClick={() => {
-                handleBridge();
+                fromNetwork.id === "Ton"
+                  ? handleBridgeFromTon()
+                  : handleBridgeFromOraichain();
               }}
               className={styles.bridgeBtn}
             >
+              {loading && <Loader width={22} height={22} />}
               Bridge
             </button>
           ) : (

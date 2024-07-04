@@ -42,4 +42,6 @@ export const network = {
   oracle: ORACLE_CONTRACT,
   multicall: MULTICALL_CONTRACT,
   explorer: "https://scan.orai.io",
+  CW_TON_BRIDGE:
+    "orai1y4kj224wmzmrna4kz9nk3n00zxdst5nra0z0u0nry5k6seqdw5psu4t9fn",
 };

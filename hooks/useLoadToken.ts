@@ -212,8 +212,6 @@ export const useLoadToken = () => {
     }
   };
 
-  console.log("amount", amounts);
-
   return {
     loadToken,
   };
