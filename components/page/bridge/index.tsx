@@ -80,8 +80,6 @@ const Bridge = () => {
 
       if (!token?.contractAddress) return;
 
-      console.log("Here");
-
       // get the decentralized RPC endpoint
       const endpoint = await getHttpEndpoint();
       const client = new TonClient({
