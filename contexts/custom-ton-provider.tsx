@@ -1,6 +1,5 @@
 "use client";
 
-import { THEME, TonConnectUIProvider } from "@tonconnect/ui-react";
 import { createContext, useContext, useEffect, useState } from "react";
 import TonConnect, {
   CHAIN,

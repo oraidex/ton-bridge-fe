@@ -40,13 +40,20 @@ import {
 import { Base64 } from "@tonconnect/protocol";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { getTransactionUrl, handleErrorTransaction } from "@/helper";
-import { TonClient, JettonMaster, JettonWallet } from "ton";
+import { TonClient } from "@ton/ton";
+import { JettonMinter, JettonWallet } from "@oraichain/ton-bridge-contracts";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { TonTokenList } from "@/constants/tokens";
 import { toBinary } from "@cosmjs/cosmwasm-stargate";
 import Loader from "@/components/commons/loader/Loader";
 import { useLoadToken } from "@/hooks/useLoadToken";
+
+function sleep(duration) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, duration);
+  });
+}
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -59,63 +66,44 @@ const Bridge = () => {
   const [token, setToken] = useState(null);
   const [fromNetwork, setFromNetwork] = useState(NetworkList.ton);
   const [toNetwork, setToNetwork] = useState(NetworkList.oraichain);
-  const [jettonWalletAddress, setJettonWalletAddress] = useState<Address>(null);
-  const [tokenBalance, setTokenBalance] = useState(0n);
+  const [tokenInfo, setTokenInfo] = useState({
+    jettonWalletAddress: null,
+    balance: 0n,
+  });
 
+  const tonNetwork = TonNetwork.Mainnet;
+
+  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
   useEffect(() => {
     (async () => {
-      const client = new TonClient({
-        endpoint: "https://toncenter.com/api/v2/jsonRPC",
-      });
-      console.log(TonTokensContract[TonNetwork.Mainnet].usdt);
-      const jettonMinter = JettonMaster.create(
-        Address.parse(TonTokensContract[TonNetwork.Mainnet].usdt)
-      );
-      console.log(Address.parse(tonAddress));
-      console.log(
-        await jettonMinter.getJettonData(
-          client.provider(
-            Address.parse(TonTokensContract[TonNetwork.Mainnet].usdt),
-            null
-          )
-        )
-      );
-      console.log(
-        await jettonMinter.getWalletAddress(
-          client.provider(
-            Address.parse(TonTokensContract[TonNetwork.Mainnet].usdt),
-            null
-          ),
-          Address.parse(tonAddress)
-        )
-      );
-      // const jettonWallet = await jettonMinter.getWalletAddress(
-      //   client.provider(
-      //     Address.parse(TonTokensContract[TonNetwork.Mainnet].usdt),
-      //     null
-      //   ),
-      //   Address.parse(tonAddress)
-      // );
-      //       const jettonWallet = JettonWallet.create(walletAddress);
-      // const jettonWalletContract = client.open(jettonWallet);
-      // const balance = await jettonWalletContract.getBalance();
-      // console.log(jettonWallet);
-    })();
-  }, []);
+      if (toNetwork.id != NetworkList.oraichain.id) return;
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (!jettonMinterContract) return;
-  //     const walletAddress = await jettonMinterContract.getWalletAddress(
-  //       Address.parse(tonAddress)
-  //     );
-  //     // Đây là lấy instance ví được tạo ra từ contract USDT theo địa chỉ ví login
-  //     const jettonWallet = JettonWallet.create(walletAddress);
-  //     const jettonWalletContract = client.open(jettonWallet);
-  //     const balance = await jettonWalletContract.getBalance();
-  //     setTokenBalance(balance);
-  //   })();
-  // }, [jettonMinterContract, tonAddress]);
+      if (!token?.contractAddress) return;
+
+      console.log("Here");
+
+      // get the decentralized RPC endpoint
+      const endpoint = await getHttpEndpoint();
+      const client = new TonClient({
+        endpoint,
+      });
+      const jettonMinter = JettonMinter.createFromAddress(
+        Address.parse(token.contractAddress)
+      );
+      const jettonMinterContract = client.open(jettonMinter);
+      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+        Address.parse(tonAddress)
+      );
+      const jettonWallet = JettonWallet.createFromAddress(jettonWalletAddress);
+      const jettonWalletContract = client.open(jettonWallet);
+      const balance = await jettonWalletContract.getBalance();
+
+      setTokenInfo({
+        balance: balance.amount,
+        jettonWalletAddress,
+      });
+    })();
+  }, [token]);
 
   const destinationAddress =
     toNetwork.id === NetworkList.oraichain.id
@@ -130,12 +118,6 @@ const Bridge = () => {
 
       setLoading(true);
 
-      console.log("data: >>", {
-        amount,
-        token,
-        destinationAddress,
-      });
-
       const fmtAmount = new BigDecimal(10)
         .pow(token.decimal)
         .mul(amount)
@@ -145,8 +127,7 @@ const Bridge = () => {
         validUntil: 100000,
         messages: [
           {
-            // address: jettonWalletAddress.toString(), // dia chi token
-            address: jettonWalletAddress.toString(), // dia chi token
+            address: tokenInfo.jettonWalletAddress.toString(), // dia chi token
             amount: toNano(1).toString(), // gas
             payload: Base64.encode(
               beginCell()
@@ -164,7 +145,6 @@ const Bridge = () => {
                 .storeUint(0, 1)
                 .storeRef(
                   beginCell()
-                    // .storeAddress(SEND_TON_TRANFERS_CONFIG.jettonMaster)
                     .storeAddress(Address.parse(token.contractAddress))
                     .storeUint(SEND_TON_TRANFERS_CONFIG.timeout, 64)
                     .endCell()
@@ -199,7 +179,6 @@ const Bridge = () => {
       const txHash = Cell.fromBoc(Buffer.from(tx.boc, "base64"))[0]
         .hash()
         .toString("hex");
-      console.log("This is txhash:", txHash);
 
       if (txHash) {
         displayToast(TToastType.TX_SUCCESSFUL, {
@@ -248,8 +227,9 @@ const Bridge = () => {
 
       const msg = {
         crcSrc: ARG_BRIDGE_TO_TON.CRC_SRC,
-        denom: TonTokenList.find((tk) => tk.coingeckoId === token.coingeckoId)
-          .contractAddress,
+        denom: TonTokenList(tonNetwork).find(
+          (tk) => tk.coingeckoId === token.coingeckoId
+        ).contractAddress,
         localChannelId: ARG_BRIDGE_TO_TON.CHANNEL,
         to: tonAddress,
       };
@@ -297,7 +277,6 @@ const Bridge = () => {
       }
     } catch (error) {
       console.log("error Bridge from Oraichain :>>", error);
-
       handleErrorTransaction(error, {
         tokenName: token.symbol,
         chainName: toNetwork.name,
@@ -344,7 +323,8 @@ const Bridge = () => {
               amount={amount}
               onChangeAmount={(val) => setAmount(val)}
               token={token}
-              balance={tokenBalance}
+              balance={tokenInfo.balance}
+              tonNetwork={tonNetwork}
               setToken={setToken}
               networkTo={toNetwork.id as NetworkType}
             />

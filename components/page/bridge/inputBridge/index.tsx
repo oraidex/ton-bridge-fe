@@ -17,6 +17,7 @@ import { useAmountsCache } from "@/stores/token/selector";
 import { BigDecimal, toDisplay } from "@oraichain/oraidex-common";
 import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
 import { numberWithCommas } from "@/helper/number";
+import { TonNetwork } from "@/constants/networks";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -27,6 +28,7 @@ const InputBridge: FC<{
   amount: number;
   balance: bigint;
   token: any;
+  tonNetwork: TonNetwork;
   setToken: Dispatch<any>;
 }> = ({
   networkTo = "Oraichain",
@@ -35,10 +37,9 @@ const InputBridge: FC<{
   onChangeAmount,
   balance,
   token,
+  tonNetwork,
   setToken,
 }) => {
-  const oraiAddress = useAuthOraiAddress();
-  const tonAddress = useAuthTonAddress();
   const amounts = useAmountsCache();
 
   const ref = useRef();
@@ -62,8 +63,11 @@ const InputBridge: FC<{
   return (
     <div className={styles.inputBridge}>
       <div className={styles.header}>
-        <span className={styles.bal}>Balance: </span>
-        {token ? displayBalance : "--"} {token?.symbol}
+        <span className={styles.bal}>Balance:</span> {balance}
+        {networkTo != "Oraichain"
+          ? toDisplay(amounts[token?.denom], token?.decimal)
+          : toDisplay(balance, 6)}{" "}
+        {token?.symbol}
       </div>
       <div className={styles.content}>
         <SelectCommon
@@ -99,26 +103,27 @@ const InputBridge: FC<{
           </div>
 
           <div className={styles.list}>
-            {(networkTo === "Ton" ? OraichainTokenList : TonTokenList).map(
-              (e, key) => {
-                return (
-                  <div
-                    className={styles.tokenItem}
-                    key={`token-${key}`}
-                    onClick={() => {
-                      setToken(e);
-                      setOpen(false);
-                    }}
-                  >
-                    <e.Icon />
-                    <div className={styles.info}>
-                      <p>{e.symbol}</p>
-                      <p className={styles.name}>{e.name}</p>
-                    </div>
+            {(networkTo === "Ton"
+              ? OraichainTokenList
+              : TonTokenList(tonNetwork)
+            ).map((e, key) => {
+              return (
+                <div
+                  className={styles.tokenItem}
+                  key={`token-${key}`}
+                  onClick={() => {
+                    setToken(e);
+                    setOpen(false);
+                  }}
+                >
+                  <e.Icon />
+                  <div className={styles.info}>
+                    <p>{e.symbol}</p>
+                    <p className={styles.name}>{e.name}</p>
                   </div>
-                );
-              }
-            )}
+                </div>
+              );
+            })}
           </div>
         </SelectCommon>
 

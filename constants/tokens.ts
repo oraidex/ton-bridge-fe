@@ -1,5 +1,5 @@
-import { UsdtIcon } from "@/assets/icons/token";
-import { USDT_CONTRACT } from "@oraichain/oraidex-common";
+import { UsdcIcon, UsdtIcon } from "@/assets/icons/token";
+import { USDC_CONTRACT, USDT_CONTRACT } from "@oraichain/oraidex-common";
 import { TonNetwork, TonTokensContract } from "./networks";
 
 export const OraichainTokenList = [
@@ -12,72 +12,34 @@ export const OraichainTokenList = [
     coingeckoId: "tether",
     decimal: 6,
   },
-  // {
-  //   name: "Cosmos",
-  //   symbol: "ATOM",
-  //   Icon: AtomIcon,
-  //   contractAddress: "",
-  //   denom: "cosmos",
-  // },
-  // {
-  //   name: "Ethereum",
-  //   symbol: "ETH",
-  //   Icon: EthIcon,
-  //   contractAddress: "",
-  //   denom: "eth",
-  // },
-  // {
-  //   name: "Bitcoin",
-  //   symbol: "BTC",
-  //   Icon: BtcIcon,
-  //   contractAddress: "",
-  //   denom: "btc",
-  // },
-  // {
-  //   name: "Oraichain",
-  //   symbol: "ORAI",
-  //   Icon: OraiIcon,
-  //   contractAddress: "",
-  //   denom: "orai",
-  // },
+  {
+    name: "USD Coin",
+    symbol: "USDC",
+    Icon: UsdcIcon,
+    contractAddress: USDC_CONTRACT,
+    denom: "usdc",
+    coingeckoId: "usdc",
+    decimal: 6,
+  },
 ];
 
-export const TonTokenList = [
+export const TonTokenList = (network: TonNetwork) => [
   {
     name: "Tether",
-    symbol: "USDT",
+    symbol: "jUSDT",
     Icon: UsdtIcon,
-    contractAddress: TonTokensContract[TonNetwork.Mainnet].usdt,
+    contractAddress: TonTokensContract[network].usdt,
     denom: "ton20_usdt",
     coingeckoId: "tether",
     decimal: 6,
   },
-  // {
-  //   name: "Cosmos",
-  //   symbol: "ATOM",
-  //   Icon: AtomIcon,
-  //   contractAddress: "",
-  //   denom: "cosmos",
-  // },
-  // {
-  //   name: "Ethereum",
-  //   symbol: "ETH",
-  //   Icon: EthIcon,
-  //   contractAddress: "",
-  //   denom: "eth",
-  // },
-  // {
-  //   name: "Bitcoin",
-  //   symbol: "BTC",
-  //   Icon: BtcIcon,
-  //   contractAddress: "",
-  //   denom: "btc",
-  // },
-  // {
-  //   name: "Oraichain",
-  //   symbol: "ORAI",
-  //   Icon: OraiIcon,
-  //   contractAddress: "",
-  //   denom: "orai",
-  // },
+  {
+    name: "USD Coin",
+    symbol: "jUSDC",
+    Icon: UsdcIcon,
+    contractAddress: TonTokensContract[network].usdc,
+    denom: "ton20_usdc",
+    coingeckoId: "usdc",
+    decimal: 6,
+  },
 ];
