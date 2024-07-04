@@ -1,7 +1,6 @@
 "use client";
 
 import { network } from "@/constants/networks";
-import { getListAddressCosmos } from "@/helper";
 import { useLoadToken } from "@/hooks/useLoadToken";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import Keplr from "@/libs/keplr";
@@ -19,8 +18,9 @@ import {
   Tendermint37Client,
   WebsocketClient,
 } from "@cosmjs/tendermint-rpc";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { isMobile } from "@walletconnect/browser-utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { TToastType, displayToast } from "./toasts/Toast";
 
 if (typeof window !== "undefined") {
@@ -36,6 +36,8 @@ if (typeof window !== "undefined") {
   // @ts-ignore
   window.client = new CosmWasmClient(new Tendermint37Client(rpcClient));
 }
+
+const queryClient = new QueryClient();
 
 export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const walletType = useAuthOraiWallet();
@@ -92,17 +94,6 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   }, []);
 
   useEffect(() => {
-    // if (typeof window !== "undefined") {
-    // polyfill();
-    // init queryClient
-    // const useHttp =
-    //   network.rpc.startsWith("http://") || network.rpc.startsWith("https://");
-    // const rpcClient = useHttp
-    //   ? new HttpClient(network.rpc)
-    //   : new WebsocketClient(network.rpc);
-    // @ts-ignore
-    // window.client = new CosmWasmClient(new Tendermint37Client(rpcClient));
-    // }
     loadToken({
       oraiAddress,
       tonAddress,
@@ -123,5 +114,9 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
     })();
   }, [walletType]);
 
-  return <>{props.children}</>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      {props.children}
+    </QueryClientProvider>
+  );
 };

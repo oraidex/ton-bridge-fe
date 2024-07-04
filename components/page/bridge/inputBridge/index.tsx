@@ -14,7 +14,9 @@ import { Dispatch, FC, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
 import styles from "./index.module.scss";
 import { useAmountsCache } from "@/stores/token/selector";
-import { toDisplay } from "@oraichain/oraidex-common";
+import { BigDecimal, toDisplay } from "@oraichain/oraidex-common";
+import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
+import { numberWithCommas } from "@/helper/number";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -44,15 +46,24 @@ const InputBridge: FC<{
   const [txtSearch, setTxtSearch] = useState(null);
   const [open, setOpen] = useState(false);
   // const [token, setToken] = useState(null);
+  const { data: prices } = useCoinGeckoPrices();
 
   useOnClickOutside(ref, () => setOpen(false));
+
+  const usdPrice = new BigDecimal(amount || 0)
+    .mul(prices?.[token?.coingeckoId] || 0)
+    .toNumber();
+
+  const displayBalance =
+    networkTo === "Oraichain"
+      ? toDisplay(amounts?.[token?.denom] || "0", token?.decimal)
+      : balance;
 
   return (
     <div className={styles.inputBridge}>
       <div className={styles.header}>
-        <span className={styles.bal}>Balance:</span> {balance}
-        {/* {token ? toDisplay(amounts[token.denom], token.decimal) : "--"}{" "} */}
-        {/* {token?.symbol} */}
+        <span className={styles.bal}>Balance:</span>
+        {token ? displayBalance : "--"} {token?.symbol}
       </div>
       <div className={styles.content}>
         <SelectCommon
@@ -131,7 +142,7 @@ const InputBridge: FC<{
             }}
           />
 
-          <span className={styles.suffix}>≈ $0.00</span>
+          <span className={styles.suffix}>≈ ${numberWithCommas(usdPrice)}</span>
         </div>
       </div>
     </div>
