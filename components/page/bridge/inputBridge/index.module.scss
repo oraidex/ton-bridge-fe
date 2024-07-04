@@ -133,6 +133,11 @@
         align-items: center;
         align-self: stretch;
 
+        svg {
+          width: 38px;
+          height: 38px;
+        }
+
         &:hover {
           border-radius: 8px;
           background: var(--Colors-Neutral-Surface-bg-dropdown-hover, #494949);

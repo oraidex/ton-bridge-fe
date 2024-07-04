@@ -188,11 +188,14 @@ async function loadCw20BalanceWithSpecificTokens(
 //   return total;
 // }
 
-export const useLoadTonBalance = (
-  tonAddress: string,
-  tonNetwork: TonNetwork
+export const useLoadTonBalance = ({
+  tonAddress,
+  tonNetwork,
+}: {
+  tonAddress: string;
+  tonNetwork: TonNetwork;
   // address: string
-) => {
+}) => {
   const { handleSetAmountsCache, handleSetTonAmountsCache } = useTokenActions();
   const loadBalanceByToken = async (address: string) => {
     try {

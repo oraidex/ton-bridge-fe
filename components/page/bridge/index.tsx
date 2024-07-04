@@ -19,7 +19,7 @@ import { TonTokenList } from "@/constants/tokens";
 import { useTonConnector } from "@/contexts/custom-ton-provider";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { getTransactionUrl, handleErrorTransaction } from "@/helper";
-import { useLoadToken } from "@/hooks/useLoadToken";
+import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
 import {
   useAuthOraiAddress,
   useAuthTonAddress,
@@ -57,6 +57,10 @@ const Bridge = () => {
   const [txtSearch, setTxtSearch] = useState<string>();
 
   const { loadToken } = useLoadToken();
+  const { loadBalanceByToken } = useLoadTonBalance({
+    tonAddress,
+    tonNetwork: TonNetwork.Mainnet,
+  });
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
   const [token, setToken] = useState(null);
@@ -74,7 +78,13 @@ const Bridge = () => {
     (async () => {
       if (toNetwork.id != NetworkList.oraichain.id) return;
 
-      if (!token?.contractAddress) return;
+      if (!token?.contractAddress) {
+        // setTokenInfo({
+        //   // balance: balance.amount,
+        //   jettonWalletAddress: "",
+        // });
+        return;
+      }
 
       // get the decentralized RPC endpoint
       const endpoint = await getHttpEndpoint();

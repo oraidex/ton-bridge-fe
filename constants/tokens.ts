@@ -1,6 +1,7 @@
 import { UsdcIcon, UsdtIcon } from "@/assets/icons/token";
 import { USDC_CONTRACT, USDT_CONTRACT } from "@oraichain/oraidex-common";
 import { TonNetwork, TonTokensContract } from "./networks";
+import { TonNetworkICon } from "@/assets/icons/network";
 
 export const OraichainTokenList = [
   {
@@ -20,6 +21,15 @@ export const OraichainTokenList = [
     denom: "usdc",
     coingeckoId: "usd-coin",
     decimal: 6,
+  },
+  {
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: null,
+    denom: "native_ton",
+    coingeckoId: "toncoin",
+    decimal: 9,
   },
 ];
 

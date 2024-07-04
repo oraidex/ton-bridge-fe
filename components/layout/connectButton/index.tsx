@@ -123,13 +123,17 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 
   const handleDisconnectTon = async (walletType: TonWallet) => {
     try {
-      await connector.disconnect();
+      if (connector.connected) {
+        await connector.disconnect();
+      }
 
       if (tonAddress && walletType === tonWallet) {
         handleSetTonAddress({ tonAddress: undefined });
         handleSetTonWallet({ tonWallet: undefined });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log("error disconnect TON :>>", error);
+    }
   };
 
   const hasInstalledWallet = (wallet: OraiWallet | TonWallet) => {
@@ -162,6 +166,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   useEffect(() => {
     connector.onStatusChange(
       (wallet) => {
+        console.log("wallet", wallet);
         if (!wallet) {
           if (tonAddress) {
             handleSetTonAddress({ tonAddress: undefined });
@@ -184,6 +189,12 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       }
     );
   }, [tonAddress]);
+
+  useEffect(() => {
+    if (tonAddress && tonWallet) {
+      handleConnectWalletInTonNetwork(tonWallet || TonWallet.TonKeeper);
+    }
+  }, []);
 
   return (
     <div
@@ -243,8 +254,15 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                 (e, ind) => {
                   const isConnected =
                     (oraiAddress && oraiWallet === e.id) ||
-                    (tonAddress && tonWallet === e.id);
+                    (tonAddress && tonWallet === e.id); //connector.connected &&
                   const isNotInstall = !hasInstalledWallet(e.id);
+
+                  console.log(
+                    "isConnected",
+                    connector.connected,
+                    tonAddress,
+                    tonWallet === e.id
+                  );
 
                   return (
                     <button

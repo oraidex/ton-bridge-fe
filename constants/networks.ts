@@ -14,7 +14,7 @@ export const TonInteractionContract = {
   [TonNetwork.Mainnet]: {
     lightClient: "EQCkkxPb0X4DAMBrOi8Tyf0wdqqVtTR9ekbDqB9ijP391nQh",
     whitelist: "EQATDM6mfPZjPDMD9TVa6D9dlbmAKY5w6xOJiTXJ9Nqj_dsu",
-    bridgeAdapter: "EQBy38YFj_k18VCeFYElCppp_lzS8fc26qZ_XvEwKUBQbe17",
+    bridgeAdapter: "EQAeNPObD65owWYLyQlPdnD8qKU9SmOKOrC3q567gbjm68Or",
   },
   [TonNetwork.Testnet]: {
     lightClient: "",
