@@ -44,7 +44,7 @@ const InputBridge: FC<{
 
   const ref = useRef();
 
-  const [txtSearch, setTxtSearch] = useState(null);
+  const [txtSearch, setTxtSearch] = useState<string>();
   const [open, setOpen] = useState(false);
   // const [token, setToken] = useState(null);
   const { data: prices } = useCoinGeckoPrices();
@@ -147,7 +147,12 @@ const InputBridge: FC<{
             }}
           />
 
-          <span className={styles.suffix}>≈ ${numberWithCommas(usdPrice)}</span>
+          <span className={styles.suffix}>
+            ≈ $
+            {numberWithCommas(usdPrice, undefined, {
+              maximumFractionDigits: 6,
+            })}
+          </span>
         </div>
       </div>
     </div>

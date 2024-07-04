@@ -106,7 +106,6 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
         const cosmWasmClient = await getCosmWasmClient({
           chainId: network.chainId,
         });
-        console.log("cosmWasmClient", cosmWasmClient);
         if (cosmWasmClient && cosmWasmClient.client) {
           window.client = cosmWasmClient.client;
         }

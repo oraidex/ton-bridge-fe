@@ -1,53 +1,48 @@
 "use client";
 
-import {
-  useAuthOraiAddress,
-  useAuthTonAddress,
-} from "@/stores/authentication/selector";
-import { useEffect, useRef, useState } from "react";
-import styles from "./index.module.scss";
-import ConnectButton from "@/components/layout/connectButton";
-import InputBridge, { NetworkType } from "./inputBridge";
 import { SwapIcon } from "@/assets/icons/action";
 import { TonNetworkICon } from "@/assets/icons/network";
 import { OraiIcon } from "@/assets/icons/token";
-import { useTonConnector } from "@/contexts/custom-ton-provider";
-import {
-  Address,
-  Cell,
-  Dictionary,
-  OpenedContract,
-  beginCell,
-  toNano,
-} from "@ton/core";
-import { JettonOpCodes } from "@oraichain/ton-bridge-contracts";
+import Loader from "@/components/commons/loader/Loader";
+import ConnectButton from "@/components/layout/connectButton";
 import {
   ARG_BRIDGE_TO_TON,
   SEND_TON_TRANFERS_CONFIG,
   TON_SCAN,
 } from "@/constants/config";
 import {
+  TonInteractionContract,
+  TonNetwork,
+  network,
+} from "@/constants/networks";
+import { TonTokenList } from "@/constants/tokens";
+import { useTonConnector } from "@/contexts/custom-ton-provider";
+import { TToastType, displayToast } from "@/contexts/toasts/Toast";
+import { getTransactionUrl, handleErrorTransaction } from "@/helper";
+import { useLoadToken } from "@/hooks/useLoadToken";
+import {
+  useAuthOraiAddress,
+  useAuthTonAddress,
+} from "@/stores/authentication/selector";
+import { toBinary } from "@cosmjs/cosmwasm-stargate";
+import {
   BigDecimal,
   handleSentFunds,
   toAmount,
 } from "@oraichain/oraidex-common";
 import {
-  TonInteractionContract,
-  TonNetwork,
-  TonTokensContract,
-  network,
-} from "@/constants/networks";
-import { Base64 } from "@tonconnect/protocol";
-import { TToastType, displayToast } from "@/contexts/toasts/Toast";
-import { getTransactionUrl, handleErrorTransaction } from "@/helper";
-import { TonClient } from "@ton/ton";
-import { JettonMinter, JettonWallet } from "@oraichain/ton-bridge-contracts";
-import { getHttpEndpoint } from "@orbs-network/ton-access";
+  JettonMinter,
+  JettonOpCodes,
+  JettonWallet,
+} from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
-import { TonTokenList } from "@/constants/tokens";
-import { toBinary } from "@cosmjs/cosmwasm-stargate";
-import Loader from "@/components/commons/loader/Loader";
-import { useLoadToken } from "@/hooks/useLoadToken";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
+import { TonClient } from "@ton/ton";
+import { Base64 } from "@tonconnect/protocol";
+import { useEffect, useState } from "react";
+import styles from "./index.module.scss";
+import InputBridge, { NetworkType } from "./inputBridge";
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -101,7 +96,7 @@ const Bridge = () => {
         jettonWalletAddress,
       });
     })();
-  }, [token]);
+  }, [token, toNetwork, tonAddress]);
 
   const destinationAddress =
     toNetwork.id === NetworkList.oraichain.id

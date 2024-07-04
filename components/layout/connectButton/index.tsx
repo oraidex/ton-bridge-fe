@@ -43,10 +43,6 @@ export type ConnectStatus =
   | "failed"
   | "success";
 
-// const connector = new TonConnect({
-//   manifestUrl: "http://localhost:3000/manifest.json",
-// });
-
 const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   const oraiAddress = useAuthOraiAddress();
   const oraiWallet = useAuthOraiWallet();
@@ -155,6 +151,8 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 
       // console.log("acc", acc);
 
+      console.log("154", 154, tonAddress, tonWallet);
+
       await connector.disconnect();
 
       if (tonAddress && walletType === tonWallet) {
@@ -215,24 +213,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
         console.log("error onStatusChange :>>", err);
       }
     );
-  }, []);
-
-  useEffect(() => {
-    // auto connect
-    connector.restoreConnection();
-  }, []);
-
-  // useEffect(() => {
-  //   console.log("user", userFriendlyAddress);
-  //   handleSetTonAddress({ tonAddress: userFriendlyAddress });
-  // }, [userFriendlyAddress, connector.wallet]);
-
-  // useEffect(() => {
-  //   // handleSetTonWallet({ tonWallet: tonWalletConnect?.["name"] });
-  //   handleSetTonWallet({
-  //     tonWallet: tonWalletConnect?.device?.appName?.toLowerCase() as TonWallet,
-  //   });
-  // }, [tonWalletConnect, connector.wallet]);
+  }, [tonAddress]);
 
   return (
     <div
@@ -340,7 +321,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                   );
                 }
               )}
-              {/* {step !== 1 && <TonConnectButton />} */}
             </div>
           </div>
         </div>

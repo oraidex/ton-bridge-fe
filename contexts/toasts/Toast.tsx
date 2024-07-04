@@ -1,17 +1,17 @@
 "use client";
 
 import {
-  LinkIcon,
+  CloseToastIcon as CloseIcon,
   FailedIcon,
   InfoIcon,
+  LinkIcon,
   SuccessIcon,
-  CloseToastIcon as CloseIcon,
 } from "@/assets/icons/toast";
-import { reduceString } from "@/libs/utils";
-import { toast, ToastOptions } from "react-toastify";
-import styles from "./Toast.module.scss";
-import { FunctionComponent } from "react";
 import Loader from "@/components/commons/loader/Loader";
+import { reduceString } from "@/libs/utils";
+import { FunctionComponent } from "react";
+import { ToastOptions, toast } from "react-toastify";
+import styles from "./Toast.module.scss";
 
 const defaultOptions: ToastOptions = {
   position: "top-right",
