@@ -20,3 +20,9 @@ export const ARG_BRIDGE_TO_TON = {
   CHANNEL: "channel-0",
   CRC_SRC: 3724195509,
 };
+
+export const AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP: [number, string, string][] =
+  [
+    [0.5, "50%", "half"],
+    [1, "100%", "max"],
+  ];

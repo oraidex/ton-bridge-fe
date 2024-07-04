@@ -18,7 +18,7 @@ export const OraichainTokenList = [
     Icon: UsdcIcon,
     contractAddress: USDC_CONTRACT,
     denom: "usdc",
-    coingeckoId: "usdc",
+    coingeckoId: "usd-coin",
     decimal: 6,
   },
 ];
@@ -26,7 +26,7 @@ export const OraichainTokenList = [
 export const TonTokenList = (network: TonNetwork) => [
   {
     name: "Tether",
-    symbol: "jUSDT",
+    symbol: "USDT",
     Icon: UsdtIcon,
     contractAddress: TonTokensContract[network].usdt,
     denom: "ton20_usdt",
@@ -35,11 +35,11 @@ export const TonTokenList = (network: TonNetwork) => [
   },
   {
     name: "USD Coin",
-    symbol: "jUSDC",
+    symbol: "USDC",
     Icon: UsdcIcon,
     contractAddress: TonTokensContract[network].usdc,
     denom: "ton20_usdc",
-    coingeckoId: "usdc",
+    coingeckoId: "usd-coin",
     decimal: 6,
   },
 ];

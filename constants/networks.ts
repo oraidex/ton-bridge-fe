@@ -12,9 +12,9 @@ export enum TonNetwork {
 
 export const TonInteractionContract = {
   [TonNetwork.Mainnet]: {
-    lightClient: "EQCSnxYiqpz1hiOw76klvQfPCxalze9SoGTB8ZrVDhatdYjN",
+    lightClient: "EQCkkxPb0X4DAMBrOi8Tyf0wdqqVtTR9ekbDqB9ijP391nQh",
     whitelist: "EQATDM6mfPZjPDMD9TVa6D9dlbmAKY5w6xOJiTXJ9Nqj_dsu",
-    bridgeAdapter: "EQAwHLrVuAOgcA1x53KDXxyAL5ETqQFaAa7tT0wIi7UOrkNS",
+    bridgeAdapter: "EQBy38YFj_k18VCeFYElCppp_lzS8fc26qZ_XvEwKUBQbe17",
   },
   [TonNetwork.Testnet]: {
     lightClient: "",

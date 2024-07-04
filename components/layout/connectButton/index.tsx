@@ -33,7 +33,6 @@ import classNames from "classnames";
 import { FC, useEffect, useRef, useState } from "react";
 import ConnectedInfo from "../connectedInfo";
 import styles from "./index.module.scss";
-// import { CHAIN, toUserFriendlyAddress } from "@tonconnect/ui";
 
 export type ConnectStatus =
   | "init"
@@ -65,20 +64,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 
   useOnClickOutside(ref, () => setOpen(false));
 
-  // const [tonConnectUiHandler] = useTonConnectUI();
-  // const userFriendlyAddress = useTonAddress();
-  // const tonWalletConnect = useTonWallet();
-
-  // const currentModalState = tonConnectUiHandler.modalState;
-
-  // console.log("first", {
-  //   currentModalState,
-  //   userFriendlyAddress,
-  //   tonWalletConnect,
-  //   tonWallet,
-  //   tonAddress,
-  // });
-
   const handleConnectWalletInOraichainNetwork = async (
     walletType: OraiWallet // WalletType | "eip191"
   ) => {
@@ -91,9 +76,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       handleSetOraiAddress({ oraiAddress: oraiAddr });
       handleSetOraiWallet({ oraiWallet: walletType });
       setStep(2);
-      displayToast(TToastType.TX_INFO, {
-        message: `Connect to Oraichain successfully!`,
-      });
     } catch (error) {
       console.trace({ errorCosmos: error });
       throw new Error(error?.message ?? JSON.stringify(error));
@@ -107,7 +89,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       setConnectStatus(walletType);
 
       const walletsList = await connector.getWallets(); // or use `walletsList` fetched before
-      // console.log("walletsLiss", walletsList);
 
       const embeddedWallet = walletsList.find(
         isWalletInfoCurrentlyEmbedded
@@ -126,10 +107,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       console.log("addressConnected", connector.account);
 
       return;
-
-      // const connectedWallet = await tonConnectUiHandler.openModal();
-      // tonConnectUiHandler.openSingleWalletModal("mytonwallet");
-      // setOpen(false);
     } catch (error) {
       console.log("error connect", error);
     } finally {
@@ -146,13 +123,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 
   const handleDisconnectTon = async (walletType: TonWallet) => {
     try {
-      // await tonConnectUiHandler.disconnect();
-      // const acc = tonConnectUiHandler.account;
-
-      // console.log("acc", acc);
-
-      console.log("154", 154, tonAddress, tonWallet);
-
       await connector.disconnect();
 
       if (tonAddress && walletType === tonWallet) {

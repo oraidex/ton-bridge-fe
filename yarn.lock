@@ -1472,9 +1472,9 @@
     varstruct "^6.1.3"
 
 "@oraichain/tonbridge-contracts-sdk@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@oraichain/tonbridge-contracts-sdk/-/tonbridge-contracts-sdk-1.2.1.tgz#bf4ea4aa8c8e8422355ba7b30874171091a6e268"
-  integrity sha512-ABTQpZHx27eqa95MigfWZvJQ1QLiE/y80ADQtoBKQcZq6tt+CuIuvRt5OfCkVbCwPrbiVuyfS7D7TTzSpoz1DA==
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@oraichain/tonbridge-contracts-sdk/-/tonbridge-contracts-sdk-1.2.2.tgz#19b64e06269bd88cec1c238a3406baa672cf4f19"
+  integrity sha512-2uilUBkF9yaJ8Z/FhlNSipl1rL+d+2tsns35QnadDVdcK055TsDH8VFYlYH3JwZvJ8J9N+nky2SaNtTW3/nKzQ==
 
 "@orbs-network/ton-access@^2.3.3":
   version "2.3.3"

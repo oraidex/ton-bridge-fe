@@ -54,6 +54,7 @@ const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
   const { connector } = useTonConnector();
+  const [txtSearch, setTxtSearch] = useState<string>();
 
   const { loadToken } = useLoadToken();
   const [loading, setLoading] = useState(false);
@@ -96,7 +97,7 @@ const Bridge = () => {
         jettonWalletAddress,
       });
     })();
-  }, [token, toNetwork, tonAddress]);
+  }, [token]); // toNetwork, tonAddress
 
   const destinationAddress =
     toNetwork.id === NetworkList.oraichain.id
@@ -180,10 +181,6 @@ const Bridge = () => {
 
         loadToken({ oraiAddress, tonAddress });
       }
-      // setTimeout(async () => {
-      //   const data = await client.traces.getTrace(txHash);
-      //   console.log({ data });
-      // }, 30000);
     } catch (error) {
       console.log("error Bridge from TON :>>", error);
 
@@ -204,12 +201,6 @@ const Bridge = () => {
 
       setLoading(true);
 
-      console.log("data: >>", {
-        amount,
-        token,
-        destinationAddress,
-      });
-
       const tonBridgeClient = new TonbridgeBridgeClient(
         window.client,
         oraiAddress,
@@ -219,7 +210,7 @@ const Bridge = () => {
       let tx;
 
       const msg = {
-        crcSrc: ARG_BRIDGE_TO_TON.CRC_SRC,
+        // crcSrc: ARG_BRIDGE_TO_TON.CRC_SRC,
         denom: TonTokenList(tonNetwork).find(
           (tk) => tk.coingeckoId === token.coingeckoId
         ).contractAddress,
@@ -231,13 +222,11 @@ const Bridge = () => {
         amount,
       });
 
-      console.log("msg", msg);
-
+      // native token
       if (!token.contractAddress) {
-        console.log("258", 258);
         tx = await tonBridgeClient.bridgeToTon(msg, "auto", null, funds);
       } else {
-        console.log("261", 261);
+        // cw20 token
         tx = await window.client.execute(
           oraiAddress,
           token.contractAddress,
@@ -246,7 +235,7 @@ const Bridge = () => {
               contract: network.CW_TON_BRIDGE,
               amount: toAmount(amount).toString(),
               msg: toBinary({
-                crc_src: msg.crcSrc,
+                // crc_src: msg.crcSrc,
                 denom: msg.denom,
                 local_channel_id: msg.localChannelId,
                 to: msg.to,
@@ -313,6 +302,8 @@ const Bridge = () => {
           </div>
           <div className={styles.input}>
             <InputBridge
+              txtSearch={txtSearch}
+              setTxtSearch={setTxtSearch}
               amount={amount}
               onChangeAmount={(val) => setAmount(val)}
               token={token}

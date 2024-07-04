@@ -4,7 +4,7 @@
   padding: 16px 12px;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 16px;
   align-self: stretch;
 
   border-radius: 8px;
@@ -17,12 +17,47 @@
     line-height: 150%; /* 18px */
     letter-spacing: 0.012px;
 
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+
     .bal {
       color: var(--Colors-Neutral-Text-body, #979995);
       font-size: 12px;
       font-weight: 400;
       line-height: 150%; /* 18px */
       letter-spacing: 0.012px;
+    }
+
+    .headerTxt {
+    }
+
+    .percentWrapper {
+      display: flex;
+      gap: 6px;
+
+      .percent {
+        cursor: pointer;
+        border-radius: 99px;
+        background: #aee67f;
+        color: black;
+        padding: 2px 10px;
+
+        opacity: 0.6;
+
+        &:hover {
+          filter: brightness(1.25);
+        }
+
+        &.activePercent {
+          opacity: 1;
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+        }
+      }
     }
   }
 
@@ -126,7 +161,7 @@
       width: calc(100% - 175px);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 0px;
 
       .input {
         // width: 55%;
@@ -135,7 +170,7 @@
         color: var(--Colors-Neutral-Text-text-token-name, #f7f7f7);
         font-size: 28px;
         font-weight: 500;
-        line-height: 150%; /* 42px */
+        line-height: 100%; /* 42px */
       }
 
       .suffix {

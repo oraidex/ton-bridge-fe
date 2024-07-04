@@ -6,8 +6,8 @@ import {
   tokenMap,
 } from "@/constants/bridgeTokens";
 import { chainInfos } from "@/constants/chainInfo";
-import { network } from "@/constants/networks";
-import { OraichainTokenList } from "@/constants/tokens";
+import { TonNetwork, TonTokensContract, network } from "@/constants/networks";
+import { OraichainTokenList, TonTokenList } from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
 import {
   useAuthOraiAddress,
@@ -18,6 +18,19 @@ import { fromBinary, toBinary } from "@cosmjs/cosmwasm-stargate";
 import { StargateClient } from "@cosmjs/stargate";
 import { MulticallQueryClient } from "@oraichain/common-contracts-sdk";
 import { OraiswapTokenTypes } from "@oraichain/oraidex-contracts-sdk";
+import { useEffect } from "react";
+
+import {
+  JettonMinter,
+  JettonOpCodes,
+  JettonWallet,
+} from "@oraichain/ton-bridge-contracts";
+import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
+import { TonClient } from "@ton/ton";
+import { Base64 } from "@tonconnect/protocol";
+import { toDisplay } from "@oraichain/oraidex-common";
 
 async function loadNativeBalance(
   dispatch: (amount: AmountDetails) => void,
@@ -174,6 +187,101 @@ async function loadCw20BalanceWithSpecificTokens(
 
 //   return total;
 // }
+
+export const useLoadTonBalance = (
+  tonAddress: string,
+  tonNetwork: TonNetwork
+  // address: string
+) => {
+  const { handleSetAmountsCache, handleSetTonAmountsCache } = useTokenActions();
+  const loadBalanceByToken = async (address: string) => {
+    try {
+      const token = TonTokenList(tonNetwork).find(
+        (e) => e.contractAddress === address
+      );
+
+      // get the decentralized RPC endpoint
+      const endpoint = await getHttpEndpoint();
+      const client = new TonClient({
+        endpoint,
+      });
+      const jettonMinter = JettonMinter.createFromAddress(
+        Address.parse(address)
+      );
+      const jettonMinterContract = client.open(jettonMinter);
+      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+        Address.parse(tonAddress)
+      );
+      const jettonWallet = JettonWallet.createFromAddress(jettonWalletAddress);
+      const jettonWalletContract = client.open(jettonWallet);
+      const balance = await jettonWalletContract.getBalance();
+
+      handleSetTonAmountsCache({
+        [token.denom]: toDisplay(balance.amount || "0").toString(),
+      });
+
+      return {
+        jettonWalletAddress,
+      };
+    } catch (error) {
+      console.log("error load ton balance", error);
+      return {};
+    }
+  };
+
+  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
+  useEffect(() => {
+    (async () => {
+      // if (!address) return;
+      const allTokens = Object.values(TonTokensContract[tonNetwork]);
+
+      const fullData = await Promise.all(
+        allTokens.map(async (item) => {
+          const endpoint = await getHttpEndpoint();
+          const client = new TonClient({
+            endpoint,
+          });
+          const jettonMinter = JettonMinter.createFromAddress(
+            Address.parse(item)
+          );
+          const jettonMinterContract = client.open(jettonMinter);
+          const jettonWalletAddress =
+            await jettonMinterContract.getWalletAddress(
+              Address.parse(tonAddress)
+            );
+          const jettonWallet =
+            JettonWallet.createFromAddress(jettonWalletAddress);
+          const jettonWalletContract = client.open(jettonWallet);
+          const balance = await jettonWalletContract.getBalance();
+
+          return {
+            balance,
+            jettonWalletAddress,
+            token: item,
+          };
+        })
+      );
+
+      let amountDetail: AmountDetails = {};
+      fullData?.map((data) => {
+        const token = TonTokenList(tonNetwork).find(
+          (e) => e.contractAddress === data.token
+        );
+
+        amountDetail = {
+          ...amountDetail,
+          [token.denom]: toDisplay(data.balance?.amount || "0").toString(),
+        };
+      });
+
+      handleSetTonAmountsCache(amountDetail);
+    })();
+  }, [tonAddress, tonNetwork]);
+
+  return {
+    loadBalanceByToken,
+  };
+};
 
 const loadTonBalance = (
   dispatch: (amount: AmountDetails) => void,

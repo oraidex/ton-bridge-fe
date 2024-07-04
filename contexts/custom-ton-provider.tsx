@@ -9,14 +9,14 @@ export const CustomTonContext = createContext<{
 }>({
   connector: new TonConnect({
     manifestUrl: "http://localhost:3000/manifest.json",
-    storage: new TonConnectStorage("Ton:root"),
+    // storage: new TonConnectStorage("Ton:root"),
   }),
 });
 
 export const CustomTonProvider = (props: React.PropsWithChildren<{}>) => {
   const connector = new TonConnect({
     manifestUrl: "http://localhost:3000/manifest.json",
-    storage: new TonConnectStorage("Ton:root"),
+    // storage: new TonConnectStorage("Ton:root"),
   });
 
   useEffect(() => {
