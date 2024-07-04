@@ -52,4 +52,13 @@ export const TonTokenList = (network: TonNetwork) => [
     coingeckoId: "usd-coin",
     decimal: 6,
   },
+  {
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: null,
+    denom: "ton",
+    coingeckoId: "toncoin",
+    decimal: 9,
+  },
 ];

@@ -7,12 +7,8 @@ import {
 } from "@/constants/bridgeTokens";
 import { chainInfos } from "@/constants/chainInfo";
 import { TonNetwork, TonTokensContract, network } from "@/constants/networks";
-import { OraichainTokenList, TonTokenList } from "@/constants/tokens";
+import { TonTokenList } from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
-import {
-  useAuthOraiAddress,
-  useAuthTonAddress,
-} from "@/stores/authentication/selector";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
 import { fromBinary, toBinary } from "@cosmjs/cosmwasm-stargate";
 import { StargateClient } from "@cosmjs/stargate";
@@ -20,17 +16,11 @@ import { MulticallQueryClient } from "@oraichain/common-contracts-sdk";
 import { OraiswapTokenTypes } from "@oraichain/oraidex-contracts-sdk";
 import { useEffect } from "react";
 
-import {
-  JettonMinter,
-  JettonOpCodes,
-  JettonWallet,
-} from "@oraichain/ton-bridge-contracts";
-import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
-import { getHttpEndpoint } from "@orbs-network/ton-access";
-import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
-import { TonClient } from "@ton/ton";
-import { Base64 } from "@tonconnect/protocol";
 import { toDisplay } from "@oraichain/oraidex-common";
+import { JettonMinter, JettonWallet } from "@oraichain/ton-bridge-contracts";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { Address } from "@ton/core";
+import { TonClient } from "@ton/ton";
 
 async function loadNativeBalance(
   dispatch: (amount: AmountDetails) => void,

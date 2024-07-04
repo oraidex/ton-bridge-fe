@@ -33,7 +33,20 @@ export const useCoinGeckoPrices = <T extends CoinGeckoId>(
   > = {}
 ): UseQueryResult<CoinGeckoPrices<T>, unknown> => {
   const tokens = [
-    ...new Set([...cosmosTokens, ...evmTokens].map((t) => t.coinGeckoId)),
+    ...new Set(
+      [
+        ...cosmosTokens,
+        ...evmTokens,
+        {
+          name: "Ton",
+          symbol: "TON",
+          contractAddress: null,
+          denom: "native_ton",
+          coinGeckoId: "toncoin",
+          decimal: 9,
+        },
+      ].map((t) => t.coinGeckoId)
+    ),
   ];
   tokens.sort();
 
