@@ -42,7 +42,7 @@ const queryClient = new QueryClient();
 export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const walletType = useAuthOraiWallet();
   const mobileMode = isMobile();
-  const cosmosWallet = useAuthOraiWallet();
+  const oraiWallet = useAuthOraiWallet();
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
   const { handleSetOraiWallet, handleSetOraiAddress } =
@@ -56,7 +56,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
 
   const keplrHandler = async () => {
     try {
-      let metamaskAddress, oraiAddress, tronAddress, btcAddress;
+      let oraiAddress;
 
       if (mobileMode) {
         window.tronWebDapp = window.tronWeb;
@@ -66,16 +66,16 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
         window.Metamask = new Metamask(window.tronWebDapp);
       }
 
-      if (cosmosWallet || mobileMode) {
+      if (oraiWallet || mobileMode) {
         oraiAddress = await window.Keplr.getKeplrAddr();
 
         if (oraiAddress) {
           handleSetOraiAddress({ oraiAddress });
         }
       }
-      loadToken({
-        oraiAddress,
-      });
+      // loadToken({
+      //   oraiAddress,
+      // });
     } catch (error) {
       console.log("Error: ", error.message);
       displayToast(TToastType.TX_INFO, {
@@ -85,7 +85,6 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   };
 
   useEffect(() => {
-    // just auto connect keplr in mobile mode
     (mobileMode || oraiAddress) && keplrHandler();
   }, [mobileMode]);
 
@@ -100,7 +99,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
     loadToken({
       oraiAddress,
     });
-  }, []);
+  }, [oraiAddress]);
 
   useEffect(() => {
     (async () => {

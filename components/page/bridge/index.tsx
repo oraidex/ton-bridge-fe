@@ -106,6 +106,7 @@ const Bridge = () => {
                     beginCell()
                       .storeUint(4062002313, 32)
                       .storeUint(0, 64)
+                      .storeCoins(0)
                       .storeRef(
                         beginCell()
                           .storeCoins(fmtAmount)

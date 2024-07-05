@@ -26,6 +26,28 @@ export const CustomTonProvider = (props: React.PropsWithChildren<{}>) => {
   });
   // }, []);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener(
+        "ton-connect-connection-restoring-started",
+        (event) => {
+          console.log("connection-restoring-started", event["detail"]);
+        }
+      );
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener(
+          "ton-connect-connection-restoring-started",
+          (event) => {
+            console.log("connection-restoring-started", event["detail"]);
+          }
+        );
+      }
+    };
+  }, []);
+
   return (
     <CustomTonContext.Provider value={{ connector }}>
       {props.children}

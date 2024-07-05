@@ -26,8 +26,9 @@ export const OraichainTokenList = [
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
-    contractAddress: null,
-    denom: "native_ton",
+    contractAddress:
+      "orai1v5msmzjhyrf0285fyhfwg7uxk4yzdhrn6srvf8jf27dz8uuvu3mstj78qt",
+    denom: "cw20_ton",
     coingeckoId: "the-open-network",
     decimal: 9,
   },

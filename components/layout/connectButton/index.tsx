@@ -257,12 +257,12 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
                     (tonAddress && tonWallet === e.id); //connector.connected &&
                   const isNotInstall = !hasInstalledWallet(e.id);
 
-                  console.log(
-                    "isConnected",
-                    connector.connected,
-                    tonAddress,
-                    tonWallet === e.id
-                  );
+                  // console.log(
+                  //   "isConnected",
+                  //   connector.connected,
+                  //   tonAddress,
+                  //   tonWallet === e.id
+                  // );
 
                   return (
                     <button

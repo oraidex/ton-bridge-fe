@@ -142,7 +142,7 @@ const InputBridge: FC<{
                   !txtSearch ||
                   (txtSearch &&
                     (e.denom.toLowerCase().includes(txtSearch.toLowerCase()) ||
-                      e.contractAddress
+                      (e.contractAddress || "")
                         .toLowerCase()
                         .includes(txtSearch.toLowerCase())))
               )

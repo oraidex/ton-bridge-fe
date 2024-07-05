@@ -51,5 +51,5 @@ export const network = {
   multicall: MULTICALL_CONTRACT,
   explorer: "https://scan.orai.io",
   CW_TON_BRIDGE:
-    "orai1y4kj224wmzmrna4kz9nk3n00zxdst5nra0z0u0nry5k6seqdw5psu4t9fn",
+    "orai1pump92q0m7y3p8zx3c9yfxh0uzk8gl8v8pmmxmmyv6pewe2cjpsqfl2md0",
 };
