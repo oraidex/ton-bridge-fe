@@ -50,8 +50,6 @@ export const useCoinGeckoPrices = <T extends CoinGeckoId>(
   ];
   tokens.sort();
 
-  console.log("token", tokens);
-
   // use cached first then update by query, if is limited then return cached version
   const cachePrices = usePricesCache();
   const { handleSetPricesCache: setCachePrices } = useTokenActions();
