@@ -118,7 +118,7 @@ const Bridge = () => {
         .mul(amount)
         .toNumber();
 
-      console.log(token && !token.contractAddress);
+      console.log(tokenInfo.jettonWalletAddress?.toString());
       const tx = await connector.sendTransaction({
         validUntil: 100000,
         messages: [
@@ -127,8 +127,8 @@ const Bridge = () => {
               token && !token.contractAddress
                 ? Address.parse(
                     TonInteractionContract[TonNetwork.Mainnet].bridgeAdapter
-                  )
-                : tokenInfo.jettonWalletAddress.toString(), // dia chi token
+                  ).toString()
+                : tokenInfo.jettonWalletAddress?.toString(), // dia chi token
             amount:
               token && !token.contractAddress
                 ? (fmtAmount + 1000000000).toString()
