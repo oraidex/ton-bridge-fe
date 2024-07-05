@@ -30,24 +30,11 @@ import {
   handleSentFunds,
   toAmount,
 } from "@oraichain/oraidex-common";
-import {
-  JettonMinter,
-  JettonOpCodes,
-  JettonWallet,
-} from "@oraichain/ton-bridge-contracts";
+import { JettonOpCodes } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
-import { getHttpEndpoint } from "@orbs-network/ton-access";
-import {
-  Address,
-  Cell,
-  Dictionary,
-  beginCell,
-  crc32c,
-  toNano,
-} from "@ton/core";
-import { TonClient } from "@ton/ton";
+import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
 import { Base64 } from "@tonconnect/protocol";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./index.module.scss";
 import InputBridge, { NetworkType } from "./inputBridge";
 
@@ -64,7 +51,7 @@ const Bridge = () => {
   const [txtSearch, setTxtSearch] = useState<string>();
 
   const { loadToken } = useLoadToken();
-  const { loadBalanceByToken } = useLoadTonBalance({
+  const { loadAllBalanceTonToken } = useLoadTonBalance({
     tonAddress,
     tonNetwork: TonNetwork.Mainnet,
   });
@@ -79,45 +66,6 @@ const Bridge = () => {
   });
 
   const tonNetwork = TonNetwork.Mainnet;
-
-  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
-  useEffect(() => {
-    (async () => {
-      if (toNetwork.id != NetworkList.oraichain.id || !token) return;
-
-      // get the decentralized RPC endpoint
-      const endpoint = await getHttpEndpoint();
-      const client = new TonClient({
-        endpoint,
-      });
-
-      if (!token?.contractAddress) {
-        const balance = await client.getBalance(Address.parse(tonAddress));
-
-        setTokenInfo({
-          balance: balance,
-          jettonWalletAddress: "",
-        });
-        return;
-      }
-
-      const jettonMinter = JettonMinter.createFromAddress(
-        Address.parse(token.contractAddress)
-      );
-      const jettonMinterContract = client.open(jettonMinter);
-      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
-        Address.parse(tonAddress)
-      );
-      const jettonWallet = JettonWallet.createFromAddress(jettonWalletAddress);
-      const jettonWalletContract = client.open(jettonWallet);
-      const balance = await jettonWalletContract.getBalance();
-
-      setTokenInfo({
-        balance: balance.amount,
-        jettonWalletAddress,
-      });
-    })();
-  }, [token]); // toNetwork, tonAddress
 
   const destinationAddress =
     toNetwork.id === NetworkList.oraichain.id
@@ -251,7 +199,8 @@ const Bridge = () => {
           customLink: `${TON_SCAN}/transaction/${txHash}`,
         });
 
-        loadToken({ oraiAddress, tonAddress });
+        loadToken({ oraiAddress });
+        loadAllBalanceTonToken();
       }
     } catch (error) {
       console.log("error Bridge from TON :>>", error);
@@ -318,8 +267,6 @@ const Bridge = () => {
         );
       }
 
-      console.log("tx", tx);
-
       if (tx?.transactionHash) {
         displayToast(TToastType.TX_SUCCESSFUL, {
           customLink: getTransactionUrl(
@@ -327,7 +274,8 @@ const Bridge = () => {
             tx.transactionHash
           ),
         });
-        loadToken({ oraiAddress, tonAddress });
+        loadToken({ oraiAddress });
+        loadAllBalanceTonToken();
       }
     } catch (error) {
       console.log("error Bridge from Oraichain :>>", error);
@@ -379,7 +327,6 @@ const Bridge = () => {
               amount={amount}
               onChangeAmount={(val) => setAmount(val)}
               token={token}
-              balance={tokenInfo.balance}
               tonNetwork={tonNetwork}
               setToken={setToken}
               networkTo={toNetwork.id as NetworkType}
@@ -426,7 +373,6 @@ const Bridge = () => {
           ) : (
             <ConnectButton fullWidth />
           )}
-          {/* <button className={styles.bridgeBtn}>Bridge</button> */}
         </div>
       </div>
     </div>

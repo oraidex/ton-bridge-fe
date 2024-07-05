@@ -4,26 +4,22 @@ import { SearchIcon } from "@/assets/icons/action";
 import { ArrowDownIcon } from "@/assets/icons/arrow";
 import { SelectOptionIcon } from "@/assets/icons/network";
 import SelectCommon from "@/components/commons/select";
+import { AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP } from "@/constants/config";
+import { TonNetwork } from "@/constants/networks";
 import { OraichainTokenList, TonTokenList } from "@/constants/tokens";
+import { numberWithCommas } from "@/helper/number";
+import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
 import useOnClickOutside from "@/hooks/useOnclickOutside";
-import {
-  useAuthOraiAddress,
-  useAuthTonAddress,
-} from "@/stores/authentication/selector";
-import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
-import NumberFormat from "react-number-format";
-import styles from "./index.module.scss";
-import { useAmountsCache } from "@/stores/token/selector";
+import { useAmountsCache, useTonAmountsCache } from "@/stores/token/selector";
 import {
   BigDecimal,
   CW20_DECIMALS,
   toDisplay,
 } from "@oraichain/oraidex-common";
-import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
-import { numberWithCommas } from "@/helper/number";
-import { TonNetwork } from "@/constants/networks";
-import { AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP } from "@/constants/config";
 import classNames from "classnames";
+import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
+import NumberFormat from "react-number-format";
+import styles from "./index.module.scss";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -32,7 +28,6 @@ const InputBridge: FC<{
   disabled?: boolean;
   onChangeAmount?: (amount: number | undefined) => void;
   amount: number;
-  balance: bigint;
   token: any;
   tonNetwork: TonNetwork;
   setToken: Dispatch<any>;
@@ -43,7 +38,6 @@ const InputBridge: FC<{
   disabled = false,
   amount,
   onChangeAmount,
-  balance,
   token,
   tonNetwork,
   setToken,
@@ -51,6 +45,7 @@ const InputBridge: FC<{
   setTxtSearch,
 }) => {
   const amounts = useAmountsCache();
+  const amountsTon = useTonAmountsCache();
 
   const ref = useRef();
 
@@ -67,7 +62,8 @@ const InputBridge: FC<{
   const displayBalance =
     networkTo === "Ton"
       ? toDisplay(amounts?.[token?.denom] || "0", token?.decimal)
-      : toDisplay(balance || "0", token?.decimal);
+      : toDisplay(amountsTon?.[token?.denom] || "0", token?.decimal);
+  // : toDisplay(balance || "0", token?.decimal);
 
   const networkList =
     networkTo === "Ton" ? OraichainTokenList : TonTokenList(tonNetwork);
@@ -76,7 +72,7 @@ const InputBridge: FC<{
     <div className={styles.inputBridge}>
       <div className={styles.header}>
         <div className={styles.headerTxt}>
-          <span className={styles.bal}>Balance:</span> {balance}
+          <span className={styles.bal}>Balance: </span>
           {!token
             ? "--"
             : numberWithCommas(displayBalance, undefined, {

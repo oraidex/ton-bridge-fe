@@ -1,7 +1,7 @@
 "use client";
 
-import { network } from "@/constants/networks";
-import { useLoadToken } from "@/hooks/useLoadToken";
+import { TonNetwork, network } from "@/constants/networks";
+import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import Keplr from "@/libs/keplr";
 import Metamask from "@/libs/metamask";
@@ -49,6 +49,10 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
     useAuthenticationActions();
 
   const { loadToken } = useLoadToken();
+  const { loadAllBalanceTonToken } = useLoadTonBalance({
+    tonAddress,
+    tonNetwork: TonNetwork.Mainnet,
+  });
 
   const keplrHandler = async () => {
     try {
@@ -71,7 +75,6 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
       }
       loadToken({
         oraiAddress,
-        tonAddress,
       });
     } catch (error) {
       console.log("Error: ", error.message);
@@ -96,7 +99,6 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   useEffect(() => {
     loadToken({
       oraiAddress,
-      tonAddress,
     });
   }, []);
 

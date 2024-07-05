@@ -16,7 +16,7 @@ import { MulticallQueryClient } from "@oraichain/common-contracts-sdk";
 import { OraiswapTokenTypes } from "@oraichain/oraidex-contracts-sdk";
 import { useEffect } from "react";
 
-import { toDisplay } from "@oraichain/oraidex-common";
+import { CW20_DECIMALS, toDisplay } from "@oraichain/oraidex-common";
 import { JettonMinter, JettonWallet } from "@oraichain/ton-bridge-contracts";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address } from "@ton/core";
@@ -180,24 +180,37 @@ async function loadCw20BalanceWithSpecificTokens(
 
 export const useLoadTonBalance = ({
   tonAddress,
-  tonNetwork,
+  tonNetwork = TonNetwork.Mainnet,
 }: {
   tonAddress: string;
-  tonNetwork: TonNetwork;
+  tonNetwork?: TonNetwork;
   // address: string
 }) => {
-  const { handleSetAmountsCache, handleSetTonAmountsCache } = useTokenActions();
-  const loadBalanceByToken = async (address: string) => {
-    try {
-      const token = TonTokenList(tonNetwork).find(
-        (e) => e.contractAddress === address
-      );
+  const { handleSetTonAmountsCache } = useTokenActions();
 
+  const loadBalanceByToken = async (address?: string) => {
+    try {
       // get the decentralized RPC endpoint
       const endpoint = await getHttpEndpoint();
       const client = new TonClient({
         endpoint,
       });
+      if (address) {
+        const balance = await client.getBalance(Address.parse(tonAddress));
+
+        handleSetTonAmountsCache({
+          ["native_ton"]: toDisplay(balance || "0").toString(),
+        });
+        return {
+          balance: balance,
+          jettonWalletAddress: "",
+        };
+      }
+
+      const token = TonTokenList(tonNetwork).find(
+        (e) => e.contractAddress === address
+      );
+
       const jettonMinter = JettonMinter.createFromAddress(
         Address.parse(address)
       );
@@ -214,6 +227,7 @@ export const useLoadTonBalance = ({
       });
 
       return {
+        balance: balance.amount,
         jettonWalletAddress,
       };
     } catch (error) {
@@ -222,63 +236,80 @@ export const useLoadTonBalance = ({
     }
   };
 
-  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
-  useEffect(() => {
-    (async () => {
-      // if (!address) return;
-      const allTokens = Object.values(TonTokensContract[tonNetwork]);
+  const loadAllBalanceTonToken = async () => {
+    // if (!address) return;
+    const allTokens = Object.values(TonTokensContract[tonNetwork]);
 
-      const fullData = await Promise.all(
-        allTokens.map(async (item) => {
-          const endpoint = await getHttpEndpoint();
-          const client = new TonClient({
-            endpoint,
-          });
-          const jettonMinter = JettonMinter.createFromAddress(
-            Address.parse(item)
-          );
-          const jettonMinterContract = client.open(jettonMinter);
-          const jettonWalletAddress =
-            await jettonMinterContract.getWalletAddress(
-              Address.parse(tonAddress)
-            );
-          const jettonWallet =
-            JettonWallet.createFromAddress(jettonWalletAddress);
-          const jettonWalletContract = client.open(jettonWallet);
-          const balance = await jettonWalletContract.getBalance();
+    const fullData = await Promise.all(
+      allTokens.map(async (item) => {
+        const endpoint = await getHttpEndpoint();
+        const client = new TonClient({
+          endpoint,
+        });
+
+        if (!item) {
+          const balance = await client.getBalance(Address.parse(tonAddress));
 
           return {
-            balance,
-            jettonWalletAddress,
+            balance: balance,
+            jettonWalletAddress: "",
             token: item,
           };
-        })
+        }
+        const jettonMinter = JettonMinter.createFromAddress(
+          Address.parse(item)
+        );
+        const jettonMinterContract = client.open(jettonMinter);
+        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+          Address.parse(tonAddress)
+        );
+        const jettonWallet =
+          JettonWallet.createFromAddress(jettonWalletAddress);
+        const jettonWalletContract = client.open(jettonWallet);
+        const balance = await jettonWalletContract.getBalance();
+
+        return {
+          balance: balance.amount,
+          jettonWalletAddress,
+          token: item,
+        };
+      })
+    );
+
+    let amountDetail: AmountDetails = {};
+    fullData?.map((data) => {
+      const token = TonTokenList(tonNetwork).find(
+        (e) => e.contractAddress === data.token
       );
 
-      let amountDetail: AmountDetails = {};
-      fullData?.map((data) => {
-        const token = TonTokenList(tonNetwork).find(
-          (e) => e.contractAddress === data.token
-        );
+      amountDetail = {
+        ...amountDetail,
+        // [token.denom]: toDisplay(
+        //   data.balance || "0",
+        //   token.decimal || CW20_DECIMALS
+        // ).toString(),
+        [token.denom]: (data.balance || "0").toString(),
+      };
+    });
 
-        amountDetail = {
-          ...amountDetail,
-          [token.denom]: toDisplay(data.balance?.amount || "0").toString(),
-        };
-      });
+    handleSetTonAmountsCache(amountDetail);
+  };
 
-      handleSetTonAmountsCache(amountDetail);
-    })();
+  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
+  useEffect(() => {
+    loadAllBalanceTonToken();
   }, [tonAddress, tonNetwork]);
 
   return {
     loadBalanceByToken,
+    loadAllBalanceTonToken,
   };
 };
 
 const loadTonBalance = (
   dispatch: (amount: AmountDetails) => void,
-  address: string
+  address: string,
+  tonNetwork: TonNetwork = TonNetwork.Mainnet
 ) => {
   return {};
 };
@@ -291,10 +322,10 @@ export const useLoadToken = () => {
 
   const loadToken = ({
     oraiAddress,
-    tonAddress,
-  }: {
+  }: // tonAddress,
+  {
     oraiAddress?: string;
-    tonAddress?: string;
+    // tonAddress?: string;
   }) => {
     if (oraiAddress) {
       loadNativeBalance(
@@ -305,12 +336,12 @@ export const useLoadToken = () => {
       loadCw20Balance((amounts) => handleSetAmountsCache(amounts), oraiAddress);
     }
 
-    if (tonAddress) {
-      loadTonBalance(
-        (amounts) => handleSetTonAmountsCache(amounts),
-        oraiAddress
-      );
-    }
+    // if (tonAddress) {
+    //   loadTonBalance(
+    //     (amounts) => handleSetTonAmountsCache(amounts),
+    //     oraiAddress
+    //   );
+    // }
   };
 
   return {

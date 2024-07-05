@@ -42,13 +42,15 @@ export const useCoinGeckoPrices = <T extends CoinGeckoId>(
           symbol: "TON",
           contractAddress: null,
           denom: "native_ton",
-          coinGeckoId: "toncoin",
+          coinGeckoId: "the-open-network",
           decimal: 9,
         },
       ].map((t) => t.coinGeckoId)
     ),
   ];
   tokens.sort();
+
+  console.log("token", tokens);
 
   // use cached first then update by query, if is limited then return cached version
   const cachePrices = usePricesCache();

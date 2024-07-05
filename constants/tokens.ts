@@ -28,7 +28,7 @@ export const OraichainTokenList = [
     Icon: TonNetworkICon,
     contractAddress: null,
     denom: "native_ton",
-    coingeckoId: "toncoin",
+    coingeckoId: "the-open-network",
     decimal: 9,
   },
 ];
@@ -58,7 +58,7 @@ export const TonTokenList = (network: TonNetwork) => [
     Icon: TonNetworkICon,
     contractAddress: null,
     denom: "ton",
-    coingeckoId: "toncoin",
+    coingeckoId: "the-open-network",
     decimal: 9,
   },
 ];
