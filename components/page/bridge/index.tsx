@@ -30,11 +30,13 @@ import {
   handleSentFunds,
   toAmount,
 } from "@oraichain/oraidex-common";
-import { JettonOpCodes } from "@oraichain/ton-bridge-contracts";
+import { JettonMinter, JettonOpCodes } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import { Base64 } from "@tonconnect/protocol";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import InputBridge, { NetworkType } from "./inputBridge";
 
@@ -62,7 +64,6 @@ const Bridge = () => {
   const [toNetwork, setToNetwork] = useState(NetworkList.oraichain);
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
-    balance: 0n,
   });
 
   const tonNetwork = TonNetwork.Mainnet;
@@ -71,6 +72,38 @@ const Bridge = () => {
     toNetwork.id === NetworkList.oraichain.id
       ? oraiAddress || ""
       : tonAddress || "";
+
+  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
+  useEffect(() => {
+    (async () => {
+      if (toNetwork.id != NetworkList.oraichain.id || !token) return;
+
+      // get the decentralized RPC endpoint
+      const endpoint = await getHttpEndpoint();
+      const client = new TonClient({
+        endpoint,
+      });
+
+      if (!token?.contractAddress) {
+        setTokenInfo({
+          jettonWalletAddress: "",
+        });
+        return;
+      }
+
+      const jettonMinter = JettonMinter.createFromAddress(
+        Address.parse(token.contractAddress)
+      );
+      const jettonMinterContract = client.open(jettonMinter);
+      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+        Address.parse(tonAddress)
+      );
+
+      setTokenInfo({
+        jettonWalletAddress,
+      });
+    })();
+  }, [token]); // toNetwork, tonAddress
 
   const handleBridgeFromTon = async () => {
     try {
