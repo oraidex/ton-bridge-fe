@@ -40,6 +40,9 @@ export const TonTokensContract = {
   },
 };
 
+export const CW20_TON_CONTRACT =
+  "orai1v5msmzjhyrf0285fyhfwg7uxk4yzdhrn6srvf8jf27dz8uuvu3mstj78qt";
+
 export const network = {
   ...oraichainNetwork,
   prefix: oraichainNetwork.bech32Config.bech32PrefixAccAddr,

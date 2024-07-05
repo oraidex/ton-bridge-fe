@@ -6,7 +6,12 @@ import {
   tokenMap,
 } from "@/constants/bridgeTokens";
 import { chainInfos } from "@/constants/chainInfo";
-import { TonNetwork, TonTokensContract, network } from "@/constants/networks";
+import {
+  CW20_TON_CONTRACT,
+  TonNetwork,
+  TonTokensContract,
+  network,
+} from "@/constants/networks";
 import { TonTokenList } from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
@@ -87,7 +92,19 @@ async function loadCw20Balance(
   if (!address) return;
 
   // get all cw20 token contract
-  const cw20Tokens = [...oraichainTokens.filter((t) => t.contractAddress)];
+  const cw20Tokens = [
+    ...[
+      ...oraichainTokens,
+      {
+        name: "Ton",
+        symbol: "TON",
+        contractAddress: CW20_TON_CONTRACT,
+        denom: "cw20_ton",
+        coingeckoId: "the-open-network",
+        decimal: 9,
+      },
+    ].filter((t) => t.contractAddress),
+  ];
 
   const data = toBinary({
     balance: { address },
@@ -129,7 +146,17 @@ async function loadCw20BalanceWithSpecificTokens(
 
   // get all cw20 token contract
   const cw20Tokens = [
-    ...oraichainTokens.filter(
+    ...[
+      ...oraichainTokens,
+      {
+        name: "Ton",
+        symbol: "TON",
+        contractAddress: CW20_TON_CONTRACT,
+        denom: "cw20_ton",
+        coingeckoId: "the-open-network",
+        decimal: 9,
+      },
+    ].filter(
       (t) => t.contractAddress && specificTokens.includes(t.contractAddress)
     ),
   ];
