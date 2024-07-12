@@ -4,7 +4,9 @@ import { createContext, FC, useContext } from "react";
 import { displayToast, DisplayToast } from "./Toast";
 import { useTheme } from "../theme-context";
 import { Bounce, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import "react-toastify/dist/ReactToastify.css";
+// import "react-toastify/ReactToastify.css";
+import "react-toastify/ReactToastify.min.css";
 
 export const ToastContext = createContext<DisplayToast | null>(null);
 

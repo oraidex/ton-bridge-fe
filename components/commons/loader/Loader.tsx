@@ -9,6 +9,7 @@ const Loader: React.FC<{
   width?: number;
   height?: number;
 }> = ({ className, width, height }) => (
+  // eslint-disable-next-line @next/next/no-img-element
   <img
     src={BroadcastingIcon.src}
     alt=""

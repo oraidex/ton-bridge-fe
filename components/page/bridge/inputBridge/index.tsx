@@ -1,24 +1,25 @@
 "use client";
 
-import useOnClickOutside from "@/hooks/useOnclickOutside";
-import {
-  useAuthOraiAddress,
-  useAuthTonAddress,
-} from "@/stores/authentication/selector";
-import { FC, useRef, useState } from "react";
-import styles from "./index.module.scss";
-import SelectCommon from "@/components/commons/select";
-import { SelectOptionIcon } from "@/assets/icons/network";
-import {
-  AtomIcon,
-  BtcIcon,
-  EthIcon,
-  OraiIcon,
-  UsdtIcon,
-} from "@/assets/icons/token";
-import { ArrowDownIcon } from "@/assets/icons/arrow";
-import NumberFormat from "react-number-format";
 import { SearchIcon } from "@/assets/icons/action";
+import { ArrowDownIcon } from "@/assets/icons/arrow";
+import { SelectOptionIcon } from "@/assets/icons/network";
+import SelectCommon from "@/components/commons/select";
+import { AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP } from "@/constants/config";
+import { TonNetwork } from "@/constants/networks";
+import { OraichainTokenList, TonTokenList } from "@/constants/tokens";
+import { numberWithCommas } from "@/helper/number";
+import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
+import useOnClickOutside from "@/hooks/useOnclickOutside";
+import { useAmountsCache, useTonAmountsCache } from "@/stores/token/selector";
+import {
+  BigDecimal,
+  CW20_DECIMALS,
+  toDisplay,
+} from "@oraichain/oraidex-common";
+import classNames from "classnames";
+import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
+import NumberFormat from "react-number-format";
+import styles from "./index.module.scss";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -27,27 +28,79 @@ const InputBridge: FC<{
   disabled?: boolean;
   onChangeAmount?: (amount: number | undefined) => void;
   amount: number;
+  token: any;
+  tonNetwork: TonNetwork;
+  setToken: Dispatch<any>;
+  txtSearch: string;
+  setTxtSearch: Dispatch<SetStateAction<string>>;
 }> = ({
   networkTo = "Oraichain",
   disabled = false,
   amount,
   onChangeAmount,
+  token,
+  tonNetwork,
+  setToken,
+  txtSearch,
+  setTxtSearch,
 }) => {
-  const oraiAddress = useAuthOraiAddress();
-  const tonAddress = useAuthTonAddress();
+  const amounts = useAmountsCache();
+  const amountsTon = useTonAmountsCache();
+
   const ref = useRef();
 
-  const [txtSearch, setTxtSearch] = useState(null);
   const [open, setOpen] = useState(false);
-  const [token, setToken] = useState(null);
+  const [coe, setCoe] = useState(0);
+  const { data: prices } = useCoinGeckoPrices();
 
   useOnClickOutside(ref, () => setOpen(false));
+
+  const usdPrice = new BigDecimal(amount || 0)
+    .mul(prices?.[token?.coingeckoId] || 0)
+    .toNumber();
+
+  const displayBalance =
+    networkTo === "Ton"
+      ? toDisplay(amounts?.[token?.denom] || "0", token?.decimal)
+      : toDisplay(amountsTon?.[token?.denom] || "0", token?.decimal);
+  // : toDisplay(balance || "0", token?.decimal);
+
+  const networkList =
+    networkTo === "Ton" ? OraichainTokenList : TonTokenList(tonNetwork);
 
   return (
     <div className={styles.inputBridge}>
       <div className={styles.header}>
-        <span className={styles.bal}>Balance:</span> {0.00553293}{" "}
-        {token?.symbol}
+        <div className={styles.headerTxt}>
+          <span className={styles.bal}>Balance: </span>
+          {!token
+            ? "--"
+            : numberWithCommas(displayBalance, undefined, {
+                maximumFractionDigits: CW20_DECIMALS,
+              })}{" "}
+          {token?.symbol}
+        </div>
+        <div className={styles.percentWrapper}>
+          {AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP.map(([coeff, text]) => (
+            <button
+              disabled={!token}
+              key={coeff}
+              className={classNames(styles.percent, {
+                activePercent: coe === coeff,
+              })}
+              onClick={(event) => {
+                event.stopPropagation();
+                onChangeAmount &&
+                  onChangeAmount(
+                    new BigDecimal(coeff).mul(displayBalance).toNumber()
+                  );
+                setCoe(coeff);
+              }}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
       </div>
       <div className={styles.content}>
         <SelectCommon
@@ -78,32 +131,39 @@ const InputBridge: FC<{
               type="text"
               value={txtSearch}
               onChange={(e) => setTxtSearch(e.target.value)}
-              placeholder="Search by address, asset, type"
+              placeholder="Search by address, asset"
             />
           </div>
 
           <div className={styles.list}>
-            {(networkTo === "Oraichain"
-              ? OraichainTokenList
-              : TonTokenList
-            ).map((e, key) => {
-              return (
-                <div
-                  className={styles.tokenItem}
-                  key={`token-${key}`}
-                  onClick={() => {
-                    setToken(e);
-                    setOpen(false);
-                  }}
-                >
-                  <e.Icon />
-                  <div className={styles.info}>
-                    <p>{e.symbol}</p>
-                    <p className={styles.name}>{e.name}</p>
+            {networkList
+              .filter(
+                (e) =>
+                  !txtSearch ||
+                  (txtSearch &&
+                    (e.denom.toLowerCase().includes(txtSearch.toLowerCase()) ||
+                      (e.contractAddress || "")
+                        .toLowerCase()
+                        .includes(txtSearch.toLowerCase())))
+              )
+              .map((e, key) => {
+                return (
+                  <div
+                    className={styles.tokenItem}
+                    key={`token-${key}`}
+                    onClick={() => {
+                      setToken(e);
+                      setOpen(false);
+                    }}
+                  >
+                    <e.Icon />
+                    <div className={styles.info}>
+                      <p>{e.symbol}</p>
+                      <p className={styles.name}>{e.name}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </SelectCommon>
 
@@ -127,7 +187,12 @@ const InputBridge: FC<{
             }}
           />
 
-          <span className={styles.suffix}>≈ $0.00</span>
+          <span className={styles.suffix}>
+            ≈ $
+            {numberWithCommas(usdPrice, undefined, {
+              maximumFractionDigits: 6,
+            })}
+          </span>
         </div>
       </div>
     </div>
@@ -135,79 +200,3 @@ const InputBridge: FC<{
 };
 
 export default InputBridge;
-
-export const OraichainTokenList = [
-  {
-    name: "Tether",
-    symbol: "USDT",
-    Icon: UsdtIcon,
-    contractAddress: "",
-    denom: "usdt",
-  },
-  {
-    name: "Cosmos",
-    symbol: "ATOM",
-    Icon: AtomIcon,
-    contractAddress: "",
-    denom: "cosmos",
-  },
-  {
-    name: "Ethereum",
-    symbol: "ETH",
-    Icon: EthIcon,
-    contractAddress: "",
-    denom: "eth",
-  },
-  {
-    name: "Bitcoin",
-    symbol: "BTC",
-    Icon: BtcIcon,
-    contractAddress: "",
-    denom: "btc",
-  },
-  {
-    name: "Oraichain",
-    symbol: "ORAI",
-    Icon: OraiIcon,
-    contractAddress: "",
-    denom: "orai",
-  },
-];
-
-export const TonTokenList = [
-  {
-    name: "Tether",
-    symbol: "USDT",
-    Icon: UsdtIcon,
-    contractAddress: "",
-    denom: "usdt",
-  },
-  {
-    name: "Cosmos",
-    symbol: "ATOM",
-    Icon: AtomIcon,
-    contractAddress: "",
-    denom: "cosmos",
-  },
-  {
-    name: "Ethereum",
-    symbol: "ETH",
-    Icon: EthIcon,
-    contractAddress: "",
-    denom: "eth",
-  },
-  {
-    name: "Bitcoin",
-    symbol: "BTC",
-    Icon: BtcIcon,
-    contractAddress: "",
-    denom: "btc",
-  },
-  {
-    name: "Oraichain",
-    symbol: "ORAI",
-    Icon: OraiIcon,
-    contractAddress: "",
-    denom: "orai",
-  },
-];
