@@ -30,7 +30,11 @@ import {
   handleSentFunds,
   toAmount,
 } from "@oraichain/oraidex-common";
-import { JettonMinter, JettonOpCodes } from "@oraichain/ton-bridge-contracts";
+import {
+  BridgeAdapter,
+  JettonMinter,
+  JettonOpCodes,
+} from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
@@ -39,23 +43,20 @@ import { Base64 } from "@tonconnect/protocol";
 import { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import InputBridge, { NetworkType } from "./inputBridge";
-
-function sleep(duration) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
-}
+import { JettonWallet } from "@oraichain/ton-bridge-contracts";
+import { fromBech32 } from "@cosmjs/encoding";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
   const { connector } = useTonConnector();
   const [txtSearch, setTxtSearch] = useState<string>();
+  const tonNetwork = TonNetwork.Mainnet;
 
   const { loadToken } = useLoadToken();
   const { loadAllBalanceTonToken } = useLoadTonBalance({
     tonAddress,
-    tonNetwork: TonNetwork.Mainnet,
+    tonNetwork,
   });
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
@@ -65,8 +66,6 @@ const Bridge = () => {
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
   });
-
-  const tonNetwork = TonNetwork.Mainnet;
 
   const destinationAddress =
     toNetwork.id === NetworkList.oraichain.id
@@ -107,119 +106,83 @@ const Bridge = () => {
 
   const handleBridgeFromTon = async () => {
     try {
+      if (!oraiAddress) {
+        throw "Please connect OWallet or Kelpr!";
+      }
+
+      if (!tonAddress) {
+        throw "Please connect Ton Wallet";
+      }
+
       if (!token || !amount) {
         throw "Not valid!";
       }
 
       setLoading(true);
+      const bridgeAdapterAddress = Address.parse(
+        TonInteractionContract[tonNetwork].bridgeAdapter
+      );
+      const fmtAmount = new BigDecimal(10).pow(token.decimal).mul(amount);
+      const isNativeTon = token && !token.contractAddress;
+      const toAddress = isNativeTon
+        ? bridgeAdapterAddress.toString()
+        : tokenInfo.jettonWalletAddress?.toString();
+      const oraiAddressBech32 = fromBech32(oraiAddress).data;
+      const toAmount = isNativeTon
+        ? fmtAmount.add(toNano(1)).toString()
+        : toNano(1).toString();
+      const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
+      const memo = beginCell().endCell();
 
-      const fmtAmount = new BigDecimal(10)
-        .pow(token.decimal)
-        .mul(amount)
-        .toNumber();
+      console.log(
+        {
+          amount: BigInt(fmtAmount.toString()),
+          memo,
+          remoteReceiver: oraiAddress,
+          timeout,
+        },
+        oraiAddressBech32,
+        {
+          queryId: 0,
+          value: toNano(0), // don't care this
+        }
+      );
 
-      console.log(tokenInfo.jettonWalletAddress?.toString());
       const tx = await connector.sendTransaction({
         validUntil: 100000,
         messages: [
           {
-            address:
-              token && !token.contractAddress
-                ? Address.parse(
-                    TonInteractionContract[TonNetwork.Mainnet].bridgeAdapter
-                  ).toString()
-                : tokenInfo.jettonWalletAddress?.toString(), // dia chi token
-            amount:
-              token && !token.contractAddress
-                ? (fmtAmount + 1000000000).toString()
-                : toNano(1).toString(), // gas
-            payload:
-              token && !token.contractAddress
-                ? Base64.encode(
-                    beginCell()
-                      .storeUint(4062002313, 32)
-                      .storeUint(0, 64)
-                      .storeCoins(0)
-                      .storeRef(
-                        beginCell()
-                          .storeCoins(fmtAmount)
-                          .storeUint(
-                            Math.floor(new Date().getTime() / 1000) + 3600,
-                            64
-                          )
-                          .storeRef(
-                            beginCell()
-                              .storeRef(
-                                beginCell()
-                                  .storeBuffer(Buffer.from(""))
-                                  .endCell()
-                              )
-                              .storeRef(
-                                beginCell()
-                                  .storeBuffer(Buffer.from("channel-0"))
-                                  .endCell()
-                              )
-                              .storeRef(
-                                beginCell()
-                                  .storeBuffer(Buffer.from(""))
-                                  .endCell()
-                              )
-                              .storeRef(
-                                beginCell()
-                                  .storeBuffer(Buffer.from(oraiAddress))
-                                  .endCell()
-                              )
-                              .endCell()
-                          )
-                          .endCell()
-                      )
-                      .endCell()
-                      .toBoc()
-                  )
-                : Base64.encode(
-                    beginCell()
-                      .storeUint(JettonOpCodes.TRANSFER, 32)
-                      .storeUint(0, 64)
-                      .storeCoins(fmtAmount)
-                      .storeAddress(
-                        Address.parse(
-                          TonInteractionContract[TonNetwork.Mainnet]
-                            .bridgeAdapter
-                        )
-                      ) // to address => Bridge Adapter
-                      .storeAddress(Address.parse(tonAddress)) // response address
-                      .storeDict(Dictionary.empty())
-                      .storeCoins(SEND_TON_TRANFERS_CONFIG.fwdAmount)
-                      .storeUint(0, 1)
-                      .storeRef(
-                        beginCell()
-                          .storeAddress(Address.parse(token.contractAddress))
-                          .storeUint(SEND_TON_TRANFERS_CONFIG.timeout, 64)
-                          .endCell()
-                      )
-                      .storeRef(
-                        beginCell()
-                          .storeRef(
-                            beginCell().storeBuffer(Buffer.from("")).endCell()
-                          )
-                          .storeRef(
-                            beginCell()
-                              .storeBuffer(Buffer.from("channel-0"))
-                              .endCell()
-                          )
-                          .storeRef(
-                            beginCell().storeBuffer(Buffer.from("")).endCell()
-                          )
-                          .storeRef(
-                            beginCell()
-                              .storeBuffer(Buffer.from(oraiAddress))
-                              .endCell()
-                          )
-                          .endCell()
-                      )
-                      .endCell()
-                      .toBoc()
-                  ),
+            address: toAddress, // dia chi token
+            amount: toAmount, // gas
+            payload: Base64.encode(
+              isNativeTon
+                ? BridgeAdapter.buildBridgeTonBody(
+                    {
+                      amount: BigInt(fmtAmount.toString()),
+                      memo,
+                      remoteReceiver: oraiAddress,
+                      timeout,
+                    },
+                    oraiAddressBech32,
+                    {
+                      queryId: 0,
+                      value: toNano(0), // don't care this
+                    }
+                  ).toBoc()
+                : JettonWallet.buildSendTransferPacket(
+                    Address.parse(tonAddress),
+                    {
+                      fwdAmount: toNano("0.1"),
+                      jettonAmount: BigInt(fmtAmount.toString()),
+                      jettonMaster: Address.parse(token.contractAddress),
+                      remoteReceiver: oraiAddress,
+                      timeout,
+                      memo,
+                      toAddress: bridgeAdapterAddress,
+                    },
+                    0
+                  ).toBoc()
+            ),
           },
         ],
       });
@@ -250,6 +213,14 @@ const Bridge = () => {
 
   const handleBridgeFromOraichain = async () => {
     try {
+      if (!oraiAddress) {
+        throw "Please connect OWallet or Kelpr!";
+      }
+
+      if (!tonAddress) {
+        throw "Please connect Ton Wallet";
+      }
+
       if (!token || !amount) {
         throw "Not valid!";
       }

@@ -12,9 +12,9 @@ export enum TonNetwork {
 
 export const TonInteractionContract = {
   [TonNetwork.Mainnet]: {
-    lightClient: "EQCkkxPb0X4DAMBrOi8Tyf0wdqqVtTR9ekbDqB9ijP391nQh",
+    lightClient: "EQDt5RAUICxUeHaNicwspH8obI__z3X0UHy6vv1xhpi3AbfT",
     whitelist: "EQATDM6mfPZjPDMD9TVa6D9dlbmAKY5w6xOJiTXJ9Nqj_dsu",
-    bridgeAdapter: "EQAeNPObD65owWYLyQlPdnD8qKU9SmOKOrC3q567gbjm68Or",
+    bridgeAdapter: "EQArWlaBgdGClwJrAkQjQP_8zxIK_bdgbH-6qdl4f5JEfo3r",
   },
   [TonNetwork.Testnet]: {
     lightClient: "",
@@ -54,5 +54,5 @@ export const network = {
   multicall: MULTICALL_CONTRACT,
   explorer: "https://scan.orai.io",
   CW_TON_BRIDGE:
-    "orai1pump92q0m7y3p8zx3c9yfxh0uzk8gl8v8pmmxmmyv6pewe2cjpsqfl2md0",
+    "orai18lppnh7nwfnstpsewe70aql2qnmnm6kwkdcfe3j84ujtwzn89afqjp4pyr",
 };
