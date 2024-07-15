@@ -147,7 +147,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     const isCheckKeplr = !!version && keplrCheck("keplr");
     const isMetamask = window?.ethereum?.isMetaMask;
     //@ts-ignore
-    const isTronLink = window?.tronWeb?.isTronLink;
 
     switch (wallet) {
       case OraiWallet.Keplr:

@@ -5,11 +5,7 @@ import { TonNetworkICon } from "@/assets/icons/network";
 import { OraiIcon } from "@/assets/icons/token";
 import Loader from "@/components/commons/loader/Loader";
 import ConnectButton from "@/components/layout/connectButton";
-import {
-  ARG_BRIDGE_TO_TON,
-  SEND_TON_TRANFERS_CONFIG,
-  TON_SCAN,
-} from "@/constants/config";
+import { TON_SCAN } from "@/constants/config";
 import {
   TonInteractionContract,
   TonNetwork,
@@ -30,11 +26,7 @@ import {
   handleSentFunds,
   toAmount,
 } from "@oraichain/oraidex-common";
-import {
-  BridgeAdapter,
-  JettonMinter,
-  JettonOpCodes,
-} from "@oraichain/ton-bridge-contracts";
+import { BridgeAdapter, JettonMinter } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address, Cell, Dictionary, beginCell, toNano } from "@ton/core";
@@ -123,8 +115,8 @@ const Bridge = () => {
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
       const fmtAmount = new BigDecimal(10).pow(token.decimal).mul(amount);
-      const isNativeTon = token && !token.contractAddress;
-      const toAddress = isNativeTon
+      const isNativeTon: boolean = token && !token.contractAddress;
+      const toAddress: string = isNativeTon
         ? bridgeAdapterAddress.toString()
         : tokenInfo.jettonWalletAddress?.toString();
       const oraiAddressBech32 = fromBech32(oraiAddress).data;
@@ -133,20 +125,6 @@ const Bridge = () => {
         : toNano(1).toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
       const memo = beginCell().endCell();
-
-      console.log(
-        {
-          amount: BigInt(fmtAmount.toString()),
-          memo,
-          remoteReceiver: oraiAddress,
-          timeout,
-        },
-        oraiAddressBech32,
-        {
-          queryId: 0,
-          value: toNano(0), // don't care this
-        }
-      );
 
       const tx = await connector.sendTransaction({
         validUntil: 100000,
@@ -235,35 +213,37 @@ const Bridge = () => {
 
       let tx;
 
+      const timeout = Math.floor(new Date().getTime() / 1000) + 3600;
       const msg = {
         // crcSrc: ARG_BRIDGE_TO_TON.CRC_SRC,
         denom: TonTokenList(tonNetwork).find(
           (tk) => tk.coingeckoId === token.coingeckoId
         ).contractAddress,
-        localChannelId: ARG_BRIDGE_TO_TON.CHANNEL,
+        timeout,
         to: tonAddress,
       };
+
       const funds = handleSentFunds({
         denom: token.denom,
-        amount,
+        amount: toAmount(amount, token.decimal).toString(),
       });
 
       // native token
       if (!token.contractAddress) {
         tx = await tonBridgeClient.bridgeToTon(msg, "auto", null, funds);
-      } else {
-        // cw20 token
+      }
+      // cw20 token
+      else {
         tx = await window.client.execute(
           oraiAddress,
           token.contractAddress,
           {
             send: {
               contract: network.CW_TON_BRIDGE,
-              amount: toAmount(amount).toString(),
+              amount: toAmount(amount, token.decimal).toString(),
               msg: toBinary({
-                // crc_src: msg.crcSrc,
                 denom: msg.denom,
-                local_channel_id: msg.localChannelId,
+                timeout,
                 to: msg.to,
               }),
             },

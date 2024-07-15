@@ -56,7 +56,7 @@ export const TonTokenList = (network: TonNetwork) => [
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
-    contractAddress: null,
+    contractAddress: TonTokensContract[network].ton,
     denom: "ton",
     coingeckoId: "the-open-network",
     decimal: 9,
