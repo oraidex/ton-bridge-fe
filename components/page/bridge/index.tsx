@@ -7,6 +7,7 @@ import Loader from "@/components/commons/loader/Loader";
 import ConnectButton from "@/components/layout/connectButton";
 import { TON_SCAN } from "@/constants/config";
 import {
+  TON_ADDRESS_CONTRACT,
   TonInteractionContract,
   TonNetwork,
   network,
@@ -66,34 +67,38 @@ const Bridge = () => {
 
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
   useEffect(() => {
-    (async () => {
-      if (toNetwork.id != NetworkList.oraichain.id || !token) return;
+    try {
+      (async () => {
+        if (toNetwork.id != NetworkList.oraichain.id || !token) return;
 
-      // get the decentralized RPC endpoint
-      const endpoint = await getHttpEndpoint();
-      const client = new TonClient({
-        endpoint,
-      });
-
-      if (!token?.contractAddress) {
-        setTokenInfo({
-          jettonWalletAddress: "",
+        // get the decentralized RPC endpoint
+        const endpoint = await getHttpEndpoint();
+        const client = new TonClient({
+          endpoint,
         });
-        return;
-      }
 
-      const jettonMinter = JettonMinter.createFromAddress(
-        Address.parse(token.contractAddress)
-      );
-      const jettonMinterContract = client.open(jettonMinter);
-      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
-        Address.parse(tonAddress)
-      );
+        if (token?.contractAddress === TON_ADDRESS_CONTRACT) {
+          setTokenInfo({
+            jettonWalletAddress: "",
+          });
+          return;
+        }
 
-      setTokenInfo({
-        jettonWalletAddress,
-      });
-    })();
+        const jettonMinter = JettonMinter.createFromAddress(
+          Address.parse(token.contractAddress)
+        );
+        const jettonMinterContract = client.open(jettonMinter);
+        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+          Address.parse(tonAddress)
+        );
+
+        setTokenInfo({
+          jettonWalletAddress,
+        });
+      })();
+    } catch (error) {
+      console.log("error :>>", error);
+    }
   }, [token]); // toNetwork, tonAddress
 
   const handleBridgeFromTon = async () => {
@@ -126,6 +131,36 @@ const Bridge = () => {
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
       const memo = beginCell().endCell();
 
+      const getNativeBridgePayload = () =>
+        BridgeAdapter.buildBridgeTonBody(
+          {
+            amount: BigInt(fmtAmount.toString()),
+            memo,
+            remoteReceiver: oraiAddress,
+            timeout,
+          },
+          oraiAddressBech32,
+          {
+            queryId: 0,
+            value: toNano(0), // don't care this
+          }
+        ).toBoc();
+
+      const getOtherBridgeTokenPayload = () =>
+        JettonWallet.buildSendTransferPacket(
+          Address.parse(tonAddress),
+          {
+            fwdAmount: toNano("0.1"),
+            jettonAmount: BigInt(fmtAmount.toString()),
+            jettonMaster: Address.parse(token.contractAddress),
+            remoteReceiver: oraiAddress,
+            timeout,
+            memo,
+            toAddress: bridgeAdapterAddress,
+          },
+          0
+        ).toBoc();
+
       const tx = await connector.sendTransaction({
         validUntil: 100000,
         messages: [
@@ -134,32 +169,8 @@ const Bridge = () => {
             amount: toAmount, // gas
             payload: Base64.encode(
               isNativeTon
-                ? BridgeAdapter.buildBridgeTonBody(
-                    {
-                      amount: BigInt(fmtAmount.toString()),
-                      memo,
-                      remoteReceiver: oraiAddress,
-                      timeout,
-                    },
-                    oraiAddressBech32,
-                    {
-                      queryId: 0,
-                      value: toNano(0), // don't care this
-                    }
-                  ).toBoc()
-                : JettonWallet.buildSendTransferPacket(
-                    Address.parse(tonAddress),
-                    {
-                      fwdAmount: toNano("0.1"),
-                      jettonAmount: BigInt(fmtAmount.toString()),
-                      jettonMaster: Address.parse(token.contractAddress),
-                      remoteReceiver: oraiAddress,
-                      timeout,
-                      memo,
-                      toAddress: bridgeAdapterAddress,
-                    },
-                    0
-                  ).toBoc()
+                ? getNativeBridgePayload()
+                : getOtherBridgeTokenPayload()
             ),
           },
         ],
