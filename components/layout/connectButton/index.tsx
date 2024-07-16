@@ -193,7 +193,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     if (tonAddress && tonWallet) {
       handleConnectWalletInTonNetwork(tonWallet || TonWallet.TonKeeper);
     }
-  }, []);
+  }, [tonAddress, tonWallet]);
 
   useEffect(() => {
     if (open && oraiAddress) {
