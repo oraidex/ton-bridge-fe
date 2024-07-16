@@ -10,20 +10,29 @@
       ],
       "headers": [
         {
-          "source": "/**",
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
           "headers": [
             {
               "key": "Cache-Control",
-              "value": "no-cache, no-store, must-revalidate"
+              "value": "max-age=604800"  // Cache images for 7 days
             }
           ]
         },
         {
-          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|js|css|eot|otf|ttf|ttc|woff|woff2|font.css)",
+          "source": "**/*.@(css|js)",
           "headers": [
             {
               "key": "Cache-Control",
-              "value": "max-age=604800"
+              "value": "max-age=604800"  // Cache CSS and JS files for 7 days
+            }
+          ]
+        },
+        {
+          "source": "/index.html",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"  // Do not cache the main HTML file
             }
           ]
         }
