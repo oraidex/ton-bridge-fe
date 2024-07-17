@@ -142,7 +142,7 @@
         line-height: 150%; /* 21px */
         letter-spacing: 0.1px;
 
-        &:first-of-type {
+        &:not(:last-of-type) {
           margin-bottom: 16px;
         }
 

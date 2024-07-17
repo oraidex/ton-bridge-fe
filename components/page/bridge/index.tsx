@@ -12,7 +12,7 @@ import {
   TonNetwork,
   network,
 } from "@/constants/networks";
-import { TonTokenList } from "@/constants/tokens";
+import { TokenType, TonTokenList } from "@/constants/tokens";
 import { useTonConnector } from "@/contexts/custom-ton-provider";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { getTransactionUrl, handleErrorTransaction } from "@/helper";
@@ -24,6 +24,7 @@ import {
 import { toBinary } from "@cosmjs/cosmwasm-stargate";
 import {
   BigDecimal,
+  CW20_DECIMALS,
   handleSentFunds,
   toAmount,
 } from "@oraichain/oraidex-common";
@@ -35,9 +36,15 @@ import { TonClient } from "@ton/ton";
 import { Base64 } from "@tonconnect/protocol";
 import { useEffect, useState } from "react";
 import styles from "./index.module.scss";
-import InputBridge, { NetworkType } from "./inputBridge";
+import InputBridge, { NetworkType } from "./components/inputBridge";
 import { JettonWallet } from "@oraichain/ton-bridge-contracts";
 import { fromBech32 } from "@cosmjs/encoding";
+import useGetFee from "./hooks/useGetFee";
+import {
+  DECIMAL_TOKEN_FEE,
+  formatDisplayNumber,
+  numberWithCommas,
+} from "@/helper/number";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -53,7 +60,7 @@ const Bridge = () => {
   });
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<TokenType>(null);
   const [fromNetwork, setFromNetwork] = useState(NetworkList.ton);
   const [toNetwork, setToNetwork] = useState(NetworkList.oraichain);
   const [tokenInfo, setTokenInfo] = useState({
@@ -64,6 +71,11 @@ const Bridge = () => {
     toNetwork.id === NetworkList.oraichain.id
       ? oraiAddress || ""
       : tonAddress || "";
+
+  const { bridgeFee, tokenFee } = useGetFee({
+    token,
+    amount,
+  });
 
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
   useEffect(() => {
@@ -341,14 +353,27 @@ const Bridge = () => {
         <div className={styles.divider}></div>
         <div className={styles.est}>
           <div className={styles.itemEst}>
-            <span>Oraichain gas fee</span>
+            <span>TON gas fee</span>
             {/* <span className={styles.value}>~ 0.0017 ORAI</span> */}
-            <span className={styles.value}>~ 0 ORAI</span>
+            <span className={styles.value}>~ 1 TON</span>
           </div>
           <div className={styles.itemEst}>
             <span>Bridge fee</span>
             {/* <span className={styles.value}>1 TON</span> */}
-            <span className={styles.value}>0 TON</span>
+            <span className={styles.value}>
+              {numberWithCommas(bridgeFee || 0, undefined, {
+                maximumFractionDigits: CW20_DECIMALS,
+              })}{" "}
+              ORAI
+            </span>
+          </div>
+          <div className={styles.itemEst}>
+            <span>Token fee</span>
+            {/* <span className={styles.value}>1 TON</span> */}
+            <span className={styles.value}>
+              {!token ? "--" : formatDisplayNumber(tokenFee, DECIMAL_TOKEN_FEE)}{" "}
+              {token?.symbol}
+            </span>
           </div>
         </div>
 

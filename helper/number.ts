@@ -1,4 +1,4 @@
-import { validateNumber } from "@oraichain/oraidex-common";
+import { CW20_DECIMALS, validateNumber } from "@oraichain/oraidex-common";
 
 // TODO: need to seperate format funcs to format module later.
 export const formatDisplayUsdt = (
@@ -53,3 +53,16 @@ export const numberWithCommas = (
 };
 
 export const isNegative = (number) => number <= 0;
+
+export const DECIMAL_TOKEN_FEE = 3;
+
+export const formatDisplayNumber = (
+  num: number,
+  decimal: number = CW20_DECIMALS
+) => {
+  if (num <= 0.001) {
+    return "~0.001";
+  }
+
+  return numberWithCommas(num, undefined, { maximumFractionDigits: decimal });
+};
