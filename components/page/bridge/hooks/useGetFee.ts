@@ -16,12 +16,6 @@ const useGetFee = ({
   const [bridgeFee, setBridgeFee] = useState(0);
   const [tokenFee, setTokenFee] = useState(0);
 
-  const tonBridgeClient = new TonbridgeBridgeClient(
-    window.client,
-    oraiAddress,
-    network.CW_TON_BRIDGE
-  );
-
   useEffect(() => {
     (async () => {
       if (token) {
@@ -31,6 +25,12 @@ const useGetFee = ({
         if (!tokenInTon) {
           return;
         }
+
+        const tonBridgeClient = new TonbridgeBridgeClient(
+          window.client,
+          oraiAddress,
+          network.CW_TON_BRIDGE
+        );
 
         const tokenFeeConfig = await tonBridgeClient.tokenFee({
           remoteTokenDenom: tokenInTon?.contractAddress,
@@ -51,6 +51,12 @@ const useGetFee = ({
 
   useEffect(() => {
     (async () => {
+      const tonBridgeClient = new TonbridgeBridgeClient(
+        window.client,
+        oraiAddress,
+        network.CW_TON_BRIDGE
+      );
+
       const config = await tonBridgeClient.config();
       if (config) {
         const { relayer_fee } = config;

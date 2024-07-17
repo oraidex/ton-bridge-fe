@@ -53,6 +53,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
+    "husky": "^9.0.11",
     "patch-package": "^8.0.0",
     "sass": "^1.77.6",
     "typescript": "^5"
