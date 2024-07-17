@@ -1,6 +1,6 @@
 "use client";
 
-import { CopyIcon } from "@/assets/icons/action";
+import { CheckIcon, CopyIcon } from "@/assets/icons/action";
 import {
   KeplrIcon,
   MetamaskIcon,
@@ -20,10 +20,20 @@ import {
   OraiWallet,
   TonWallet,
 } from "@/stores/authentication/useAuthenticationStore";
-import { FC, useRef, useState } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "./index.module.scss";
 
-const ConnectedInfo: FC<{ onClick: () => void }> = ({ onClick }) => {
+const ConnectedInfo: FC<{
+  onClick: () => void;
+  setStep: Dispatch<SetStateAction<number>>;
+}> = ({ onClick, setStep }) => {
   const oraiAddress = useAuthOraiAddress();
   const oraiWallet = useAuthOraiWallet();
   const tonAddress = useAuthTonAddress();
@@ -35,6 +45,49 @@ const ConnectedInfo: FC<{ onClick: () => void }> = ({ onClick }) => {
     handleSetTonAddress,
     handleSetTonWallet,
   } = useAuthenticationActions();
+
+  const OraichainWalet = mapWalletToIcon[oraiWallet];
+  const TonNetworkIcon = mapWalletToIcon[tonWallet];
+
+  return (
+    <div className={styles.connectedInfo}>
+      <div
+        className={styles.item}
+        onClick={() => {
+          onClick();
+          setStep(1);
+        }}
+      >
+        {OraichainWalet && <OraichainWalet />}
+        {reduceString(oraiAddress, 6, 6)}
+        <CopyButton value={oraiAddress} />
+      </div>
+      <div
+        className={styles.item}
+        onClick={() => {
+          onClick();
+          setStep(2);
+        }}
+      >
+        {TonNetworkIcon && <TonNetworkIcon />}
+        {reduceString(tonAddress, 6, 6)}
+        <CopyButton value={tonAddress} />
+      </div>
+    </div>
+  );
+};
+
+export default ConnectedInfo;
+
+const mapWalletToIcon = {
+  [OraiWallet.Keplr]: KeplrIcon,
+  [OraiWallet.OWallet]: OwalletIcon,
+  [OraiWallet.Metamask]: MetamaskIcon,
+  [TonWallet.TonKeeper]: TonKeeperIcon,
+  [TonWallet.MyTonWallet]: MyTonWalletIcon,
+};
+
+export const CopyButton = ({ value }: { value: string }) => {
   const [copiedValue, setCopiedValue] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
 
@@ -51,43 +104,32 @@ const ConnectedInfo: FC<{ onClick: () => void }> = ({ onClick }) => {
       });
   };
 
-  const OraichainWalet = mapWalletToIcon[oraiWallet];
-  const TonNetworkIcon = mapWalletToIcon[tonWallet];
+  useEffect(() => {
+    let timeoutId;
 
-  return (
-    <div className={styles.connectedInfo} onClick={() => onClick()}>
-      <div className={styles.item}>
-        {OraichainWalet && <OraichainWalet />}
-        {reduceString(oraiAddress, 6, 6)}
-        <CopyIcon
-          className={styles.copy}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCopy(oraiAddress);
-          }}
-        />
-      </div>
-      <div className={styles.item}>
-        {TonNetworkIcon && <TonNetworkIcon />}
-        {reduceString(tonAddress, 6, 6)}
-        <CopyIcon
-          className={styles.copy}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCopy(tonAddress);
-          }}
-        />
-      </div>
-    </div>
+    if (isCopied) {
+      timeoutId = setTimeout(() => {
+        setIsCopied(false);
+        setCopiedValue(null);
+      }, 2000);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isCopied]);
+
+  return isCopied ? (
+    <CheckIcon />
+  ) : (
+    <CopyIcon
+      className={styles.copy}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleCopy(value);
+      }}
+    />
   );
-};
-
-export default ConnectedInfo;
-
-const mapWalletToIcon = {
-  [OraiWallet.Keplr]: KeplrIcon,
-  [OraiWallet.OWallet]: OwalletIcon,
-  [OraiWallet.Metamask]: MetamaskIcon,
-  [TonWallet.TonKeeper]: TonKeeperIcon,
-  [TonWallet.MyTonWallet]: MyTonWalletIcon,
 };

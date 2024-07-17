@@ -5,13 +5,7 @@ import { BigDecimal, toDisplay } from "@oraichain/oraidex-common";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { useEffect, useState } from "react";
 
-const useGetFee = ({
-  token,
-  amount,
-}: {
-  token: TokenType;
-  amount: string | number;
-}) => {
+const useGetFee = ({ token }: { token: TokenType }) => {
   const oraiAddress = useAuthOraiAddress();
   const [bridgeFee, setBridgeFee] = useState(0);
   const [tokenFee, setTokenFee] = useState(0);
@@ -38,16 +32,13 @@ const useGetFee = ({
 
         if (tokenFeeConfig) {
           const { nominator, denominator } = tokenFeeConfig;
-          const fee = new BigDecimal(nominator)
-            .mul(amount || 0)
-            .div(denominator)
-            .toNumber();
+          const fee = new BigDecimal(nominator).div(denominator).toNumber();
 
           setTokenFee(fee);
         }
       }
     })();
-  }, [token, amount, oraiAddress]);
+  }, [token, oraiAddress]);
 
   useEffect(() => {
     (async () => {

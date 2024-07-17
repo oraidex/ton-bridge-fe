@@ -195,11 +195,11 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     }
   }, [tonAddress, tonWallet]);
 
-  useEffect(() => {
-    if (open && oraiAddress) {
-      setStep(2);
-    }
-  }, [open]);
+  // useEffect(() => {
+  //   if (open && oraiAddress) {
+  //     setStep(2);
+  //   }
+  // }, [open]);
 
   return (
     <div
@@ -212,7 +212,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
           Connect Wallet
         </button>
       ) : (
-        <ConnectedInfo onClick={() => setOpen(true)} />
+        <ConnectedInfo onClick={() => setOpen(true)} setStep={setStep} />
       )}
       <div
         className={classNames(styles.modalConnectWrapper, {

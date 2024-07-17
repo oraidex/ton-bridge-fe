@@ -74,7 +74,6 @@ const Bridge = () => {
 
   const { bridgeFee, tokenFee } = useGetFee({
     token,
-    amount,
   });
 
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
@@ -132,7 +131,8 @@ const Bridge = () => {
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
       const fmtAmount = new BigDecimal(10).pow(token.decimal).mul(amount);
-      const isNativeTon: boolean = token && !token.contractAddress;
+      const isNativeTon: boolean =
+        token.contractAddress === TON_ADDRESS_CONTRACT;
       const toAddress: string = isNativeTon
         ? bridgeAdapterAddress.toString()
         : tokenInfo.jettonWalletAddress?.toString();
@@ -352,11 +352,13 @@ const Bridge = () => {
         </div>
         <div className={styles.divider}></div>
         <div className={styles.est}>
-          <div className={styles.itemEst}>
-            <span>TON gas fee</span>
-            {/* <span className={styles.value}>~ 0.0017 ORAI</span> */}
-            <span className={styles.value}>~ 1 TON</span>
-          </div>
+          {toNetwork.id === NetworkList.oraichain.id && (
+            <div className={styles.itemEst}>
+              <span>TON gas fee</span>
+              {/* <span className={styles.value}>~ 0.0017 ORAI</span> */}
+              <span className={styles.value}>~ 1 TON</span>
+            </div>
+          )}
           <div className={styles.itemEst}>
             <span>Bridge fee</span>
             {/* <span className={styles.value}>1 TON</span> */}
@@ -371,7 +373,12 @@ const Bridge = () => {
             <span>Token fee</span>
             {/* <span className={styles.value}>1 TON</span> */}
             <span className={styles.value}>
-              {!token ? "--" : formatDisplayNumber(tokenFee, DECIMAL_TOKEN_FEE)}{" "}
+              {!token
+                ? "--"
+                : formatDisplayNumber(
+                    new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
+                    DECIMAL_TOKEN_FEE
+                  )}{" "}
               {token?.symbol}
             </span>
           </div>
