@@ -12,7 +12,11 @@ import {
   TonNetwork,
   network,
 } from "@/constants/networks";
-import { TokenType, TonTokenList } from "@/constants/tokens";
+import {
+  OraichainTokenList,
+  TokenType,
+  TonTokenList,
+} from "@/constants/tokens";
 import { useTonConnector } from "@/contexts/custom-ton-provider";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { getTransactionUrl, handleErrorTransaction } from "@/helper";
@@ -27,6 +31,7 @@ import {
   CW20_DECIMALS,
   handleSentFunds,
   toAmount,
+  toDisplay,
 } from "@oraichain/oraidex-common";
 import { BridgeAdapter, JettonMinter } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
@@ -45,6 +50,8 @@ import {
   formatDisplayNumber,
   numberWithCommas,
 } from "@/helper/number";
+import { useAmountsCache, useTonAmountsCache } from "@/stores/token/selector";
+import useGetStateData from "./hooks/useGetStateData";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -58,6 +65,11 @@ const Bridge = () => {
     tonAddress,
     tonNetwork,
   });
+
+  const amounts = useAmountsCache();
+  const amountsTon = useTonAmountsCache();
+  const { balances: sentBalance, getChanelStateData } = useGetStateData();
+
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
   const [token, setToken] = useState<TokenType>(null);
@@ -112,6 +124,78 @@ const Bridge = () => {
     }
   }, [token]); // toNetwork, tonAddress
 
+  const handleCheckBalanceBridgeOfTonNetwork = async (token: TokenType) => {
+    try {
+      // get the decentralized RPC endpoint
+      const endpoint = await getHttpEndpoint();
+      const client = new TonClient({
+        endpoint,
+      });
+      const bridgeAdapter =
+        TonInteractionContract[TonNetwork.Mainnet].bridgeAdapter;
+
+      if (token.contractAddress === TON_ADDRESS_CONTRACT) {
+        const balance = await client.getBalance(Address.parse(bridgeAdapter));
+
+        return {
+          balance: balance,
+        };
+      }
+
+      const jettonMinter = JettonMinter.createFromAddress(
+        Address.parse(token.contractAddress)
+      );
+      const jettonMinterContract = client.open(jettonMinter);
+      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+        Address.parse(bridgeAdapter)
+      );
+      const jettonWallet = JettonWallet.createFromAddress(jettonWalletAddress);
+      const jettonWalletContract = client.open(jettonWallet);
+      const balance = await jettonWalletContract.getBalance();
+
+      return {
+        balance: balance.amount,
+      };
+    } catch (error) {
+      console.log("error :>> handleCheckBalanceBridgeOfTonNetwork", error);
+    }
+  };
+
+  const handleCheckBalanceBridgeOfOraichain = async (token: TokenType) => {
+    try {
+      if (token) {
+        const tx = await window.client.queryContractSmart(
+          token.contractAddress,
+          {
+            balance: { address: network.CW_TON_BRIDGE },
+          }
+        );
+
+        return {
+          balance: tx?.balance || 0,
+        };
+      }
+    } catch (error) {
+      console.log("error :>> handleCheckBalanceBridgeOfOraichain", error);
+    }
+  };
+
+  const checkBalanceBridgeByNetwork = async (
+    networkFrom: string,
+    token: TokenType
+  ) => {
+    const handler = {
+      [NetworkList.oraichain.id]: handleCheckBalanceBridgeOfTonNetwork,
+      [NetworkList.ton.id]: handleCheckBalanceBridgeOfOraichain,
+    };
+
+    const { balance } = handler[networkFrom]
+      ? await handler[networkFrom](token)
+      : { balance: 0 };
+
+    return toDisplay(balance || 0, token.decimal || CW20_DECIMALS);
+  };
+
   const handleBridgeFromTon = async () => {
     try {
       if (!oraiAddress) {
@@ -127,6 +211,20 @@ const Bridge = () => {
       }
 
       setLoading(true);
+
+      const tokenInOrai = OraichainTokenList.find(
+        (tk) => tk.coingeckoId === token.coingeckoId
+      );
+      const balanceMax = await checkBalanceBridgeByNetwork(
+        NetworkList.ton.id,
+        tokenInOrai
+      );
+
+      if (Number(balanceMax) < Number(amount)) {
+        setLoading(false);
+        throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${balanceMax} ${token.symbol}`;
+      }
+
       const bridgeAdapterAddress = Address.parse(
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
@@ -199,6 +297,7 @@ const Bridge = () => {
 
         loadToken({ oraiAddress });
         loadAllBalanceTonToken();
+        getChanelStateData();
       }
     } catch (error) {
       console.log("error Bridge from TON :>>", error);
@@ -227,6 +326,29 @@ const Bridge = () => {
       }
 
       setLoading(true);
+
+      const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
+        (tk) => tk.coingeckoId === token.coingeckoId
+      );
+
+      const balanceMax = (sentBalance || []).find(
+        (b) => b.native.denom === tokenInTon.contractAddress
+      )?.native.amount;
+
+      // const balanceMax = await checkBalanceBridgeByNetwork(
+      //   NetworkList.oraichain.id,
+      //   tokenInTon
+      // );
+
+      const displayBalance = toDisplay(
+        balanceMax,
+        tokenInTon?.decimal || CW20_DECIMALS
+      );
+
+      if (displayBalance < Number(amount)) {
+        setLoading(false);
+        throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${displayBalance} ${token.symbol}`;
+      }
 
       const tonBridgeClient = new TonbridgeBridgeClient(
         window.client,
@@ -295,6 +417,12 @@ const Bridge = () => {
       setLoading(false);
     }
   };
+
+  const isInsufficientBalance =
+    fromNetwork.id === NetworkList.oraichain.id
+      ? Number(amount) > toDisplay(amounts[token?.denom] || "0")
+      : Number(amount) >
+        toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
 
   return (
     <div className={styles.swapWrapper}>
@@ -387,7 +515,7 @@ const Bridge = () => {
         <div className={styles.button}>
           {oraiAddress && tonAddress ? (
             <button
-              disabled={loading || !token || !amount}
+              disabled={loading || !token || !amount || isInsufficientBalance}
               onClick={() => {
                 fromNetwork.id === "Ton"
                   ? handleBridgeFromTon()
