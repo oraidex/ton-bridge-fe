@@ -15,8 +15,8 @@ const inter = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "OraiDex Ton Brigde",
-  description: "Ton Bridge with oraichain",
+  title: "OraiDEX TON Bridge",
+  description: "TON Bridge with Oraichain",
 };
 
 export default function RootLayout({
