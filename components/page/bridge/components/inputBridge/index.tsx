@@ -19,7 +19,9 @@ import {
 import classNames from "classnames";
 import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
+import { fromNano } from "@ton/core";
 import styles from "./index.module.scss";
+import { EXTERNAL_MESSAGE_FEE } from "../../constants";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -33,6 +35,7 @@ const InputBridge: FC<{
   setToken: Dispatch<any>;
   txtSearch: string;
   setTxtSearch: Dispatch<SetStateAction<string>>;
+  deductNativeAmount: bigint;
 }> = ({
   networkTo = "Oraichain",
   disabled = false,
@@ -43,6 +46,7 @@ const InputBridge: FC<{
   setToken,
   txtSearch,
   setTxtSearch,
+  deductNativeAmount,
 }) => {
   const amounts = useAmountsCache();
   const amountsTon = useTonAmountsCache();
@@ -81,25 +85,47 @@ const InputBridge: FC<{
           {token?.symbol}
         </div>
         <div className={styles.percentWrapper}>
-          {AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP.map(([coeff, text]) => (
-            <button
-              disabled={!token}
-              key={coeff}
-              className={classNames(styles.percent, {
-                activePercent: coe === coeff,
-              })}
-              onClick={(event) => {
-                event.stopPropagation();
-                onChangeAmount &&
-                  onChangeAmount(
-                    new BigDecimal(coeff).mul(displayBalance).toNumber()
-                  );
-                setCoe(coeff);
-              }}
-            >
-              {text}
-            </button>
-          ))}
+          {AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP.map(([coeff, text]) => {
+            return (
+              <button
+                disabled={!token}
+                key={coeff}
+                className={classNames(styles.percent, {
+                  activePercent: coe === coeff,
+                })}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const formattedDeductNativeAmount =
+                    fromNano(deductNativeAmount);
+
+                  // @dev: if choose 100% then minus with fee for execute ton tx
+                  const amount = new BigDecimal(coeff)
+                    .mul(displayBalance)
+                    .sub(coeff == 1 ? formattedDeductNativeAmount : 0n)
+                    .sub(
+                      deductNativeAmount > 0n
+                        ? fromNano(EXTERNAL_MESSAGE_FEE)
+                        : 0n
+                    )
+                    .toNumber();
+
+                  const foreseeBalance = new BigDecimal(displayBalance)
+                    .sub(formattedDeductNativeAmount)
+                    .sub(amount)
+                    .toNumber();
+
+                  onChangeAmount &&
+                    // @dev: still need to validate whether amount > display balance
+                    onChangeAmount(
+                      foreseeBalance >= 0 && amount >= 0 ? amount : 0
+                    );
+                  setCoe(coeff);
+                }}
+              >
+                {text}
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className={styles.content}>

@@ -57,6 +57,11 @@ import {
   initToNetwork,
   useFillNetwork,
 } from "@/hooks/useFillNetwork";
+import {
+  FWD_AMOUNT,
+  TON_MESSAGE_VALID_UNTIL,
+  BRIDGE_TON_TO_ORAI_MINIMUM_GAS,
+} from "./constants";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -83,6 +88,7 @@ const Bridge = () => {
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
   });
+  const [deductNativeAmount, setDeductNativeAmount] = useState(0n);
 
   const destinationAddress =
     toNetwork.id === NetworkList.oraichain.id
@@ -98,6 +104,17 @@ const Bridge = () => {
     setToNetwork,
   });
 
+  useEffect(() => {
+    if (
+      toNetwork.id == NetworkList.oraichain.id &&
+      token?.contractAddress === TON_ADDRESS_CONTRACT
+    ) {
+      setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
+      return;
+    }
+    setDeductNativeAmount(0n);
+  }, [toNetwork, token]);
+
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
   useEffect(() => {
     try {
@@ -109,8 +126,8 @@ const Bridge = () => {
         const client = new TonClient({
           endpoint,
         });
-
         if (token?.contractAddress === TON_ADDRESS_CONTRACT) {
+          setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
           setTokenInfo({
             jettonWalletAddress: "",
           });
@@ -128,6 +145,7 @@ const Bridge = () => {
         setTokenInfo({
           jettonWalletAddress,
         });
+        setDeductNativeAmount(0n);
       })();
     } catch (error) {
       console.log("error :>>", error);
@@ -245,9 +263,9 @@ const Bridge = () => {
         ? bridgeAdapterAddress.toString()
         : tokenInfo.jettonWalletAddress?.toString();
       const oraiAddressBech32 = fromBech32(oraiAddress).data;
-      const toAmount = isNativeTon
-        ? fmtAmount.add(toNano(1)).toString()
-        : toNano(1).toString();
+      const gasAmount = isNativeTon
+        ? fmtAmount.add(BRIDGE_TON_TO_ORAI_MINIMUM_GAS).toString()
+        : BRIDGE_TON_TO_ORAI_MINIMUM_GAS.toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
       const memo = beginCell().endCell();
 
@@ -270,7 +288,7 @@ const Bridge = () => {
         JettonWallet.buildSendTransferPacket(
           Address.parse(tonAddress),
           {
-            fwdAmount: toNano("0.1"),
+            fwdAmount: FWD_AMOUNT,
             jettonAmount: BigInt(fmtAmount.toString()),
             jettonMaster: Address.parse(token.contractAddress),
             remoteReceiver: oraiAddress,
@@ -281,17 +299,17 @@ const Bridge = () => {
           0
         ).toBoc();
 
+      const boc = isNativeTon
+        ? getNativeBridgePayload()
+        : getOtherBridgeTokenPayload();
+
       const tx = await connector.sendTransaction({
-        validUntil: 100000,
+        validUntil: TON_MESSAGE_VALID_UNTIL,
         messages: [
           {
             address: toAddress, // dia chi token
-            amount: toAmount, // gas
-            payload: Base64.encode(
-              isNativeTon
-                ? getNativeBridgePayload()
-                : getOtherBridgeTokenPayload()
-            ),
+            amount: gasAmount, // gas
+            payload: Base64.encode(boc),
           },
         ],
       });
@@ -481,6 +499,7 @@ const Bridge = () => {
               tonNetwork={tonNetwork}
               setToken={setToken}
               networkTo={toNetwork.id as NetworkType}
+              deductNativeAmount={deductNativeAmount}
             />
           </div>
           <div className={styles.destination}>

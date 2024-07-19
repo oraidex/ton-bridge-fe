@@ -32,15 +32,15 @@ export const OraichainTokenList: TokenType[] = [
     coingeckoId: "usd-coin",
     decimal: 6,
   },
-  {
-    name: "Ton",
-    symbol: "TON",
-    Icon: TonNetworkICon,
-    contractAddress: CW20_TON_CONTRACT,
-    denom: "cw20_ton",
-    coingeckoId: "the-open-network",
-    decimal: 6,
-  },
+  // {
+  //   name: "Ton",
+  //   symbol: "TON",
+  //   Icon: TonNetworkICon,
+  //   contractAddress: CW20_TON_CONTRACT,
+  //   denom: "cw20_ton",
+  //   coingeckoId: "the-open-network",
+  //   decimal: 6,
+  // },
 ];
 
 export const TonTokenList = (network: TonNetwork): TokenType[] => [
@@ -62,13 +62,13 @@ export const TonTokenList = (network: TonNetwork): TokenType[] => [
     coingeckoId: "usd-coin",
     decimal: 6,
   },
-  {
-    name: "Ton",
-    symbol: "TON",
-    Icon: TonNetworkICon,
-    contractAddress: TonTokensContract[network].ton,
-    denom: "ton",
-    coingeckoId: "the-open-network",
-    decimal: 9,
-  },
+  // {
+  //   name: "Ton",
+  //   symbol: "TON",
+  //   Icon: TonNetworkICon,
+  //   contractAddress: TonTokensContract[network].ton,
+  //   denom: "ton",
+  //   coingeckoId: "the-open-network",
+  //   decimal: 9,
+  // },
 ];
