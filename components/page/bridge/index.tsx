@@ -570,17 +570,9 @@ const Bridge = () => {
             <button
               disabled={loading || !token || !amount || isInsufficientBalance}
               onClick={() => {
-                // fromNetwork.id === "Ton"
-                //   ? handleBridgeFromTon()
-                //   : handleBridgeFromOraichain();
-                const mp = getMixPanelClient();
-                const logEvent = {
-                  fromNetwork,
-                  toNetwork,
-                  token,
-                  amount,
-                };
-                mp.track("Bridge Ton Oraidex", logEvent);
+                fromNetwork.id === "Ton"
+                  ? handleBridgeFromTon()
+                  : handleBridgeFromOraichain();
               }}
               className={styles.bridgeBtn}
             >
