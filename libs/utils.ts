@@ -259,8 +259,6 @@ export const initClient = async () => {
     // suggest our chain
     const arrChainIds = [
       network.chainId,
-      COSMOS_CHAIN_ID_COMMON.ORAIBRIDGE_CHAIN_ID,
-      COSMOS_CHAIN_ID_COMMON.INJECTVE_CHAIN_ID,
     ] as NetworkChainId[];
     for (const chainId of arrChainIds) {
       await window.Keplr.suggestChain(chainId);
