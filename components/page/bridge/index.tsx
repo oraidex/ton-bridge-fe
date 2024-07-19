@@ -271,6 +271,11 @@ const Bridge = () => {
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
       const memo = beginCell().endCell();
 
+      const value = toDisplay(fmtAmount.toString(), token.decimal);
+      if (value < 100) {
+        throw Error("Minimum bridge to Oraichain is 100 USDT/USDC");
+      }
+
       const getNativeBridgePayload = () =>
         BridgeAdapter.buildBridgeTonBody(
           {
