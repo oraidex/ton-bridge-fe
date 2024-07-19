@@ -94,6 +94,17 @@ const Bridge = () => {
     token,
   });
 
+  useEffect(() => {
+    if (
+      toNetwork.id == NetworkList.oraichain.id &&
+      token?.contractAddress === TON_ADDRESS_CONTRACT
+    ) {
+      setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
+      return;
+    }
+    setDeductNativeAmount(0n);
+  }, [toNetwork, token]);
+
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
   useEffect(() => {
     try {
@@ -105,7 +116,6 @@ const Bridge = () => {
         const client = new TonClient({
           endpoint,
         });
-
         if (token?.contractAddress === TON_ADDRESS_CONTRACT) {
           setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
           setTokenInfo({
@@ -279,17 +289,17 @@ const Bridge = () => {
           0
         ).toBoc();
 
+      const boc = isNativeTon
+        ? getNativeBridgePayload()
+        : getOtherBridgeTokenPayload();
+
       const tx = await connector.sendTransaction({
         validUntil: TON_MESSAGE_VALID_UNTIL,
         messages: [
           {
             address: toAddress, // dia chi token
             amount: gasAmount, // gas
-            payload: Base64.encode(
-              isNativeTon
-                ? getNativeBridgePayload()
-                : getOtherBridgeTokenPayload()
-            ),
+            payload: Base64.encode(boc),
           },
         ],
       });

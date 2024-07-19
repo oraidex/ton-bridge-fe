@@ -19,7 +19,9 @@ import {
 import classNames from "classnames";
 import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
+import { fromNano } from "@ton/core";
 import styles from "./index.module.scss";
+import { EXTERNAL_MESSAGE_FEE } from "../../constants";
 
 export type NetworkType = "Oraichain" | "Ton";
 
@@ -93,11 +95,30 @@ const InputBridge: FC<{
                 })}
                 onClick={(event) => {
                   event.stopPropagation();
+                  const formattedDeductNativeAmount =
+                    fromNano(deductNativeAmount);
+
+                  // @dev: if choose 100% then minus with fee for execute ton tx
                   const amount = new BigDecimal(coeff)
                     .mul(displayBalance)
-                    .sub(deductNativeAmount)
+                    .sub(coeff == 1 ? formattedDeductNativeAmount : 0n)
+                    .sub(
+                      deductNativeAmount > 0n
+                        ? fromNano(EXTERNAL_MESSAGE_FEE)
+                        : 0n
+                    )
                     .toNumber();
-                  onChangeAmount && onChangeAmount(amount > 0 ? amount : 0);
+
+                  const foreseeBalance = new BigDecimal(displayBalance)
+                    .sub(formattedDeductNativeAmount)
+                    .sub(amount)
+                    .toNumber();
+
+                  onChangeAmount &&
+                    // @dev: still need to validate whether amount > display balance
+                    onChangeAmount(
+                      foreseeBalance >= 0 && amount >= 0 ? amount : 0
+                    );
                   setCoe(coeff);
                 }}
               >
