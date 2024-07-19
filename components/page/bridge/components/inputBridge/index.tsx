@@ -33,6 +33,7 @@ const InputBridge: FC<{
   setToken: Dispatch<any>;
   txtSearch: string;
   setTxtSearch: Dispatch<SetStateAction<string>>;
+  deductNativeAmount: bigint;
 }> = ({
   networkTo = "Oraichain",
   disabled = false,
@@ -43,6 +44,7 @@ const InputBridge: FC<{
   setToken,
   txtSearch,
   setTxtSearch,
+  deductNativeAmount,
 }) => {
   const amounts = useAmountsCache();
   const amountsTon = useTonAmountsCache();
@@ -81,25 +83,28 @@ const InputBridge: FC<{
           {token?.symbol}
         </div>
         <div className={styles.percentWrapper}>
-          {AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP.map(([coeff, text]) => (
-            <button
-              disabled={!token}
-              key={coeff}
-              className={classNames(styles.percent, {
-                activePercent: coe === coeff,
-              })}
-              onClick={(event) => {
-                event.stopPropagation();
-                onChangeAmount &&
-                  onChangeAmount(
-                    new BigDecimal(coeff).mul(displayBalance).toNumber()
-                  );
-                setCoe(coeff);
-              }}
-            >
-              {text}
-            </button>
-          ))}
+          {AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP.map(([coeff, text]) => {
+            return (
+              <button
+                disabled={!token}
+                key={coeff}
+                className={classNames(styles.percent, {
+                  activePercent: coe === coeff,
+                })}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const amount = new BigDecimal(coeff)
+                    .mul(displayBalance)
+                    .sub(deductNativeAmount)
+                    .toNumber();
+                  onChangeAmount && onChangeAmount(amount > 0 ? amount : 0);
+                  setCoe(coeff);
+                }}
+              >
+                {text}
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className={styles.content}>
