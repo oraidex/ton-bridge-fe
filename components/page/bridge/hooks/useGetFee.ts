@@ -12,30 +12,34 @@ const useGetFee = ({ token }: { token: TokenType }) => {
 
   useEffect(() => {
     (async () => {
-      if (token) {
-        const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
-          (tk) => tk.coingeckoId === token.coingeckoId
-        );
-        if (!tokenInTon) {
-          return;
+      try {
+        if (token) {
+          const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
+            (tk) => tk.coingeckoId === token.coingeckoId
+          );
+          if (!tokenInTon) {
+            return;
+          }
+
+          const tonBridgeClient = new TonbridgeBridgeClient(
+            window.client,
+            oraiAddress,
+            network.CW_TON_BRIDGE
+          );
+
+          const tokenFeeConfig = await tonBridgeClient.tokenFee({
+            remoteTokenDenom: tokenInTon?.contractAddress,
+          });
+
+          if (tokenFeeConfig) {
+            const { nominator, denominator } = tokenFeeConfig;
+            const fee = new BigDecimal(nominator).div(denominator).toNumber();
+
+            setTokenFee(fee);
+          }
         }
-
-        const tonBridgeClient = new TonbridgeBridgeClient(
-          window.client,
-          oraiAddress,
-          network.CW_TON_BRIDGE
-        );
-
-        const tokenFeeConfig = await tonBridgeClient.tokenFee({
-          remoteTokenDenom: tokenInTon?.contractAddress,
-        });
-
-        if (tokenFeeConfig) {
-          const { nominator, denominator } = tokenFeeConfig;
-          const fee = new BigDecimal(nominator).div(denominator).toNumber();
-
-          setTokenFee(fee);
-        }
+      } catch (error) {
+        console.log("error", error);
       }
     })();
   }, [token, oraiAddress]);

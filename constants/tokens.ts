@@ -46,7 +46,7 @@ export const OraichainTokenList: TokenType[] = [
 export const TonTokenList = (network: TonNetwork): TokenType[] => [
   {
     name: "Tether",
-    symbol: "USDT",
+    symbol: "jUSDT",
     Icon: UsdtIcon,
     contractAddress: TonTokensContract[network].usdt,
     denom: "ton20_usdt",
