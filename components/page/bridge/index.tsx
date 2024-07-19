@@ -255,6 +255,10 @@ const Bridge = () => {
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${balanceMax} ${token.symbol}`;
       }
 
+      if (Number(amount) < 100) {
+        throw Error("Minimum bridge is 100 USDT");
+      }
+
       const bridgeAdapterAddress = Address.parse(
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
@@ -270,11 +274,6 @@ const Bridge = () => {
         : BRIDGE_TON_TO_ORAI_MINIMUM_GAS.toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
       const memo = beginCell().endCell();
-
-      const value = toDisplay(fmtAmount.toString(), token.decimal);
-      if (value < 100) {
-        throw Error("Minimum bridge to Oraichain is 100 USDT");
-      }
 
       const getNativeBridgePayload = () =>
         BridgeAdapter.buildBridgeTonBody(
@@ -394,6 +393,10 @@ const Bridge = () => {
       if (displayBalance < Number(amount)) {
         setLoading(false);
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${displayBalance} ${token.symbol}`;
+      }
+
+      if (Number(amount) < 100) {
+        throw Error("Minimum bridge is 100 USDT");
       }
 
       const tonBridgeClient = new TonbridgeBridgeClient(
@@ -573,7 +576,7 @@ const Bridge = () => {
         <div className={styles.button}>
           {oraiAddress && tonAddress ? (
             <button
-              disabled={loading || !token || !amount || isInsufficientBalance}
+              // disabled={loading || !token || !amount || isInsufficientBalance}
               onClick={() => {
                 fromNetwork.id === "Ton"
                   ? handleBridgeFromTon()
