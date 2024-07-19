@@ -255,6 +255,10 @@ const Bridge = () => {
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${balanceMax} ${token.symbol}`;
       }
 
+      if (Number(amount) < 100) {
+        throw Error("Minimum bridge is 100 USDT");
+      }
+
       const bridgeAdapterAddress = Address.parse(
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
@@ -389,6 +393,10 @@ const Bridge = () => {
       if (displayBalance < Number(amount)) {
         setLoading(false);
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${displayBalance} ${token.symbol}`;
+      }
+
+      if (Number(amount) < 100) {
+        throw Error("Minimum bridge is 100 USDT");
       }
 
       const tonBridgeClient = new TonbridgeBridgeClient(
