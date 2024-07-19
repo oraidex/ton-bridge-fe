@@ -273,7 +273,7 @@ const Bridge = () => {
 
       const value = toDisplay(fmtAmount.toString(), token.decimal);
       if (value < 100) {
-        throw Error("Minimum bridge to Oraichain is 100 USDT/USDC");
+        throw Error("Minimum bridge to Oraichain is 100 USDT");
       }
 
       const getNativeBridgePayload = () =>
