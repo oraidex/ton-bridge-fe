@@ -30,7 +30,7 @@ import {
   toUserFriendlyAddress,
 } from "@tonconnect/sdk";
 import classNames from "classnames";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import ConnectedInfo from "../connectedInfo";
 import styles from "./index.module.scss";
 
@@ -68,7 +68,14 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     walletType: OraiWallet // WalletType | "eip191"
   ) => {
     setConnectStatus(walletType);
+
     try {
+      const isNotInstall = !hasInstalledWallet(walletType);
+      console.log("isNotInstalled", isNotInstall);
+      if (isNotInstall) {
+        throw `${walletType} is not installed`;
+      }
+
       window.Keplr = new Keplr(walletType);
       setStorageKey("typeWallet", walletType);
       await initClient();
@@ -77,8 +84,13 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       handleSetOraiWallet({ oraiWallet: walletType });
       setStep(2);
     } catch (error) {
-      console.trace({ errorCosmos: error });
-      throw new Error(error?.message ?? JSON.stringify(error));
+      console.log({ errorCosmos: error });
+      displayToast;
+      // throw new Error(error?.message ?? JSON.stringify(error));
+
+      displayToast(TToastType.TX_FAILED, {
+        message: error?.message ?? JSON.stringify(error),
+      });
     } finally {
       setConnectStatus("init");
     }
@@ -136,32 +148,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
     }
   };
 
-  const hasInstalledWallet = (wallet: OraiWallet | TonWallet) => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    // @ts-ignore
-    const isCheckOwallet = window.owallet?.isOwallet;
-    const version = window?.keplr?.version;
-    const isCheckKeplr = !!version && keplrCheck("keplr");
-    const isMetamask = window?.ethereum?.isMetaMask;
-    //@ts-ignore
-
-    switch (wallet) {
-      case OraiWallet.Keplr:
-        return isCheckKeplr;
-      case OraiWallet.Metamask:
-        return isMetamask;
-      case OraiWallet.OWallet:
-        return isCheckOwallet;
-
-      default:
-        // case ton connect. for @ton-connect/ui-react handle
-        return true;
-    }
-  };
-
   useEffect(() => {
     connector.onStatusChange(
       (wallet) => {
@@ -201,6 +187,37 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   //   }
   // }, [open]);
 
+  // @ts-ignore
+  const isCheckOwallet =
+    typeof window !== "undefined" && window?.owallet?.["isOwallet"];
+  const version = typeof window !== "undefined" && window?.keplr?.version;
+  const isCheckKeplr = !!version && keplrCheck("keplr");
+  const isMetamask =
+    typeof window !== "undefined" && window?.ethereum?.isMetaMask;
+
+  const hasInstalledWallet = useCallback(
+    (wallet: OraiWallet | TonWallet) => {
+      if (typeof window === "undefined") {
+        return true;
+      }
+
+      //@ts-ignore
+      switch (wallet) {
+        case OraiWallet.Keplr:
+          return isCheckKeplr;
+        case OraiWallet.Metamask:
+          return isMetamask;
+        case OraiWallet.OWallet:
+          return isCheckOwallet;
+
+        default:
+          // case ton connect. for @ton-connect/ui-react handle
+          return true;
+      }
+    },
+    [isCheckOwallet, isCheckKeplr, isMetamask]
+  );
+
   return (
     <div
       className={classNames(styles.wrapperConnect, {
@@ -214,110 +231,105 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       ) : (
         <ConnectedInfo onClick={() => setOpen(true)} setStep={setStep} />
       )}
-      <div
-        className={classNames(styles.modalConnectWrapper, {
-          [styles.active]: open,
-        })}
-        // onClick={() => setOpen(false)}
-      >
-        <div className={styles.content} ref={ref}>
-          <div className={styles.header}>
-            <span>{step}/2</span>
+      {open && (
+        <div
+          className={classNames(styles.modalConnectWrapper, {
+            [styles.active]: open,
+          })}
+          // onClick={() => setOpen(false)}
+        >
+          <div className={styles.content} ref={ref}>
+            <div className={styles.header}>
+              <span>{step}/2</span>
 
-            <CloseIcon
-              onClick={() => setOpen(false)}
-              className={styles.close}
-            />
-          </div>
-          <div className={styles.wallet}>
-            <div className={styles.left}>
-              <h1>Connect to Wallets</h1>
-              <p>
-                You’ll need to connect both your Oraichain and <br /> TON
-                wallets to get started
-              </p>
-              <div className={styles.step}>
-                <div
-                  className={classNames(styles.stepItem, styles.active)}
-                  onClick={() => setStep(1)}
-                >
-                  <OraiIcon /> <span>ORAICHAIN</span>
-                </div>
-                <StepLineIcon />
-                <div
-                  className={classNames(styles.stepItem, {
-                    [styles.active]: step !== 1,
-                  })}
-                  onClick={() => setStep(2)}
-                >
-                  <TonNetworkICon /> <span>TON</span>
+              <CloseIcon
+                onClick={() => setOpen(false)}
+                className={styles.close}
+              />
+            </div>
+            <div className={styles.wallet}>
+              <div className={styles.left}>
+                <h1>Connect to Wallets</h1>
+                <p>
+                  You’ll need to connect both your Oraichain and <br /> TON
+                  wallets to get started
+                </p>
+                <div className={styles.step}>
+                  <div
+                    className={classNames(styles.stepItem, styles.active)}
+                    onClick={() => setStep(1)}
+                  >
+                    <OraiIcon /> <span>ORAICHAIN</span>
+                  </div>
+                  <StepLineIcon />
+                  <div
+                    className={classNames(styles.stepItem, {
+                      [styles.active]: step !== 1,
+                    })}
+                    onClick={() => setStep(2)}
+                  >
+                    <TonNetworkICon /> <span>TON</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className={styles.right}>
-              {(step === 1 ? OraichainWallet : TonNetWorkWallet).map(
-                (e, ind) => {
-                  const isConnected =
-                    (oraiAddress && oraiWallet === e.id) ||
-                    (tonAddress && tonWallet === e.id); //connector.connected &&
-                  const isNotInstall = !hasInstalledWallet(e.id);
+              <div className={styles.right}>
+                {(step === 1 ? OraichainWallet : TonNetWorkWallet).map(
+                  (e, ind) => {
+                    const isConnected =
+                      (oraiAddress && oraiWallet === e.id) ||
+                      (tonAddress && tonWallet === e.id); //connector.connected &&
+                    const isNotInstall = !hasInstalledWallet(e.id);
 
-                  // console.log(
-                  //   "isConnected",
-                  //   connector.connected,
-                  //   tonAddress,
-                  //   tonWallet === e.id
-                  // );
-
-                  return (
-                    <button
-                      disabled={isNotInstall}
-                      key={`${e.id}-${ind}`}
-                      className={classNames(styles.walletItem, {
-                        [styles.notInstalled]: isNotInstall,
-                      })}
-                      title={
-                        isNotInstall
-                          ? `${e.name} is not installed!`
-                          : `${e.name}`
-                      }
-                      onClick={() => {
-                        if (isConnected) {
-                          step === 1
-                            ? handleDisconnectOraichain(e.id)
-                            : handleDisconnectTon(e.id);
-
-                          return;
-                        }
-
-                        if (step === 1) {
-                          handleConnectWalletInOraichainNetwork(e.id);
-                        } else {
-                          console.log("connect Ton", e.id);
-                          handleConnectWalletInTonNetwork(e.id);
-                        }
-                      }}
-                    >
-                      <e.icon />
-                      <span>{e.name}</span>
-                      <div
-                        className={classNames(styles.status, {
-                          [styles.connected]: isConnected,
+                    return (
+                      <button
+                        disabled={isNotInstall}
+                        key={`${e.id}-${ind}`}
+                        className={classNames(styles.walletItem, {
+                          [styles.notInstalled]: isNotInstall,
                         })}
+                        title={
+                          isNotInstall
+                            ? `${e.name} is not installed!`
+                            : `${e.name}`
+                        }
+                        onClick={() => {
+                          if (isConnected) {
+                            step === 1
+                              ? handleDisconnectOraichain(e.id)
+                              : handleDisconnectTon(e.id);
+
+                            return;
+                          }
+
+                          if (step === 1) {
+                            handleConnectWalletInOraichainNetwork(e.id);
+                          } else {
+                            console.log("connect Ton", e.id);
+                            handleConnectWalletInTonNetwork(e.id);
+                          }
+                        }}
                       >
-                        {connectStatus === e.id && (
-                          <Loader width={14} height={14} />
-                        )}
-                        {isConnected ? "Connected" : "Connect"}
-                      </div>
-                    </button>
-                  );
-                }
-              )}
+                        <e.icon />
+                        <span>{e.name}</span>
+                        <div
+                          className={classNames(styles.status, {
+                            [styles.connected]: isConnected,
+                          })}
+                        >
+                          {connectStatus === e.id && (
+                            <Loader width={14} height={14} />
+                          )}
+                          {isConnected ? "Connected" : "Connect"}
+                        </div>
+                      </button>
+                    );
+                  }
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -52,6 +52,11 @@ import {
 } from "@/helper/number";
 import { useAmountsCache, useTonAmountsCache } from "@/stores/token/selector";
 import useGetStateData from "./hooks/useGetStateData";
+import {
+  initFromNetwork,
+  initToNetwork,
+  useFillNetwork,
+} from "@/hooks/useFillNetwork";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -73,8 +78,8 @@ const Bridge = () => {
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
   const [token, setToken] = useState<TokenType>(null);
-  const [fromNetwork, setFromNetwork] = useState(NetworkList.ton);
-  const [toNetwork, setToNetwork] = useState(NetworkList.oraichain);
+  const [fromNetwork, setFromNetwork] = useState(initFromNetwork);
+  const [toNetwork, setToNetwork] = useState(initToNetwork);
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
   });
@@ -86,6 +91,11 @@ const Bridge = () => {
 
   const { bridgeFee, tokenFee } = useGetFee({
     token,
+  });
+
+  const { handleUpdateQueryURL } = useFillNetwork({
+    setFromNetwork,
+    setToNetwork,
   });
 
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
@@ -298,6 +308,8 @@ const Bridge = () => {
         loadToken({ oraiAddress });
         loadAllBalanceTonToken();
         getChanelStateData();
+
+        setAmount(0);
       }
     } catch (error) {
       console.log("error Bridge from TON :>>", error);
@@ -406,6 +418,8 @@ const Bridge = () => {
         });
         loadToken({ oraiAddress });
         loadAllBalanceTonToken();
+
+        setAmount(0);
       }
     } catch (error) {
       console.log("error Bridge from Oraichain :>>", error);
@@ -446,6 +460,7 @@ const Bridge = () => {
                 setFromNetwork(currentTo);
                 setToNetwork(currentFrom);
                 setToken(null);
+                handleUpdateQueryURL([currentTo.id, currentFrom.id]);
               }}
             />
             <div className={styles.fromTo}>

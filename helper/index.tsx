@@ -30,6 +30,10 @@ import { chainInfos } from "@/constants/chainInfo";
 import { MetamaskOfflineSigner } from "@/libs/eip191";
 import Keplr from "@/libs/keplr";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
+import {
+  OraiWallet,
+  TonWallet,
+} from "@/stores/authentication/useAuthenticationStore";
 
 export interface Tokens {
   denom?: string;
@@ -352,6 +356,8 @@ export const checkVersionWallet = () => {
 };
 
 export const keplrCheck = (type: WalletCosmosType) => {
+  if (typeof window === "undefined") return;
+
   //@ts-ignore
   const walletIsOwallet = window?.keplr?.isOwallet;
   return (
