@@ -31,14 +31,14 @@ export const TonTokensContract = {
     usdt: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
     // btc: "EQDcBkGHmC4pTf34x3Gm05XvepO5w60DNxZ-XT4I6-UGG5L5",
     // dai: "EQDo_ZJyQ_YqBzBwbVpMmhbhIddKtRP99HugZJ14aFscxi7B",
-    usdc: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
+    // usdc: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     // ton: TON_ADDRESS_CONTRACT,
   },
   [TonNetwork.Testnet]: {
     usdt: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
     // btc: "",
     // dai: "",
-    usdc: "",
+    // usdc: "",
     // ton: null,
   },
 };

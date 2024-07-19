@@ -7,6 +7,7 @@ import { ToastProvider } from "@/contexts/toasts/context";
 import "@/styles/_main.scss";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 const inter = IBM_Plex_Sans({
   weight: ["400", "500", "600", "700"],
@@ -28,6 +29,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="./favicon.svg" sizes="any" />
       </head>
+      <GoogleTagManager gtmId="G-CV739YDHW7" />
       <body className={inter.className}>
         <AppProvider>
           <ThemeProvider>

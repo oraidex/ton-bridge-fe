@@ -38,6 +38,10 @@ if (typeof window !== "undefined") {
 }
 
 const queryClient = new QueryClient();
+console.log(
+  "process.env.NEXT_PUBLIC_MIXPANEL_TOKEN",
+  process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
+);
 
 export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const walletType = useAuthOraiWallet();

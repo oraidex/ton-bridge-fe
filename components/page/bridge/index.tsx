@@ -6,6 +6,7 @@ import { OraiIcon } from "@/assets/icons/token";
 import Loader from "@/components/commons/loader/Loader";
 import ConnectButton from "@/components/layout/connectButton";
 import { TON_SCAN } from "@/constants/config";
+import mixpanel from "mixpanel-browser";
 import {
   TON_ADDRESS_CONTRACT,
   TonInteractionContract,
@@ -62,6 +63,7 @@ import {
   TON_MESSAGE_VALID_UNTIL,
   BRIDGE_TON_TO_ORAI_MINIMUM_GAS,
 } from "./constants";
+import { getMixPanelClient } from "@/libs/mixpanel";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -338,6 +340,15 @@ const Bridge = () => {
       });
     } finally {
       setLoading(false);
+      const mp = getMixPanelClient();
+      const logEvent = {
+        fromNetwork,
+        toNetwork,
+        token,
+        amount,
+      };
+      mp.track("Bridge Ton Oraidex", logEvent);
+      // mixpanel.track("Bridge Ton Oraidex", logEvent);
     }
   };
 
@@ -447,6 +458,14 @@ const Bridge = () => {
       });
     } finally {
       setLoading(false);
+      const mp = getMixPanelClient();
+      const logEvent = {
+        fromNetwork,
+        toNetwork,
+        token,
+        amount,
+      };
+      mp.track("Bridge Ton Oraidex", logEvent);
     }
   };
 
@@ -551,9 +570,17 @@ const Bridge = () => {
             <button
               disabled={loading || !token || !amount || isInsufficientBalance}
               onClick={() => {
-                fromNetwork.id === "Ton"
-                  ? handleBridgeFromTon()
-                  : handleBridgeFromOraichain();
+                // fromNetwork.id === "Ton"
+                //   ? handleBridgeFromTon()
+                //   : handleBridgeFromOraichain();
+                const mp = getMixPanelClient();
+                const logEvent = {
+                  fromNetwork,
+                  toNetwork,
+                  token,
+                  amount,
+                };
+                mp.track("Bridge Ton Oraidex", logEvent);
               }}
               className={styles.bridgeBtn}
             >

@@ -120,6 +120,7 @@ declare global {
       postMessage(msg: string): void;
     };
     client: SigningCosmWasmClient;
+    mixpanel: any;
     keplr: keplr;
     owallet: keplr;
     bitcoin: IBitcoin;
