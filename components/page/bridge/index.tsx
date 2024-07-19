@@ -576,7 +576,7 @@ const Bridge = () => {
         <div className={styles.button}>
           {oraiAddress && tonAddress ? (
             <button
-              // disabled={loading || !token || !amount || isInsufficientBalance}
+              disabled={loading || !token || !amount || isInsufficientBalance}
               onClick={() => {
                 fromNetwork.id === "Ton"
                   ? handleBridgeFromTon()
