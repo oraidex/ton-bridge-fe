@@ -13,6 +13,8 @@ export interface TokenActions {
   handleSetPricesCache: (prices: CoinGeckoPrices<string>) => void;
   handleSetAmountsCache: (amounts: AmountDetails) => void;
   handleSetTonAmountsCache: (amountsTon: AmountDetails) => void;
+  handleResetAmountsCache: () => void;
+  handleResetTonAmountsCache: () => void;
 }
 
 const initialState: IToken = {
@@ -47,6 +49,16 @@ const useTokenStore = create<IToken & { actions: TokenActions }>()(
               ...amountsTon,
             };
           }),
+        handleResetTonAmountsCache() {
+          set((state) => {
+            state.amountsTon = {};
+          });
+        },
+        handleResetAmountsCache() {
+          set((state) => {
+            state.amounts = {};
+          });
+        },
       },
     })),
     {
