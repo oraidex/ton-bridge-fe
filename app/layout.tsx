@@ -4,6 +4,7 @@ import { AppProvider } from "@/contexts/app-provider";
 import { CustomTonProvider } from "@/contexts/custom-ton-provider";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { ToastProvider } from "@/contexts/toasts/context";
+import { TonProvider } from "@/contexts/ton-provider";
 import "@/styles/_main.scss";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
@@ -33,12 +34,14 @@ export default function RootLayout({
       <body className={inter.className}>
         <AppProvider>
           <ThemeProvider>
-            <CustomTonProvider>
+            {/* <CustomTonProvider> */}
+            <TonProvider>
               <ToastProvider>
                 <Header />
                 <Content>{children}</Content>
               </ToastProvider>
-            </CustomTonProvider>
+            </TonProvider>
+            {/* </CustomTonProvider> */}
           </ThemeProvider>
         </AppProvider>
       </body>

@@ -6,7 +6,6 @@ import { TonNetworkICon } from "@/assets/icons/network";
 import { OraiIcon } from "@/assets/icons/token";
 import Loader from "@/components/commons/loader/Loader";
 import { OraichainWallet, TonNetWorkWallet } from "@/constants/wallets";
-import { useTonConnector } from "@/contexts/custom-ton-provider";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { keplrCheck, setStorageKey } from "@/helper";
 import useOnClickOutside from "@/hooks/useOnclickOutside";
@@ -23,17 +22,17 @@ import {
   OraiWallet,
   TonWallet,
 } from "@/stores/authentication/useAuthenticationStore";
+import { useTokenActions } from "@/stores/token/selector";
 import {
-  CHAIN,
-  WalletInfoCurrentlyEmbedded,
-  isWalletInfoCurrentlyEmbedded,
-  toUserFriendlyAddress,
-} from "@tonconnect/sdk";
+  useTonAddress,
+  useTonConnectModal,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react";
 import classNames from "classnames";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import ConnectedInfo from "../connectedInfo";
 import styles from "./index.module.scss";
-import { useTokenActions } from "@/stores/token/selector";
 
 export type ConnectStatus =
   | "init"
@@ -49,7 +48,6 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   const tonAddress = useAuthTonAddress();
   const tonWallet = useAuthTonWallet();
   const ref = useRef();
-  const { connector } = useTonConnector();
   const {
     handleSetOraiAddress,
     handleSetOraiWallet,
@@ -64,6 +62,11 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(oraiAddress ? 2 : 1);
+
+  const userFriendlyAddress = useTonAddress();
+  const wallet = useTonWallet();
+  const { open: openConnect } = useTonConnectModal();
+  const [tonConnectUI] = useTonConnectUI();
 
   useOnClickOutside(ref, () => setOpen(false));
 
@@ -102,13 +105,7 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   const handleConnectWalletInTonNetwork = async (walletType: TonWallet) => {
     try {
       setConnectStatus(walletType);
-
-      const _walletsList = await connector.getWallets(); // or use `walletsList` fetched before
-
-      const _addressConnected = connector.connect({
-        jsBridgeKey: walletType || "tonkeeper",
-      });
-      console.log("addressConnected", connector.account);
+      openConnect();
 
       return;
     } catch (error) {
@@ -123,21 +120,19 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
       handleSetOraiAddress({ oraiAddress: undefined });
       handleSetOraiWallet({ oraiWallet: undefined });
       handleResetAmountsCache();
-      handleResetTonAmountsCache();
     }
   };
 
   const handleDisconnectTon = async (walletType: TonWallet) => {
     try {
-      if (connector.connected) {
-        await connector.disconnect();
+      if (tonConnectUI.connected) {
+        await tonConnectUI.disconnect();
       }
 
       if (tonAddress && walletType === tonWallet) {
         handleSetTonAddress({ tonAddress: undefined });
         handleSetTonWallet({ tonWallet: undefined });
         handleResetTonAmountsCache();
-        handleResetAmountsCache();
       }
     } catch (error) {
       console.log("error disconnect TON :>>", error);
@@ -145,37 +140,20 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
   };
 
   useEffect(() => {
-    connector.onStatusChange(
-      (wallet) => {
-        console.log("wallet", wallet);
-        if (!wallet) {
-          if (tonAddress) {
-            handleSetTonAddress({ tonAddress: undefined });
-            handleSetTonWallet({ tonWallet: undefined });
-          }
-          return;
-        }
-
-        const address = toUserFriendlyAddress(
-          wallet.account?.address,
-          wallet.account.chain === CHAIN.TESTNET
-        );
-        const walletType = wallet?.device?.appName?.toLowerCase() as TonWallet;
-
-        handleSetTonAddress({ tonAddress: address });
-        handleSetTonWallet({ tonWallet: walletType });
-      },
-      (err) => {
-        console.log("error onStatusChange :>>", err);
-      }
-    );
-  }, [tonAddress]);
-
-  useEffect(() => {
-    if (tonAddress && tonWallet) {
-      handleConnectWalletInTonNetwork(tonWallet || TonWallet.TonKeeper);
+    if (!(userFriendlyAddress && wallet)) {
+      handleSetTonAddress({ tonAddress: undefined });
+      handleSetTonWallet({ tonWallet: undefined });
+      return;
     }
-  }, [tonAddress, tonWallet]);
+    console.log("userFriendlyAddress", userFriendlyAddress, wallet);
+
+    handleSetTonAddress({ tonAddress: userFriendlyAddress });
+    handleSetTonWallet({
+      tonWallet:
+        wallet?.["appName"] ||
+        (wallet?.device?.appName?.toLowerCase() as TonWallet),
+    });
+  }, [userFriendlyAddress, wallet]);
 
   // @ts-ignore
   const isCheckOwallet =

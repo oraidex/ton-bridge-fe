@@ -1,3 +1,4 @@
+import { TonNetworkICon } from "@/assets/icons/network";
 import {
   KeplrIcon,
   MetamaskIcon,
@@ -28,16 +29,16 @@ export const OraichainWallet = [
 ];
 
 export const TonNetWorkWallet = [
-  // {
-  //   icon: TonNetworkICon,
-  //   id: TonWallet.TonKeeper,
-  //   name: "TonKeeper",
-  // },
   {
-    icon: TonKeeperIcon,
+    icon: TonNetworkICon,
     id: TonWallet.TonKeeper,
-    name: "Tonkeeper",
+    name: "",
   },
+  // {
+  //   icon: TonKeeperIcon,
+  //   id: TonWallet.TonKeeper,
+  //   name: "Tonkeeper",
+  // },
   // {
   //   icon: MyTonWalletIcon,
   //   id: TonWallet.MyTonWallet,
