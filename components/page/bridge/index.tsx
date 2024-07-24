@@ -18,7 +18,6 @@ import {
   TokenType,
   TonTokenList,
 } from "@/constants/tokens";
-import { useTonConnector } from "@/contexts/custom-ton-provider";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
 import { getTransactionUrl, handleErrorTransaction } from "@/helper";
 import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
@@ -64,11 +63,12 @@ import {
   BRIDGE_TON_TO_ORAI_MINIMUM_GAS,
 } from "./constants";
 import { getMixPanelClient } from "@/libs/mixpanel";
+import { useTonConnectUI } from "@tonconnect/ui-react";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
-  const { connector } = useTonConnector();
+  const [tonConnectUI] = useTonConnectUI();
   const [txtSearch, setTxtSearch] = useState<string>();
   const tonNetwork = TonNetwork.Mainnet;
 
@@ -309,7 +309,7 @@ const Bridge = () => {
         ? getNativeBridgePayload()
         : getOtherBridgeTokenPayload();
 
-      const tx = await connector.sendTransaction({
+      const tx = await tonConnectUI.sendTransaction({
         validUntil: TON_MESSAGE_VALID_UNTIL,
         messages: [
           {

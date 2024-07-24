@@ -265,7 +265,8 @@ export const useLoadTonBalance = ({
   };
 
   const loadAllBalanceTonToken = async () => {
-    // if (!address) return;
+    if (!tonAddress) return;
+
     const allTokens = Object.values(TonTokensContract[tonNetwork]);
     const endpoint = await getHttpEndpoint();
     const client = new TonClient({
