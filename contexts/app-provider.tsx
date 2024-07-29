@@ -1,6 +1,7 @@
 "use client";
 
-import { TonNetwork, network } from "@/constants/networks";
+import { TonNetwork } from "@/constants/ton";
+import { network } from "@/constants/networks";
 import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import Keplr from "@/libs/keplr";

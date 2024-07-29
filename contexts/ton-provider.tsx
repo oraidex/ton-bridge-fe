@@ -1,7 +1,7 @@
 "use client";
 
+import { TonNetwork } from "@/constants/ton";
 import { MANIFEST_URL } from "@/constants/config";
-import { TonNetwork } from "@/constants/networks";
 import { useLoadTonBalance } from "@/hooks/useLoadToken";
 import { useAuthTonAddress } from "@/stores/authentication/selector";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";

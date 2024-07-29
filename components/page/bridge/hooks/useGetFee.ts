@@ -1,4 +1,5 @@
-import { network, TonNetwork } from "@/constants/networks";
+import { TonNetwork } from "@/constants/ton";
+import { network } from "@/constants/networks";
 import { TokenType, TonTokenList } from "@/constants/tokens";
 import { useAuthOraiAddress } from "@/stores/authentication/selector";
 import { BigDecimal, toDisplay } from "@oraichain/oraidex-common";

@@ -58,6 +58,8 @@ import {
   WRAP_TRON_TRX_CONTRACT,
   defaultBech32Config,
 } from "@oraichain/oraidex-common";
+import { TonNetworkICon } from "@/assets/icons/network";
+import { TON_DENOM } from "./tokens";
 
 export const OraiToken: BridgeAppCurrency = {
   coinDenom: "ORAI",
@@ -86,12 +88,18 @@ export const oraichainNetwork: CustomChainInfo = {
   },
   bech32Config: defaultBech32Config("orai"),
   feeCurrencies: [OraiToken],
-
   Icon: OraiIcon,
   IconLight: OraiIcon,
   features: ["ibc-transfer", "cosmwasm", "wasmd_0.24+"],
   currencies: [
     OraiToken,
+    {
+      coinDenom: "TON",
+      coinGeckoId: "the-open-network",
+      coinMinimalDenom: TON_DENOM,
+      coinDecimals: 9,
+      Icon: TonNetworkICon,
+    },
     {
       coinDenom: "ATOM",
       coinGeckoId: "cosmos",
@@ -173,6 +181,7 @@ export const oraichainNetwork: CustomChainInfo = {
       coinDecimals: 18,
       // Icon: MilkyIcon
     },
+
     {
       coinDenom: "MILKY",
       coinGeckoId: "milky-token",

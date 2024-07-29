@@ -257,9 +257,7 @@ export const initEthereum = async () => {
 export const initClient = async () => {
   try {
     // suggest our chain
-    const arrChainIds = [
-      network.chainId,
-    ] as NetworkChainId[];
+    const arrChainIds = [network.chainId] as NetworkChainId[];
     for (const chainId of arrChainIds) {
       await window.Keplr.suggestChain(chainId);
     }

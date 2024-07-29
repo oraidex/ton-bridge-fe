@@ -6,13 +6,9 @@ import { OraiIcon } from "@/assets/icons/token";
 import Loader from "@/components/commons/loader/Loader";
 import ConnectButton from "@/components/layout/connectButton";
 import { TON_SCAN } from "@/constants/config";
-import mixpanel from "mixpanel-browser";
-import {
-  TON_ADDRESS_CONTRACT,
-  TonInteractionContract,
-  TonNetwork,
-  network,
-} from "@/constants/networks";
+import { TonNetwork } from "@/constants/ton";
+import { TON_ZERO_ADDRESS, TonInteractionContract } from "@/constants/contract";
+import { network } from "@/constants/networks";
 import {
   OraichainTokenList,
   TokenType,
@@ -112,7 +108,7 @@ const Bridge = () => {
   useEffect(() => {
     if (
       toNetwork.id == NetworkList.oraichain.id &&
-      token?.contractAddress === TON_ADDRESS_CONTRACT
+      token?.contractAddress === TON_ZERO_ADDRESS
     ) {
       setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
       return;
@@ -131,7 +127,7 @@ const Bridge = () => {
         const client = new TonClient({
           endpoint,
         });
-        if (token?.contractAddress === TON_ADDRESS_CONTRACT) {
+        if (token?.contractAddress === TON_ZERO_ADDRESS) {
           setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
           setTokenInfo({
             jettonWalletAddress: "",
@@ -167,7 +163,7 @@ const Bridge = () => {
       const bridgeAdapter =
         TonInteractionContract[TonNetwork.Mainnet].bridgeAdapter;
 
-      if (token.contractAddress === TON_ADDRESS_CONTRACT) {
+      if (token.contractAddress === TON_ZERO_ADDRESS) {
         const balance = await client.getBalance(Address.parse(bridgeAdapter));
 
         return {
@@ -244,10 +240,10 @@ const Bridge = () => {
       .mul(prices?.[token?.coingeckoId] || 0)
       .toNumber();
 
-    if (usdPrice < MINIMUM_BRIDGE_PER_USD) {
-      const minimumAmount = Math.ceil(
-        (MINIMUM_BRIDGE_PER_USD / usdPrice) * amount
-      );
+    const minimumAmount =
+      Math.ceil((MINIMUM_BRIDGE_PER_USD * amount * 1000) / usdPrice) / 1000;
+
+    if (amount < minimumAmount) {
       throw Error(`Minimum bridge is ${minimumAmount} ${token.symbol}`);
     }
   };
@@ -278,7 +274,10 @@ const Bridge = () => {
         tokenInOrai
       );
 
-      if (Number(balanceMax) < Number(amount)) {
+      if (
+        Number(balanceMax) < Number(amount) &&
+        token.contractAddress !== TON_ZERO_ADDRESS
+      ) {
         setLoading(false);
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${balanceMax} ${token.symbol}`;
       }
@@ -287,8 +286,7 @@ const Bridge = () => {
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
       const fmtAmount = new BigDecimal(10).pow(token.decimal).mul(amount);
-      const isNativeTon: boolean =
-        token.contractAddress === TON_ADDRESS_CONTRACT;
+      const isNativeTon: boolean = token.contractAddress === TON_ZERO_ADDRESS;
       const toAddress: string = isNativeTon
         ? bridgeAdapterAddress.toString()
         : tokenInfo.jettonWalletAddress?.toString();
@@ -416,7 +414,7 @@ const Bridge = () => {
         tokenInTon?.decimal || CW20_DECIMALS
       );
 
-      if (displayBalance < Number(amount)) {
+      if (displayBalance < Number(amount) && token.contractAddress !== null) {
         setLoading(false);
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${displayBalance} ${token.symbol}`;
       }

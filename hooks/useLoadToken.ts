@@ -6,13 +6,9 @@ import {
   tokenMap,
 } from "@/constants/bridgeTokens";
 import { chainInfos } from "@/constants/chainInfo";
-import {
-  CW20_TON_CONTRACT,
-  TON_ADDRESS_CONTRACT,
-  TonNetwork,
-  TonTokensContract,
-  network,
-} from "@/constants/networks";
+import { TonNetwork } from "@/constants/ton";
+import { TON_ZERO_ADDRESS, TonTokensContract } from "@/constants/contract";
+import { network } from "@/constants/networks";
 import { TonTokenList } from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
@@ -41,7 +37,7 @@ async function loadNativeBalance(
     let amountDetails: AmountDetails = {};
 
     // reset native balances
-    cosmosTokens
+    [...cosmosTokens]
       .filter((t) => t.chainId === tokenInfo.chainId && !t.contractAddress)
       .forEach((t) => {
         amountDetails[t.denom] = "0";
@@ -93,19 +89,7 @@ async function loadCw20Balance(
   if (!address) return;
 
   // get all cw20 token contract
-  const cw20Tokens = [
-    ...[
-      ...oraichainTokens,
-      {
-        name: "Ton",
-        symbol: "TON",
-        contractAddress: CW20_TON_CONTRACT,
-        denom: "cw20_ton",
-        coingeckoId: "the-open-network",
-        decimal: 9,
-      },
-    ].filter((t) => t.contractAddress),
-  ];
+  const cw20Tokens = [...[...oraichainTokens].filter((t) => t.contractAddress)];
 
   const data = toBinary({
     balance: { address },
@@ -149,14 +133,14 @@ async function loadCw20BalanceWithSpecificTokens(
   const cw20Tokens = [
     ...[
       ...oraichainTokens,
-      {
-        name: "Ton",
-        symbol: "TON",
-        contractAddress: CW20_TON_CONTRACT,
-        denom: "cw20_ton",
-        coingeckoId: "the-open-network",
-        decimal: 9,
-      },
+      // {
+      //   name: "Ton",
+      //   symbol: "TON",
+      //   contractAddress: CW20_TON_CONTRACT,
+      //   denom: "cw20_ton",
+      //   coingeckoId: "the-open-network",
+      //   decimal: 9,
+      // },
     ].filter(
       (t) => t.contractAddress && specificTokens.includes(t.contractAddress)
     ),
@@ -223,7 +207,7 @@ export const useLoadTonBalance = ({
       const client = new TonClient({
         endpoint,
       });
-      if (address === TON_ADDRESS_CONTRACT) {
+      if (address === TON_ZERO_ADDRESS) {
         const balance = await client.getBalance(Address.parse(tonAddress));
 
         handleSetTonAmountsCache({
@@ -275,7 +259,7 @@ export const useLoadTonBalance = ({
 
     const fullData = await Promise.all(
       allTokens.map(async (item) => {
-        if (item === TON_ADDRESS_CONTRACT) {
+        if (item === TON_ZERO_ADDRESS) {
           // native token: TON
           const balance = await client.getBalance(Address.parse(tonAddress));
 
