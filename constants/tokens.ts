@@ -42,9 +42,9 @@ export const OraichainTokenList: TokenType[] = [
     symbol: "TON",
     Icon: TonNetworkICon,
     contractAddress: null,
-    denom: `factory/${network.TOKEN_FACTORY}/ton`,
+    denom: `factory/${network.TOKEN_FACTORY}/XuanDang`,
     coingeckoId: "the-open-network",
-    decimal: 6,
+    decimal: 9,
   },
 ];
 
