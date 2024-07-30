@@ -4,7 +4,7 @@ export const TonInteractionContract = {
   [TonNetwork.Mainnet]: {
     lightClient: "EQDt5RAUICxUeHaNicwspH8obI__z3X0UHy6vv1xhpi3AbfT",
     whitelist: "EQATDM6mfPZjPDMD9TVa6D9dlbmAKY5w6xOJiTXJ9Nqj_dsu",
-    bridgeAdapter: "EQASlo5_ZTuknZ5oZkM7RmPXN2oNOKk3usg4NMYBDf2VsTwk",
+    bridgeAdapter: "EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY",
   },
   [TonNetwork.Testnet]: {
     lightClient: "",
@@ -28,6 +28,6 @@ export const TonTokensContract = {
 };
 
 export const CW_TON_BRIDGE =
-  "orai1f8yer2astssamnyzzp6yvk6q5h49kzj2gu0n7rct8uj38pswy7lqwa8mdw";
+  "orai159l8l9c5ckhqpuwdfgs9p4v599nqt3cjlfahalmtrhfuncnec2ms5mz60e";
 export const TOKEN_FACTORY =
-  "orai17hyr3eg92fv34fdnkend48scu32hn26gqxw3hnwkfy904lk9r09qqzty42";
+  "orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9";

@@ -14,7 +14,7 @@ export type TokenType = {
   decimal: number;
 };
 
-export const TON_DENOM = `factory/orai17hyr3eg92fv34fdnkend48scu32hn26gqxw3hnwkfy904lk9r09qqzty42/XuanDang`;
+export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9/ton`;
 
 export const OraichainTokenList: TokenType[] = [
   {
