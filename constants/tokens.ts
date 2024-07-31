@@ -1,6 +1,7 @@
-import { UsdcIcon, UsdtIcon } from "@/assets/icons/token";
-import { USDC_CONTRACT, USDT_CONTRACT } from "@oraichain/oraidex-common";
-import { CW20_TON_CONTRACT, TonNetwork, TonTokensContract } from "./networks";
+import { TonNetwork } from "./ton";
+import { TonTokensContract } from "./contract";
+import { UsdtIcon, TetherIcon } from "@/assets/icons/token";
+import { USDT_CONTRACT } from "@oraichain/oraidex-common";
 import { TonNetworkICon } from "@/assets/icons/network";
 
 export type TokenType = {
@@ -13,6 +14,8 @@ export type TokenType = {
   decimal: number;
 };
 
+export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9/ton`;
+
 export const OraichainTokenList: TokenType[] = [
   {
     name: "Tether",
@@ -23,52 +26,34 @@ export const OraichainTokenList: TokenType[] = [
     coingeckoId: "tether",
     decimal: 6,
   },
-  // {
-  //   name: "USD Coin",
-  //   symbol: "USDC",
-  //   Icon: UsdcIcon,
-  //   contractAddress: USDC_CONTRACT,
-  //   denom: "usdc",
-  //   coingeckoId: "usd-coin",
-  //   decimal: 6,
-  // },
-  // {
-  //   name: "Ton",
-  //   symbol: "TON",
-  //   Icon: TonNetworkICon,
-  //   contractAddress: CW20_TON_CONTRACT,
-  //   denom: "cw20_ton",
-  //   coingeckoId: "the-open-network",
-  //   decimal: 6,
-  // },
+  {
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: null,
+    denom: TON_DENOM,
+    coingeckoId: "the-open-network",
+    decimal: 9,
+  },
 ];
 
 export const TonTokenList = (network: TonNetwork): TokenType[] => [
   {
     name: "Tether",
-    symbol: "jUSDT",
-    Icon: UsdtIcon,
+    symbol: "USDT",
+    Icon: TetherIcon,
     contractAddress: TonTokensContract[network].usdt,
     denom: "ton20_usdt",
     coingeckoId: "tether",
     decimal: 6,
   },
-  // {
-  //   name: "USD Coin",
-  //   symbol: "USDC",
-  //   Icon: UsdcIcon,
-  //   contractAddress: TonTokensContract[network].usdc,
-  //   denom: "ton20_usdc",
-  //   coingeckoId: "usd-coin",
-  //   decimal: 6,
-  // },
-  // {
-  //   name: "Ton",
-  //   symbol: "TON",
-  //   Icon: TonNetworkICon,
-  //   contractAddress: TonTokensContract[network].ton,
-  //   denom: "ton",
-  //   coingeckoId: "the-open-network",
-  //   decimal: 9,
-  // },
+  {
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: TonTokensContract[network].ton,
+    denom: "ton",
+    coingeckoId: "the-open-network",
+    decimal: 9,
+  },
 ];

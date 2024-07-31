@@ -5,7 +5,7 @@ import { ArrowDownIcon } from "@/assets/icons/arrow";
 import { SelectOptionIcon } from "@/assets/icons/network";
 import SelectCommon from "@/components/commons/select";
 import { AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP } from "@/constants/config";
-import { TonNetwork } from "@/constants/networks";
+import { TonNetwork } from "@/constants/ton";
 import { OraichainTokenList, TonTokenList } from "@/constants/tokens";
 import { numberWithCommas } from "@/helper/number";
 import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
