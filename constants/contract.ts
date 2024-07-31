@@ -2,7 +2,7 @@ import { TonNetwork } from "./ton";
 
 export const TonInteractionContract = {
   [TonNetwork.Mainnet]: {
-    lightClient: "EQDt5RAUICxUeHaNicwspH8obI__z3X0UHy6vv1xhpi3AbfT",
+    lightClient: "EQDzy_POlimFDyzrHd3OQsb9sZCngyG3O7Za4GRFzM-rrO93",
     whitelist: "EQATDM6mfPZjPDMD9TVa6D9dlbmAKY5w6xOJiTXJ9Nqj_dsu",
     bridgeAdapter: "EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY",
   },
