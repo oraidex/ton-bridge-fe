@@ -241,7 +241,7 @@ const Bridge = () => {
       .toNumber();
 
     const minimumAmount =
-      Math.ceil((MINIMUM_BRIDGE_PER_USD * amount * 1000) / usdPrice) / 1000;
+      Math.ceil((MINIMUM_BRIDGE_PER_USD * amount * 100) / usdPrice) / 100;
 
     if (amount < minimumAmount) {
       throw Error(`Minimum bridge is ${minimumAmount} ${token.symbol}`);
