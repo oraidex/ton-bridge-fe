@@ -1,6 +1,6 @@
 "use client";
 
-import { SwapIcon } from "@/assets/icons/action";
+import { SwapIcon, WarningIcon } from "@/assets/icons/action";
 import { TonNetworkICon } from "@/assets/icons/network";
 import { OraiIcon } from "@/assets/icons/token";
 import Loader from "@/components/commons/loader/Loader";
@@ -503,113 +503,127 @@ const Bridge = () => {
       : Number(amount) >
         toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
 
-  return (
-    <div className={styles.swapWrapper}>
-      <div className={styles.header}>TON Bridge</div>
+  const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
 
-      <div className={styles.content}>
-        <div className={styles.divider}></div>
-        <div className={styles.handler}>
-          <div className={styles.select}>
-            <div className={styles.fromTo}>
-              <h2>From</h2>
-              <div className={styles.networkItem}>
-                <fromNetwork.Icon />
-                {fromNetwork.name}
+  return (
+    <div className={styles.container}>
+      {isMaintained && (
+        <div className={styles.warning}>
+          <div>
+            <WarningIcon />
+          </div>
+          Oraichain to Ton is under maintenance!
+        </div>
+      )}
+
+      <div className={styles.swapWrapper}>
+        <div className={styles.header}>TON Bridge</div>
+
+        <div className={styles.content}>
+          <div className={styles.divider}></div>
+          <div className={styles.handler}>
+            <div className={styles.select}>
+              <div className={styles.fromTo}>
+                <h2>From</h2>
+                <div className={styles.networkItem}>
+                  <fromNetwork.Icon />
+                  {fromNetwork.name}
+                </div>
+              </div>
+              <SwapIcon
+                className={styles.switch}
+                onClick={() => {
+                  const [currentTo, currentFrom] = [toNetwork, fromNetwork];
+                  setFromNetwork(currentTo);
+                  setToNetwork(currentFrom);
+                  setToken(null);
+                  handleUpdateQueryURL([currentTo.id, currentFrom.id]);
+                }}
+              />
+              <div className={styles.fromTo}>
+                <h2>To</h2>
+                <div className={styles.networkItem}>
+                  <toNetwork.Icon />
+                  {toNetwork.name}
+                </div>
               </div>
             </div>
-            <SwapIcon
-              className={styles.switch}
-              onClick={() => {
-                const [currentTo, currentFrom] = [toNetwork, fromNetwork];
-                setFromNetwork(currentTo);
-                setToNetwork(currentFrom);
-                setToken(null);
-                handleUpdateQueryURL([currentTo.id, currentFrom.id]);
-              }}
-            />
-            <div className={styles.fromTo}>
-              <h2>To</h2>
-              <div className={styles.networkItem}>
-                <toNetwork.Icon />
-                {toNetwork.name}
-              </div>
+            <div className={styles.input}>
+              <InputBridge
+                txtSearch={txtSearch}
+                setTxtSearch={setTxtSearch}
+                amount={amount}
+                onChangeAmount={(val) => setAmount(val)}
+                token={token}
+                tonNetwork={tonNetwork}
+                setToken={setToken}
+                networkTo={toNetwork.id as NetworkType}
+                deductNativeAmount={deductNativeAmount}
+                isMaintained={isMaintained}
+              />
             </div>
-          </div>
-          <div className={styles.input}>
-            <InputBridge
-              txtSearch={txtSearch}
-              setTxtSearch={setTxtSearch}
-              amount={amount}
-              onChangeAmount={(val) => setAmount(val)}
-              token={token}
-              tonNetwork={tonNetwork}
-              setToken={setToken}
-              networkTo={toNetwork.id as NetworkType}
-              deductNativeAmount={deductNativeAmount}
-            />
-          </div>
-          <div className={styles.destination}>
-            <p>Destination address</p>
-            <p className={styles.addressTo} title={destinationAddress}>
-              {/* {toNetwork.id === NetworkList.oraichain.id
+            <div className={styles.destination}>
+              <p>Destination address</p>
+              <p className={styles.addressTo} title={destinationAddress}>
+                {/* {toNetwork.id === NetworkList.oraichain.id
                 ? oraiAddress || ""
                 : reduceString(tonAddress || "", 12, 12)} */}
-              {destinationAddress}
-            </p>
-          </div>
-        </div>
-        <div className={styles.divider}></div>
-        <div className={styles.est}>
-          {toNetwork.id === NetworkList.oraichain.id && (
-            <div className={styles.itemEst}>
-              <span>TON gas fee</span>
-              {/* <span className={styles.value}>~ 0.0017 ORAI</span> */}
-              <span className={styles.value}>~ 1 TON</span>
+                {destinationAddress}
+              </p>
             </div>
-          )}
-          <div className={styles.itemEst}>
-            <span>Bridge fee</span>
-            {/* <span className={styles.value}>1 TON</span> */}
-            <span className={styles.value}>
-              {numberWithCommas(bridgeFee || 0, undefined, {
-                maximumFractionDigits: CW20_DECIMALS,
-              })}{" "}
-              ORAI
-            </span>
           </div>
-          <div className={styles.itemEst}>
-            <span>Token fee</span>
-            {/* <span className={styles.value}>1 TON</span> */}
-            <span className={styles.value}>
-              {!token
-                ? "--"
-                : formatDisplayNumber(
-                    new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
-                    DECIMAL_TOKEN_FEE
-                  )}{" "}
-              {token?.symbol}
-            </span>
+          <div className={styles.divider}></div>
+          <div className={styles.est}>
+            {toNetwork.id === NetworkList.oraichain.id && (
+              <div className={styles.itemEst}>
+                <span>TON gas fee</span>
+                {/* <span className={styles.value}>~ 0.0017 ORAI</span> */}
+                <span className={styles.value}>~ 1 TON</span>
+              </div>
+            )}
+            <div className={styles.itemEst}>
+              <span>Bridge fee</span>
+              {/* <span className={styles.value}>1 TON</span> */}
+              <span className={styles.value}>
+                {numberWithCommas(bridgeFee || 0, undefined, {
+                  maximumFractionDigits: CW20_DECIMALS,
+                })}{" "}
+                ORAI
+              </span>
+            </div>
+            <div className={styles.itemEst}>
+              <span>Token fee</span>
+              {/* <span className={styles.value}>1 TON</span> */}
+              <span className={styles.value}>
+                {!token
+                  ? "--"
+                  : formatDisplayNumber(
+                      new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
+                      DECIMAL_TOKEN_FEE
+                    )}{" "}
+                {token?.symbol}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className={styles.button}>
-          {oraiAddress && tonAddress ? (
-            <button
-              disabled={loading || !token || !amount || isInsufficientBalance}
-              onClick={() => {
-                fromNetwork.id === "Ton"
-                  ? handleBridgeFromTon()
-                  : handleBridgeFromOraichain();
-              }}
-              className={styles.bridgeBtn}
-            >
-              {loading && <Loader width={22} height={22} />}
-              Bridge
-            </button>
-          ) : (
-            <ConnectButton fullWidth />
-          )}
+          <div className={styles.button}>
+            {oraiAddress && tonAddress ? (
+              <button
+                disabled={loading || !token || !amount || isInsufficientBalance}
+                onClick={() => {
+                  fromNetwork.id === "Ton"
+                    ? handleBridgeFromTon()
+                    : handleBridgeFromOraichain();
+                }}
+                className={styles.bridgeBtn}
+              >
+                {loading && <Loader width={22} height={22} />}
+                Bridge
+              </button>
+            ) : (
+              <ConnectButton fullWidth />
+            )}
+          </div>
         </div>
       </div>
     </div>

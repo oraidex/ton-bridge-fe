@@ -1,3 +1,33 @@
+.container {
+  display: flex;
+  // align-items: center;
+  // justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.warning {
+  display: flex;
+  gap: 12px;
+  background: #383200;
+  padding: 8px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
+  /* 21px */
+
+  color: #ad9c00;
+  border: 1px solid #ad9c00;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+  }
+}
+
 .swapWrapper {
   position: relative;
   display: flex;

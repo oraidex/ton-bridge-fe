@@ -36,6 +36,7 @@ const InputBridge: FC<{
   txtSearch: string;
   setTxtSearch: Dispatch<SetStateAction<string>>;
   deductNativeAmount: bigint;
+  isMaintained?: boolean;
 }> = ({
   networkTo = "Oraichain",
   disabled = false,
@@ -47,6 +48,7 @@ const InputBridge: FC<{
   txtSearch,
   setTxtSearch,
   deductNativeAmount,
+  isMaintained = false,
 }) => {
   const amounts = useAmountsCache();
   const amountsTon = useTonAmountsCache();
@@ -73,7 +75,11 @@ const InputBridge: FC<{
     networkTo === "Ton" ? OraichainTokenList : TonTokenList(tonNetwork);
 
   return (
-    <div className={styles.inputBridge}>
+    <div
+      className={classNames(styles.inputBridge, {
+        [styles.isMaintained]: isMaintained,
+      })}
+    >
       <div className={styles.header}>
         <div className={styles.headerTxt}>
           <span className={styles.bal}>Balance: </span>
@@ -128,6 +134,7 @@ const InputBridge: FC<{
           })}
         </div>
       </div>
+
       <div className={styles.content}>
         <SelectCommon
           open={open}
@@ -199,7 +206,7 @@ const InputBridge: FC<{
             thousandSeparator
             className={styles.input}
             decimalScale={6}
-            disabled={disabled}
+            disabled={disabled || isMaintained}
             type="text"
             value={amount}
             onChange={() => {}}

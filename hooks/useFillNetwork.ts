@@ -16,12 +16,12 @@ export const initFromNetwork = () => {
     const currentFromNetwork = params.get(FROM_QUERY_KEY);
     const currentNetwork =
       currentFromNetwork === NetworkList.oraichain.id || !currentFromNetwork
-        ? NetworkList.oraichain
-        : NetworkList.ton;
+        ? NetworkList.ton
+        : NetworkList.oraichain;
 
-    return currentNetwork || NetworkList.oraichain;
+    return currentNetwork || NetworkList.ton;
   }
-  return NetworkList.oraichain;
+  return NetworkList.ton;
 };
 
 export const initToNetwork = () => {
@@ -33,13 +33,13 @@ export const initToNetwork = () => {
     const currentToNetwork = params.get(TO_QUERY_KEY);
     const currentNetwork =
       currentToNetwork === NetworkList.ton.id || !currentToNetwork
-        ? NetworkList.ton
-        : NetworkList.oraichain;
+        ? NetworkList.oraichain
+        : NetworkList.ton;
 
-    return currentNetwork || NetworkList.ton;
+    return currentNetwork || NetworkList.oraichain;
   }
 
-  return NetworkList.ton;
+  return NetworkList.oraichain;
 };
 
 export const useFillNetwork = ({
