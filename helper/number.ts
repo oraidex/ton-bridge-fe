@@ -60,7 +60,7 @@ export const formatDisplayNumber = (
   num: number,
   decimal: number = CW20_DECIMALS
 ) => {
-  if (num <= 0.001) {
+  if (num <= 0.001 && num !== 0) {
     return "~0.001";
   }
 

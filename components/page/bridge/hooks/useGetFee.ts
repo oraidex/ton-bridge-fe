@@ -40,7 +40,15 @@ const useGetFee = ({ token }: { token: TokenType }) => {
           }
         }
       } catch (error) {
-        console.log("error", error);
+        if (
+          error.message
+            .toString()
+            .includes("type: tonbridge_bridge::state::Ratio; key:")
+        ) {
+          setTokenFee(0);
+        } else {
+          console.log(error);
+        }
       }
     })();
   }, [token, oraiAddress]);
