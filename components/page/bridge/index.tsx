@@ -503,7 +503,8 @@ const Bridge = () => {
       : Number(amount) >
         toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
 
-  const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
+  // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
+  const isMaintained = false;
 
   return (
     <div className={styles.container}>
