@@ -372,9 +372,14 @@ const Bridge = () => {
         toNetwork,
         token,
         amount,
+        toToken: token.symbol,
+        fromToken: token.symbol,
+        priceTokenInUsd: new BigDecimal(amount)
+          .mul(prices[token.coingeckoId])
+          .toNumber(),
       };
+      console.log("logEventTon", logEvent);
       mp.track("Bridge Ton Oraidex", logEvent);
-      // mixpanel.track("Bridge Ton Oraidex", logEvent);
     }
   };
 
@@ -492,7 +497,14 @@ const Bridge = () => {
         toNetwork,
         token,
         amount,
+        toToken: token.symbol,
+        fromToken: token.symbol,
+        priceTokenInUsd: new BigDecimal(amount)
+          .mul(prices[token.coingeckoId])
+          .toNumber(),
       };
+
+      console.log("logEvent", logEvent);
       mp.track("Bridge Ton Oraidex", logEvent);
     }
   };
