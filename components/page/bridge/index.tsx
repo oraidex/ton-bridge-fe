@@ -401,6 +401,19 @@ const Bridge = () => {
 
       validatePrice(token, amount);
 
+      // get the decentralized RPC endpoint
+      const endpoint = await getHttpEndpoint();
+      const client = new TonClient({
+        endpoint,
+      });
+
+      const isActiveDestinationAddress = await client.isContractDeployed(
+        Address.parse(destinationAddress)
+      );
+      if (!isActiveDestinationAddress) {
+        throw "Destination address has to be an active address!";
+      }
+
       setLoading(true);
 
       const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
