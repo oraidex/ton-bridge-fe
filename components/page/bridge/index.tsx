@@ -368,6 +368,8 @@ const Bridge = () => {
       setLoading(false);
       const mp = getMixPanelClient();
       const logEvent = {
+        tonAddress,
+        oraiAddress,
         fromNetwork,
         toNetwork,
         token,
@@ -493,6 +495,8 @@ const Bridge = () => {
       setLoading(false);
       const mp = getMixPanelClient();
       const logEvent = {
+        tonAddress,
+        oraiAddress,
         fromNetwork,
         toNetwork,
         token,
