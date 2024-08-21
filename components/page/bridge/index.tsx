@@ -96,6 +96,7 @@ const Bridge = () => {
       ? oraiAddress || ""
       : tonAddress || "";
 
+  console.log("Read token:", { token });
   const { bridgeFee, tokenFee } = useGetFee({
     token,
   });
@@ -618,7 +619,7 @@ const Bridge = () => {
                 {numberWithCommas(bridgeFee || 0, undefined, {
                   maximumFractionDigits: CW20_DECIMALS,
                 })}{" "}
-                ORAI
+                {token?.symbol}
               </span>
             </div>
             <div className={styles.itemEst}>

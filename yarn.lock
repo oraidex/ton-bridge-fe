@@ -1624,10 +1624,10 @@
     dotenv "^16.4.5"
     varstruct "^6.1.3"
 
-"@oraichain/tonbridge-contracts-sdk@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@oraichain/tonbridge-contracts-sdk/-/tonbridge-contracts-sdk-1.3.0.tgz#b03f28005722604fe4d557dd8e58ef214ade5874"
-  integrity sha512-yTGlH5Oyq6s3cj63EJoBx+n4YxqhN6EcC8I0h9HmlOnGxzZgLY3AUkFjkFPgn5prH9dIfixhXnfh/TPXq0j9Pw==
+"@oraichain/tonbridge-contracts-sdk@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@oraichain/tonbridge-contracts-sdk/-/tonbridge-contracts-sdk-1.3.1.tgz#5c2981b5c1c99bda7db143d8f294449bdc15f2d7"
+  integrity sha512-atSmGRzlGodjidY32I50UJPtVIriaoeqOOw/Qx2qnCk2S/1z5oAotPO9mfHeLALb3rgN/gtXhtQj/dqCU0rlsA==
 
 "@orbs-network/ton-access@^2.3.3":
   version "2.3.3"

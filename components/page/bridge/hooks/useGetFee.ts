@@ -55,20 +55,31 @@ const useGetFee = ({ token }: { token: TokenType }) => {
 
   useEffect(() => {
     (async () => {
-      const tonBridgeClient = new TonbridgeBridgeClient(
-        window.client,
-        oraiAddress,
-        network.CW_TON_BRIDGE
-      );
+      if (token) {
+        const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
+          (tk) => tk.coingeckoId === token.coingeckoId
+        );
+        if (!tokenInTon) {
+          return;
+        }
 
-      const config = await tonBridgeClient.config();
-      if (config) {
-        const { relayer_fee } = config;
+        const tonBridgeClient = new TonbridgeBridgeClient(
+          window.client,
+          oraiAddress,
+          network.CW_TON_BRIDGE
+        );
 
-        setBridgeFee(toDisplay(relayer_fee));
+        const config = await tonBridgeClient.pairMapping({
+          key: tokenInTon?.contractAddress,
+        });
+        const pairMapping = config.pair_mapping;
+
+        setBridgeFee(
+          parseInt(pairMapping.relayer_fee) / 10 ** pairMapping.remote_decimals
+        );
       }
     })();
-  }, []);
+  }, [token, oraiAddress]);
 
   return {
     bridgeFee,
