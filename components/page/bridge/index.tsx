@@ -534,7 +534,7 @@ const Bridge = () => {
         toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
 
   // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
-  const isMaintained = false;
+  const isMaintained = true;
 
   return (
     <div className={styles.container}>
@@ -543,7 +543,10 @@ const Bridge = () => {
           <div>
             <WarningIcon />
           </div>
-          Oraichain to Ton is under maintenance!
+          <div className={styles.text}>
+            <p>[NOTICE] The bridge is undergoing a 2-hour update</p>
+            <p>Please refrain from transactions during this time.</p>
+          </div>
         </div>
       )}
 
