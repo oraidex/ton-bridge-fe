@@ -18,7 +18,8 @@ export const TON_ZERO_ADDRESS =
 
 export const TonTokensContract = {
   [TonNetwork.Mainnet]: {
-    usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+    usdt: "EQANiP_ggkS0lJbR12xmDNT7hgqphdnVG0cCiJN6BN35Z498",
+    jUSDT: "EQD9FZVmADli_p4qH2vMpmFdhT6LzOuCMH5bTeOYSf7y5tDK",
     ton: TON_ZERO_ADDRESS,
   },
   [TonNetwork.Testnet]: {
