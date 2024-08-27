@@ -79,7 +79,6 @@ const Bridge = () => {
   const amounts = useAmountsCache();
   const amountsTon = useTonAmountsCache();
   const { balances: sentBalance, getChanelStateData } = useGetStateData();
-
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(null);
   const [token, setToken] = useState<TokenType>(null);
@@ -88,6 +87,8 @@ const Bridge = () => {
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
   });
+  const [bridgeJettonWallets, setBridgeJettonWallets] = useState<string[]>();
+
   const [deductNativeAmount, setDeductNativeAmount] = useState(0n);
   const { data: prices } = useCoinGeckoPrices();
 
@@ -107,6 +108,42 @@ const Bridge = () => {
   });
 
   useEffect(() => {
+    try {
+      (async () => {
+        const values = TonTokenList(tonNetwork).values();
+        const endpoint = await getHttpEndpoint();
+        const client = new TonClient({
+          endpoint,
+        });
+        const jettonWallet = await Promise.all(
+          values.map((value) => {
+            if (value.contractAddress === TON_ZERO_ADDRESS)
+              return Address.parse(TON_ZERO_ADDRESS);
+            const jettonMinter = client.open(
+              JettonMinter.createFromAddress(
+                Address.parse(value.contractAddress)
+              )
+            );
+            return jettonMinter.getWalletAddress(
+              Address.parse(
+                TonInteractionContract[TonNetwork.Mainnet].bridgeAdapter
+              )
+            );
+          })
+        );
+        const allJettonWallet = jettonWallet.reduce((acc, cur, idx) => {
+          acc.push(cur.toString());
+          return acc;
+        }, [] as string[]);
+
+        setBridgeJettonWallets(allJettonWallet);
+      })();
+    } catch (error) {
+      console.log("error :>>", error);
+    }
+  }, []);
+
+  useEffect(() => {
     if (
       toNetwork.id == NetworkList.oraichain.id &&
       token?.contractAddress === TON_ZERO_ADDRESS
@@ -122,7 +159,6 @@ const Bridge = () => {
     try {
       (async () => {
         if (toNetwork.id != NetworkList.oraichain.id || !token) return;
-
         // get the decentralized RPC endpoint
         const endpoint = await getHttpEndpoint();
         const client = new TonClient({
@@ -139,11 +175,18 @@ const Bridge = () => {
         const jettonMinter = JettonMinter.createFromAddress(
           Address.parse(token.contractAddress)
         );
-        const jettonMinterContract = client.open(jettonMinter);
-        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
-          Address.parse(tonAddress)
-        );
 
+        const jettonMinterContract = client.open(jettonMinter);
+        const [jettonWalletAddress, bridgeJettonWalletAddress] =
+          await Promise.all([
+            jettonMinterContract.getWalletAddress(Address.parse(tonAddress)),
+            jettonMinterContract.getWalletAddress(
+              Address.parse(
+                TonInteractionContract[TonNetwork.Mainnet].bridgeAdapter
+              )
+            ),
+          ]);
+        console.log({ bridgeJettonWalletAddress });
         setTokenInfo({
           jettonWalletAddress,
         });
@@ -399,36 +442,22 @@ const Bridge = () => {
       if (!token || !amount) {
         throw "Not valid!";
       }
-
       validatePrice(token, amount);
-
-      // get the decentralized RPC endpoint
-      // const endpoint = await getHttpEndpoint();
-      // const client = new TonClient({
-      //   endpoint,
-      // });
-
-      // const isActiveDestinationAddress = await client.isContractDeployed(
-      //   Address.parse(destinationAddress)
-      // );
-      // if (!isActiveDestinationAddress) {
-      //   throw "Destination address has to be an active address!";
-      // }
 
       setLoading(true);
 
       const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
         (tk) => tk.coingeckoId === token.coingeckoId
       );
+      const index = TonTokenList(TonNetwork.Mainnet).findIndex(
+        (tk) => tk.coingeckoId === token.coingeckoId
+      );
+      console.log({ bridgeJettonWallets });
+      const bridgeJettonWallet = bridgeJettonWallets[index];
 
       const balanceMax = (sentBalance || []).find(
         (b) => b.native.denom === tokenInTon.contractAddress
       )?.native.amount;
-
-      // const balanceMax = await checkBalanceBridgeByNetwork(
-      //   NetworkList.oraichain.id,
-      //   tokenInTon
-      // );
 
       const displayBalance = toDisplay(
         balanceMax,
@@ -449,11 +478,10 @@ const Bridge = () => {
       let tx;
 
       const timeout = Math.floor(new Date().getTime() / 1000) + 3600;
+
       const msg = {
         // crcSrc: ARG_BRIDGE_TO_TON.CRC_SRC,
-        denom: TonTokenList(tonNetwork).find(
-          (tk) => tk.coingeckoId === token.coingeckoId
-        ).contractAddress,
+        denom: bridgeJettonWallet,
         timeout,
         to: tonAddress,
       };
@@ -534,7 +562,7 @@ const Bridge = () => {
         toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
 
   // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
-  const isMaintained = true;
+  const isMaintained = false;
 
   return (
     <div className={styles.container}>

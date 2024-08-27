@@ -340,8 +340,6 @@ const loadTonBalance = (
 export const useLoadToken = () => {
   const amounts = useAmountsCache();
   const { handleSetAmountsCache, handleSetTonAmountsCache } = useTokenActions();
-  //   const oraiAddress = useAuthOraiAddress();
-  //   const tonAddress = useAuthTonAddress();
 
   const loadToken = ({
     oraiAddress,

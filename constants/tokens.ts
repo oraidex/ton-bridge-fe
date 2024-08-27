@@ -51,7 +51,7 @@ export const TonTokenList = (network: TonNetwork): TokenType[] => [
     name: "Jetton USDT",
     symbol: "jUSDT",
     Icon: TetherIcon,
-    contractAddress: TonTokensContract[network].usdt,
+    contractAddress: TonTokensContract[network].jUSDT,
     denom: "ton20_usdt",
     coingeckoId: "tether",
     decimal: 6,
