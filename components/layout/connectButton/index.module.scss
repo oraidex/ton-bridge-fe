@@ -31,7 +31,7 @@
   gap: 10px;
   flex-shrink: 0;
   border-radius: var(--Dimension-Corner-Radius-button, 99px);
-  background: var(--Colors-Primary-Surface-default, #aee67f);
+  background: var(--Colors-Primary-Surface-default, #fefefe);
 
   color: var(--Colors-Neutral-Text-text-btn-default, #292f23);
   text-align: center;
@@ -204,7 +204,7 @@
           line-height: 100%; /* 18px */
 
           &.connected {
-            background: var(--Colors-Neutral-Surface-bg-section-2, #aee67f);
+            background: var(--Colors-Neutral-Surface-bg-section-2, #fefefe);
 
             color: var(--Colors-Neutral-Text-body, #232521);
           }

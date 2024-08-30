@@ -144,7 +144,7 @@ const Bridge = () => {
   useEffect(() => {
     try {
       (async () => {
-        if (toNetwork.id != NetworkList.oraichain.id || !token) return;
+        if (fromNetwork.id !== NetworkList.ton.id || !token) return;
 
         // get the decentralized RPC endpoint
         const endpoint = await getHttpEndpoint();
@@ -243,6 +243,37 @@ const Bridge = () => {
     }
   };
 
+  const handleCheckBalanceBridgeOfOsmosis = async (token: TokenType) => {
+    try {
+      if (token) {
+        if (!token.contractAddress) {
+          const findCosmosChain = cosmosChains.find(
+            (chain) => chain.chainId === fromNetwork.id
+          );
+          const { client } = await getCosmWasmClient(
+            { chainId: fromNetwork.id, rpc: findCosmosChain.rpc },
+            {
+              gasPrice: GasPrice.fromString(
+                `${getCosmosGasPrice(
+                  findCosmosChain.feeCurrencies[0].gasPriceStep
+                )}${findCosmosChain.feeCurrencies[0].coinMinimalDenom}`
+              ),
+            }
+          );
+          const data = await client.getBalance(
+            network.CW_TON_BRIDGE,
+            token.denom
+          );
+          return {
+            balance: data.amount,
+          };
+        }
+      }
+    } catch (error) {
+      console.log("error :>> handleCheckBalanceBridgeOfOsmosis", error);
+    }
+  };
+
   const checkBalanceBridgeByNetwork = async (
     networkFrom: string,
     token: TokenType
@@ -250,6 +281,7 @@ const Bridge = () => {
     const handler = {
       [NetworkList.oraichain.id]: handleCheckBalanceBridgeOfTonNetwork,
       [NetworkList.ton.id]: handleCheckBalanceBridgeOfOraichain,
+      [NetworkList["osmosis-1"].id]: handleCheckBalanceBridgeOfOsmosis,
     };
 
     const { balance } = handler[networkFrom]
@@ -688,11 +720,17 @@ const Bridge = () => {
     }
   };
 
-  const isInsufficientBalance =
-    fromNetwork.id === NetworkList.oraichain.id
-      ? Number(amount) > toDisplay(amounts[token?.denom] || "0")
-      : Number(amount) >
-        toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
+  let isInsufficientBalance = true;
+  if (fromNetwork.id === NetworkList.ton.id) {
+    isInsufficientBalance =
+      Number(amount) > toDisplay(amounts[token?.denom] || "0");
+  }
+
+  if (toNetwork.id === NetworkList.ton.id) {
+    isInsufficientBalance =
+      Number(amount) >
+      toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
+  }
 
   // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
   const isMaintained = false;
@@ -981,7 +1019,9 @@ const Bridge = () => {
           <div className={styles.button}>
             {oraiAddress && tonAddress ? (
               <button
-                disabled={loading || !token || !amount}
+                disabled={
+                  loading || !token || !amount || !isInsufficientBalance
+                }
                 onClick={() => {
                   fromNetwork.id === NetworkList.ton.id
                     ? handleBridgeFromTon()

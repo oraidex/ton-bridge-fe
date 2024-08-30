@@ -18,6 +18,7 @@ const inter = IBM_Plex_Sans({
 export const metadata: Metadata = {
   title: "TON IBC",
   description: "Trustless IBC bridge across TON & Cosmos-ecosystem",
+  icons: "./favicon.png",
 };
 
 export default function RootLayout({
