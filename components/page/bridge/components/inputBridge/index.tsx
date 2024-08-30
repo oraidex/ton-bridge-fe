@@ -6,7 +6,11 @@ import { SelectOptionIcon } from "@/assets/icons/network";
 import SelectCommon from "@/components/commons/select";
 import { AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP } from "@/constants/config";
 import { TonNetwork } from "@/constants/ton";
-import { OraichainTokenList, TonTokenList } from "@/constants/tokens";
+import {
+  OraichainTokenList,
+  OsmosisTokenList,
+  TonTokenList,
+} from "@/constants/tokens";
 import { numberWithCommas } from "@/helper/number";
 import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
 import useOnClickOutside from "@/hooks/useOnclickOutside";
@@ -22,11 +26,13 @@ import NumberFormat from "react-number-format";
 import { fromNano } from "@ton/core";
 import styles from "./index.module.scss";
 import { EXTERNAL_MESSAGE_FEE } from "../../constants";
+import { NetworkList } from "../..";
 
-export type NetworkType = "Oraichain" | "Ton";
+export type NetworkType = "Oraichain" | "Ton" | "osmosis-1";
 
 const InputBridge: FC<{
   networkTo?: NetworkType;
+  networkFrom?: NetworkType;
   disabled?: boolean;
   onChangeAmount?: (amount: number | undefined) => void;
   amount: number;
@@ -39,6 +45,7 @@ const InputBridge: FC<{
   isMaintained?: boolean;
 }> = ({
   networkTo = "Oraichain",
+  networkFrom = "",
   disabled = false,
   amount,
   onChangeAmount,
@@ -65,14 +72,34 @@ const InputBridge: FC<{
     .mul(prices?.[token?.coingeckoId] || 0)
     .toNumber();
 
-  const displayBalance =
-    networkTo === "Ton"
-      ? toDisplay(amounts?.[token?.denom] || "0", token?.decimal)
-      : toDisplay(amountsTon?.[token?.denom] || "0", token?.decimal);
-  // : toDisplay(balance || "0", token?.decimal);
+  let displayBalance = toDisplay(
+    amountsTon?.[token?.denom] || "0",
+    token?.decimal
+  );
 
-  const networkList =
-    networkTo === "Ton" ? OraichainTokenList : TonTokenList(tonNetwork);
+  if (
+    networkFrom === NetworkList.oraichain.id ||
+    networkFrom === NetworkList["osmosis-1"].id
+  ) {
+    displayBalance = toDisplay(amounts?.[token?.denom] || "0", token?.decimal);
+  }
+
+  function filterByCoingeckoId(tokenList, coingeckoId = "the-open-network") {
+    return tokenList.filter((token) => token.coingeckoId === coingeckoId);
+  }
+
+  let networkList = TonTokenList(tonNetwork);
+  if (networkTo === NetworkList.ton.id) networkList = OraichainTokenList;
+  if (networkTo === NetworkList["osmosis-1"].id) {
+    const tokenList =
+      networkFrom === NetworkList.oraichain.id
+        ? OraichainTokenList
+        : TonTokenList(tonNetwork);
+    networkList = filterByCoingeckoId(tokenList);
+  }
+
+  if (networkFrom === NetworkList["osmosis-1"].id)
+    networkList = OsmosisTokenList;
 
   return (
     <div
@@ -185,6 +212,8 @@ const InputBridge: FC<{
                     className={styles.tokenItem}
                     key={`token-${key}`}
                     onClick={() => {
+                      console.log({ eerererere: e });
+
                       setToken(e);
                       setOpen(false);
                     }}

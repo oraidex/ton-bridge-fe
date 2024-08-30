@@ -345,10 +345,11 @@ export const useLoadToken = () => {
 
   const loadToken = ({
     oraiAddress,
+    cosmosAddress,
   }: // tonAddress,
   {
     oraiAddress?: string;
-    // tonAddress?: string;
+    cosmosAddress?: string;
   }) => {
     if (oraiAddress) {
       loadNativeBalance(
@@ -357,6 +358,20 @@ export const useLoadToken = () => {
         { chainId: network.chainId, rpc: network.rpc }
       );
       loadCw20Balance((amounts) => handleSetAmountsCache(amounts), oraiAddress);
+    }
+
+    if (cosmosAddress) {
+      const cosmosInfos = chainInfos.filter(
+        (chainInfo) => chainInfo.chainId === "osmosis-1"
+      );
+
+      for (const chainInfo of cosmosInfos) {
+        loadNativeBalance(
+          (amounts) => handleSetAmountsCache(amounts),
+          cosmosAddress,
+          chainInfo
+        );
+      }
     }
 
     // if (tonAddress) {

@@ -1,14 +1,19 @@
 "use client";
 
-import { SwapIcon, WarningIcon } from "@/assets/icons/action";
+import { SearchIcon, SwapIcon, WarningIcon } from "@/assets/icons/action";
 import { TonNetworkICon } from "@/assets/icons/network";
-import { OraiIcon } from "@/assets/icons/token";
+import { OraiIcon, OsmosisIcon } from "@/assets/icons/token";
 import Loader from "@/components/commons/loader/Loader";
 import ConnectButton from "@/components/layout/connectButton";
 import { TON_SCAN } from "@/constants/config";
 import { TonNetwork } from "@/constants/ton";
-import { TON_ZERO_ADDRESS, TonInteractionContract } from "@/constants/contract";
+import {
+  CW_TON_BRIDGE,
+  TON_ZERO_ADDRESS,
+  TonInteractionContract,
+} from "@/constants/contract";
 import { network } from "@/constants/networks";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import {
   OraichainTokenList,
   TokenType,
@@ -25,9 +30,14 @@ import { toBinary } from "@cosmjs/cosmwasm-stargate";
 import {
   BigDecimal,
   CW20_DECIMALS,
+  IBC_WASM_CONTRACT,
+  cosmosChains,
   handleSentFunds,
   toAmount,
   toDisplay,
+  CosmosChainId,
+  calculateTimeoutTimestamp,
+  getCosmosGasPrice,
 } from "@oraichain/oraidex-common";
 import { BridgeAdapter, JettonMinter } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
@@ -62,6 +72,17 @@ import {
 import { getMixPanelClient } from "@/libs/mixpanel";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
+import SelectCommon from "@/components/commons/select";
+import { NetworkWithIcon } from "@/constants/chainInfo";
+import {
+  UniversalSwapHelper,
+  buildUniversalSwapMemo,
+} from "@oraichain/oraidex-universal-swap";
+import { coin } from "@cosmjs/proto-signing";
+import { getCosmWasmClient } from "@/libs/cosmjs";
+import { GasPrice } from "@cosmjs/stargate";
+import { getAddressCosmos } from "./helper";
+import { ArrowDownIcon } from "@/assets/icons/arrow";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -91,12 +112,14 @@ const Bridge = () => {
   const [deductNativeAmount, setDeductNativeAmount] = useState(0n);
   const { data: prices } = useCoinGeckoPrices();
 
-  const destinationAddress =
-    toNetwork.id === NetworkList.oraichain.id
-      ? oraiAddress || ""
-      : tonAddress || "";
+  const [openFrom, setOpenFrom] = useState(false);
+  const [openTo, setOpenTo] = useState(false);
 
-  console.log("Read token:", { token });
+  let destinationAddress = oraiAddress;
+  if (toNetwork.id === NetworkList.ton.id) destinationAddress = tonAddress;
+  if (toNetwork.id === NetworkList["osmosis-1"].id)
+    destinationAddress = getAddressCosmos(oraiAddress);
+
   const { bridgeFee, tokenFee } = useGetFee({
     token,
   });
@@ -121,7 +144,7 @@ const Bridge = () => {
   useEffect(() => {
     try {
       (async () => {
-        if (toNetwork.id != NetworkList.oraichain.id || !token) return;
+        if (fromNetwork.id !== NetworkList.ton.id || !token) return;
 
         // get the decentralized RPC endpoint
         const endpoint = await getHttpEndpoint();
@@ -220,6 +243,37 @@ const Bridge = () => {
     }
   };
 
+  const handleCheckBalanceBridgeOfOsmosis = async (token: TokenType) => {
+    try {
+      if (token) {
+        if (!token.contractAddress) {
+          const findCosmosChain = cosmosChains.find(
+            (chain) => chain.chainId === fromNetwork.id
+          );
+          const { client } = await getCosmWasmClient(
+            { chainId: fromNetwork.id, rpc: findCosmosChain.rpc },
+            {
+              gasPrice: GasPrice.fromString(
+                `${getCosmosGasPrice(
+                  findCosmosChain.feeCurrencies[0].gasPriceStep
+                )}${findCosmosChain.feeCurrencies[0].coinMinimalDenom}`
+              ),
+            }
+          );
+          const data = await client.getBalance(
+            network.CW_TON_BRIDGE,
+            token.denom
+          );
+          return {
+            balance: data.amount,
+          };
+        }
+      }
+    } catch (error) {
+      console.log("error :>> handleCheckBalanceBridgeOfOsmosis", error);
+    }
+  };
+
   const checkBalanceBridgeByNetwork = async (
     networkFrom: string,
     token: TokenType
@@ -227,6 +281,7 @@ const Bridge = () => {
     const handler = {
       [NetworkList.oraichain.id]: handleCheckBalanceBridgeOfTonNetwork,
       [NetworkList.ton.id]: handleCheckBalanceBridgeOfOraichain,
+      [NetworkList["osmosis-1"].id]: handleCheckBalanceBridgeOfOsmosis,
     };
 
     const { balance } = handler[networkFrom]
@@ -251,17 +306,11 @@ const Bridge = () => {
 
   const handleBridgeFromTon = async () => {
     try {
-      if (!oraiAddress) {
-        throw "Please connect OWallet or Kelpr!";
-      }
+      if (!oraiAddress) throw "Please connect OWallet or Kelpr!";
 
-      if (!tonAddress) {
-        throw "Please connect Ton Wallet";
-      }
+      if (!tonAddress) throw "Please connect Ton Wallet";
 
-      if (!token || !amount) {
-        throw "Not valid!";
-      }
+      if (!token || !amount) throw "Not valid!";
 
       validatePrice(token, amount);
 
@@ -296,7 +345,31 @@ const Bridge = () => {
         ? fmtAmount.add(BRIDGE_TON_TO_ORAI_MINIMUM_GAS).toString()
         : BRIDGE_TON_TO_ORAI_MINIMUM_GAS.toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
-      const memo = beginCell().endCell();
+
+      let memo = beginCell().endCell();
+      if (toNetwork.id === NetworkList["osmosis-1"].id) {
+        const osmosisAddress = await window.Keplr.getKeplrAddr(toNetwork.id);
+        if (!osmosisAddress) throw "Please connect OWallet or Kelpr!";
+
+        const buildMemoSwap = buildUniversalSwapMemo(
+          {
+            minimumReceive: "0",
+            recoveryAddr: oraiAddress,
+          },
+          undefined,
+          undefined,
+          undefined,
+          {
+            sourceChannel: "channel-13",
+            sourcePort: "transfer",
+            receiver: osmosisAddress,
+            memo: "",
+            recoverAddress: oraiAddress,
+          },
+          undefined
+        );
+        memo = beginCell().storeStringRefTail(buildMemoSwap).endCell();
+      }
 
       const getNativeBridgePayload = () =>
         BridgeAdapter.buildBridgeTonBody(
@@ -352,7 +425,8 @@ const Bridge = () => {
           customLink: `${TON_SCAN}/transaction/${txHash}`,
         });
 
-        loadToken({ oraiAddress });
+        const cosmosAddress = getAddressCosmos(oraiAddress);
+        loadToken({ oraiAddress, cosmosAddress });
         loadAllBalanceTonToken();
         getChanelStateData();
 
@@ -386,21 +460,13 @@ const Bridge = () => {
     }
   };
 
-  const handleBridgeFromOraichain = async () => {
+  const handleBridgeFromCosmos = async () => {
     try {
-      if (!oraiAddress) {
-        throw "Please connect OWallet or Kelpr!";
-      }
+      if (!oraiAddress) throw "Please connect OWallet or Kelpr!";
 
-      if (!tonAddress) {
-        throw "Please connect Ton Wallet";
-      }
+      if (!tonAddress) throw "Please connect Ton Wallet";
 
-      if (!token || !amount) {
-        throw "Not valid!";
-      }
-
-      validatePrice(token, amount);
+      if (!token || !amount) throw "Not valid!";
 
       // get the decentralized RPC endpoint
       // const endpoint = await getHttpEndpoint();
@@ -416,6 +482,132 @@ const Bridge = () => {
       // }
 
       setLoading(true);
+      const isFromOsmosisToOraichain =
+        fromNetwork.id === NetworkList["osmosis-1"].id &&
+        toNetwork.id === NetworkList.oraichain.id;
+      const isFromOraichainToOsmosis =
+        fromNetwork.id === NetworkList.oraichain.id &&
+        toNetwork.id === NetworkList["osmosis-1"].id;
+      const isFromOsmosisToTon =
+        fromNetwork.id === NetworkList["osmosis-1"].id &&
+        toNetwork.id === NetworkList.ton.id;
+
+      // Osmosis <-> Oraichain
+      // Oraichain <-> Osmosis
+      // Osmosis -> Ton
+      if (
+        isFromOsmosisToOraichain ||
+        isFromOraichainToOsmosis ||
+        isFromOsmosisToTon
+      ) {
+        const timeout = Math.floor(new Date().getTime() / 1000) + 3600;
+        const fromChainId = fromNetwork.id as CosmosChainId;
+        const toChainId = isFromOsmosisToTon
+          ? (NetworkList.oraichain.id as CosmosChainId)
+          : (toNetwork.id as CosmosChainId);
+
+        let [fromAddress, toAddress] = await Promise.all([
+          window.Keplr.getKeplrAddr(fromChainId),
+          window.Keplr.getKeplrAddr(toChainId),
+        ]);
+
+        if (!fromAddress || !toAddress)
+          throw "Please connect OWallet or Kelpr!";
+
+        let memo = "";
+        if (isFromOsmosisToTon) {
+          toAddress = IBC_WASM_CONTRACT;
+
+          const memoUniversal = buildUniversalSwapMemo(
+            { minimumReceive: "0", recoveryAddr: oraiAddress },
+            undefined,
+            undefined,
+            {
+              contractAddress: CW_TON_BRIDGE,
+              msg: toBinary({
+                bridge_to_ton: {
+                  to: tonAddress,
+                  denom: TonTokenList(tonNetwork).find(
+                    (tk) => tk.coingeckoId === token.coingeckoId
+                  ).contractAddress,
+                  timeout,
+                  recovery_addr: oraiAddress,
+                },
+              }),
+            },
+            undefined,
+            undefined
+          );
+
+          memo = JSON.stringify({
+            wasm: {
+              contract: IBC_WASM_CONTRACT,
+              msg: {
+                ibc_hooks_receive: {
+                  func: "universal_swap",
+                  orai_receiver: oraiAddress,
+                  args: memoUniversal,
+                },
+              },
+            },
+          });
+        }
+        const ibcInfo = UniversalSwapHelper.getIbcInfo(fromChainId, toChainId);
+        const msgTransfer = [
+          {
+            typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
+            value: MsgTransfer.fromPartial({
+              sourcePort: ibcInfo.source,
+              sourceChannel: ibcInfo.channel,
+              token: coin(
+                toAmount(amount, token.decimal).toString(),
+                token.denom
+              ),
+              sender: fromAddress,
+              receiver: toAddress,
+              memo,
+              timeoutTimestamp: calculateTimeoutTimestamp(ibcInfo.timeout),
+            }),
+          },
+        ];
+
+        const findCosmosChain = cosmosChains.find(
+          (chain) => chain.chainId === fromNetwork.id
+        );
+
+        const { client } = await getCosmWasmClient(
+          { chainId: fromChainId, rpc: findCosmosChain.rpc },
+          {
+            gasPrice: GasPrice.fromString(
+              `${getCosmosGasPrice(
+                findCosmosChain.feeCurrencies[0].gasPriceStep
+              )}${findCosmosChain.feeCurrencies[0].coinMinimalDenom}`
+            ),
+          }
+        );
+        const tx = await client.signAndBroadcast(
+          fromAddress,
+          msgTransfer,
+          "auto"
+        );
+
+        if (tx?.transactionHash) {
+          displayToast(TToastType.TX_SUCCESSFUL, {
+            customLink: getTransactionUrl(
+              fromNetwork.id as any,
+              tx.transactionHash
+            ),
+          });
+          const cosmosAddress = getAddressCosmos(oraiAddress);
+          loadToken({ oraiAddress, cosmosAddress });
+          loadAllBalanceTonToken();
+
+          setAmount(0);
+        }
+        return;
+      }
+
+      validatePrice(token, amount);
 
       const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
         (tk) => tk.coingeckoId === token.coingeckoId
@@ -494,7 +686,8 @@ const Bridge = () => {
             tx.transactionHash
           ),
         });
-        loadToken({ oraiAddress });
+        const cosmosAddress = getAddressCosmos(oraiAddress);
+        loadToken({ oraiAddress, cosmosAddress });
         loadAllBalanceTonToken();
 
         setAmount(0);
@@ -527,11 +720,17 @@ const Bridge = () => {
     }
   };
 
-  const isInsufficientBalance =
-    fromNetwork.id === NetworkList.oraichain.id
-      ? Number(amount) > toDisplay(amounts[token?.denom] || "0")
-      : Number(amount) >
-        toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
+  let isInsufficientBalance = true;
+  if (fromNetwork.id === NetworkList.ton.id) {
+    isInsufficientBalance =
+      Number(amount) > toDisplay(amounts[token?.denom] || "0");
+  }
+
+  if (toNetwork.id === NetworkList.ton.id) {
+    isInsufficientBalance =
+      Number(amount) >
+      toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
+  }
 
   // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
   const isMaintained = false;
@@ -559,11 +758,98 @@ const Bridge = () => {
             <div className={styles.select}>
               <div className={styles.fromTo}>
                 <h2>From</h2>
+                <SelectCommon
+                  open={openFrom}
+                  onClose={() => setOpenFrom(false)}
+                  title="Select a from network"
+                  triggerElm={
+                    <div
+                      className={styles.networkItem}
+                      onClick={() => setOpenFrom(true)}
+                    >
+                      <fromNetwork.Icon />
+                      {fromNetwork.name}
+
+                      <ArrowDownIcon />
+                    </div>
+                  }
+                >
+                  <div className={styles.search}>
+                    <SearchIcon className={styles.searchIcon} />
+                    <input
+                      className={styles.searchInput}
+                      type="text"
+                      value={txtSearch}
+                      onChange={(e) => setTxtSearch(e.target.value)}
+                      placeholder="Search by from network"
+                    />
+                  </div>
+
+                  <div className={styles.list}>
+                    {[
+                      ...cosmosChains,
+                      {
+                        chainId: "Ton",
+                        chainName: "TON",
+                      },
+                    ]
+                      .filter((cosmos) =>
+                        [
+                          NetworkList.oraichain.id,
+                          NetworkList["osmosis-1"].id,
+                          NetworkList.ton.id,
+                        ].includes(cosmos.chainId)
+                      )
+                      .map((e, key) => {
+                        const networkIcon = NetworkWithIcon.find(
+                          (network) => network.chainId === e.chainId
+                        );
+                        return (
+                          <div
+                            className={styles.tokenItem}
+                            key={`token-${key}`}
+                            onClick={() => {
+                              if (e.chainId === toNetwork.id) {
+                                const [currentFrom, currentTo] = [
+                                  fromNetwork,
+                                  toNetwork,
+                                ];
+                                handleUpdateQueryURL([
+                                  currentTo.id,
+                                  currentFrom.id,
+                                ]);
+                                setFromNetwork(currentTo);
+                                setToNetwork(currentFrom);
+                              } else {
+                                setFromNetwork({
+                                  name: e.chainName,
+                                  id: e.chainId,
+                                  Icon: networkIcon.Icon,
+                                });
+                                handleUpdateQueryURL([e.chainId, toNetwork.id]);
+                              }
+
+                              setToken(null);
+                              setOpenFrom(false);
+                            }}
+                          >
+                            <networkIcon.Icon />
+                            <div className={styles.info}>
+                              <p>{e.chainName}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </SelectCommon>
+              </div>
+              {/* <div className={styles.fromTo}>
+                <h2>From</h2>
                 <div className={styles.networkItem}>
                   <fromNetwork.Icon />
                   {fromNetwork.name}
                 </div>
-              </div>
+              </div> */}
               <SwapIcon
                 className={styles.switch}
                 onClick={() => {
@@ -576,10 +862,96 @@ const Bridge = () => {
               />
               <div className={styles.fromTo}>
                 <h2>To</h2>
-                <div className={styles.networkItem}>
+                <SelectCommon
+                  open={openTo}
+                  onClose={() => setOpenTo(false)}
+                  title="Select a to network"
+                  triggerElm={
+                    <div
+                      className={styles.networkItem}
+                      onClick={() => setOpenTo(true)}
+                    >
+                      <toNetwork.Icon />
+                      {toNetwork.name}
+
+                      <ArrowDownIcon />
+                    </div>
+                  }
+                >
+                  <div className={styles.search}>
+                    <SearchIcon className={styles.searchIcon} />
+                    <input
+                      className={styles.searchInput}
+                      type="text"
+                      value={txtSearch}
+                      onChange={(e) => setTxtSearch(e.target.value)}
+                      placeholder="Search by to network"
+                    />
+                  </div>
+
+                  <div className={styles.list}>
+                    {[
+                      ...cosmosChains,
+                      {
+                        chainId: "Ton",
+                        chainName: "TON",
+                      },
+                    ]
+                      .filter((cosmos) =>
+                        [
+                          NetworkList.oraichain.id,
+                          NetworkList["osmosis-1"].id,
+                          NetworkList.ton.id,
+                        ].includes(cosmos.chainId)
+                      )
+                      .map((e, key) => {
+                        const networkIcon = NetworkWithIcon.find(
+                          (network) => network.chainId === e.chainId
+                        );
+                        return (
+                          <div
+                            className={styles.tokenItem}
+                            key={`token-${key}`}
+                            onClick={() => {
+                              if (e.chainId === fromNetwork.id) {
+                                const [currentTo, currentFrom] = [
+                                  toNetwork,
+                                  fromNetwork,
+                                ];
+                                setFromNetwork(currentTo);
+                                setToNetwork(currentFrom);
+                                handleUpdateQueryURL([
+                                  currentTo.id,
+                                  currentFrom.id,
+                                ]);
+                              } else {
+                                setToNetwork({
+                                  name: e.chainName,
+                                  id: e.chainId,
+                                  Icon: networkIcon.Icon,
+                                });
+                                handleUpdateQueryURL([
+                                  fromNetwork.id,
+                                  e.chainId,
+                                ]);
+                              }
+                              setToken(null);
+                              setOpenTo(false);
+                            }}
+                          >
+                            <networkIcon.Icon />
+                            <div className={styles.info}>
+                              <p>{e.chainName}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </SelectCommon>
+                {/* <div className={styles.networkItem}>
                   <toNetwork.Icon />
                   {toNetwork.name}
-                </div>
+                </div> */}
               </div>
             </div>
             <div className={styles.input}>
@@ -592,6 +964,7 @@ const Bridge = () => {
                 tonNetwork={tonNetwork}
                 setToken={setToken}
                 networkTo={toNetwork.id as NetworkType}
+                networkFrom={fromNetwork.id as NetworkType}
                 deductNativeAmount={deductNativeAmount}
                 isMaintained={isMaintained}
               />
@@ -608,7 +981,7 @@ const Bridge = () => {
           </div>
           <div className={styles.divider}></div>
           <div className={styles.est}>
-            {toNetwork.id === NetworkList.oraichain.id && (
+            {fromNetwork.id === NetworkList.ton.id && (
               <div className={styles.itemEst}>
                 <span>TON gas fee</span>
                 {/* <span className={styles.value}>~ 0.0017 ORAI</span> */}
@@ -619,9 +992,12 @@ const Bridge = () => {
               <span>Bridge fee</span>
               {/* <span className={styles.value}>1 TON</span> */}
               <span className={styles.value}>
-                {numberWithCommas(bridgeFee || 0, undefined, {
-                  maximumFractionDigits: CW20_DECIMALS,
-                })}{" "}
+                {toNetwork.id === NetworkList.ton.id ||
+                fromNetwork.id === NetworkList.ton.id
+                  ? numberWithCommas(bridgeFee || 0, undefined, {
+                      maximumFractionDigits: CW20_DECIMALS,
+                    })
+                  : "0"}{" "}
                 {token?.symbol}
               </span>
             </div>
@@ -643,11 +1019,13 @@ const Bridge = () => {
           <div className={styles.button}>
             {oraiAddress && tonAddress ? (
               <button
-                disabled={loading || !token || !amount || isInsufficientBalance}
+                disabled={
+                  loading || !token || !amount || !isInsufficientBalance
+                }
                 onClick={() => {
-                  fromNetwork.id === "Ton"
+                  fromNetwork.id === NetworkList.ton.id
                     ? handleBridgeFromTon()
-                    : handleBridgeFromOraichain();
+                    : handleBridgeFromCosmos();
                 }}
                 className={styles.bridgeBtn}
               >
@@ -676,5 +1054,10 @@ export const NetworkList = {
     name: "Oraichain",
     id: "Oraichain",
     Icon: OraiIcon,
+  },
+  "osmosis-1": {
+    name: "Osmosis",
+    id: "osmosis-1",
+    Icon: OsmosisIcon,
   },
 };

@@ -23,6 +23,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { isMobile } from "@walletconnect/browser-utils";
 import React, { useEffect } from "react";
 import { TToastType, displayToast } from "./toasts/Toast";
+import { getAddressCosmos } from "@/components/page/bridge/helper";
 
 if (typeof window !== "undefined") {
   polyfill();
@@ -97,9 +98,13 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   }, []);
 
   useEffect(() => {
-    loadToken({
-      oraiAddress,
-    });
+    if (oraiAddress) {
+      const cosmosAddress = getAddressCosmos(oraiAddress);
+      loadToken({
+        oraiAddress,
+        cosmosAddress,
+      });
+    }
   }, [oraiAddress]);
 
   useEffect(() => {

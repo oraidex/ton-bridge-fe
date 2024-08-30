@@ -15,7 +15,7 @@ export const SEND_TON_TRANFERS_CONFIG: Partial<SendTransferInterface> = {
 };
 
 export const TON_SCAN = "https://tonviewer.com";
-export const MANIFEST_URL = "https://ton.oraidex.io/manifest.json";
+export const MANIFEST_URL = "https://ton.thesis.io/manifest.json";
 
 export const ARG_BRIDGE_TO_TON = {
   CHANNEL: "channel-0",

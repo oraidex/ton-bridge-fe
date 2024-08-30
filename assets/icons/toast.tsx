@@ -52,7 +52,7 @@ export const InfoIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
     >
       <path
         d="M0 20C0 8.95431 8.95431 0 20 0C31.0457 0 40 8.95431 40 20C40 31.0457 31.0457 40 20 40C8.95431 40 0 31.0457 0 20Z"
-        fill="#AEE67F"
+        fill="#fefefe"
       />
       <path
         d="M20 19.5V24.5M20 15.51L20.01 15.499M20 30C25.523 30 30 25.523 30 20C30 14.477 25.523 10 20 10C14.477 10 10 14.477 10 20C10 25.523 14.477 30 20 30Z"
@@ -76,7 +76,7 @@ export const SuccessIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
     >
       <path
         d="M0 20C0 8.95431 8.95431 0 20 0C31.0457 0 40 8.95431 40 20C40 31.0457 31.0457 40 20 40C8.95431 40 0 31.0457 0 20Z"
-        fill="#AEE67F"
+        fill="#fefefe"
       />
       <path
         d="M13 21L17 25L27 15"
