@@ -83,6 +83,7 @@ import { getCosmWasmClient } from "@/libs/cosmjs";
 import { GasPrice } from "@cosmjs/stargate";
 import { getAddressCosmos } from "./helper";
 import { ArrowDownIcon } from "@/assets/icons/arrow";
+import PowerByOBridge from "./components/PowerByOBridge";
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -1036,6 +1037,9 @@ const Bridge = () => {
               <ConnectButton fullWidth />
             )}
           </div>
+        </div>
+        <div className={styles.powerObridge}>
+          <PowerByOBridge theme={"dark"} />
         </div>
       </div>
     </div>
