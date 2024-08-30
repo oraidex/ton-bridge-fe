@@ -16,8 +16,8 @@ const inter = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "OraiDEX TON Bridge",
-  description: "TON Bridge with Oraichain",
+  title: "TON IBC",
+  description: "Trustless IBC bridge across TON & Cosmos-ecosystem",
 };
 
 export default function RootLayout({

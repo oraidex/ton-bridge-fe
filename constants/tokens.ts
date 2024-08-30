@@ -37,6 +37,19 @@ export const OraichainTokenList: TokenType[] = [
   },
 ];
 
+export const OsmosisTokenList: TokenType[] = [
+  {
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: null,
+    denom:
+      "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+    coingeckoId: "the-open-network",
+    decimal: 9,
+  },
+];
+
 export const TonTokenList = (network: TonNetwork): TokenType[] => [
   {
     name: "Tether",
