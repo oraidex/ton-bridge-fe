@@ -1,3 +1,5 @@
+@import "@/styles/mixins";
+
 .container {
   display: flex;
   // align-items: center;
@@ -48,6 +50,10 @@
   width: 100%;
   max-width: 500px;
   padding: 24px;
+
+  @include mobile {
+    padding: 60px;
+  }
 
   border-radius: var(--Dimension-Corner-Radius-modal, 12px);
   border: 1px solid var(--Colors-Neutral-Border-border-default, #232521);
@@ -301,5 +307,10 @@
         }
       }
     }
+  }
+
+  .powerObridge {
+    width: 100%;
+    text-align: center;
   }
 }
