@@ -1038,9 +1038,9 @@ const Bridge = () => {
             )}
           </div>
         </div>
-        <div className={styles.powerObridge}>
+        {/* <div className={styles.powerObridge}>
           <PowerByOBridge theme={"dark"} />
-        </div>
+        </div> */}
       </div>
     </div>
   );
