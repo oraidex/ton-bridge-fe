@@ -15,7 +15,7 @@ import {
 import { isMobile } from "@walletconnect/browser-utils";
 // import { displayToast, TToastType } from 'components/Toasts/Toast';
 import { chainInfos, OraiBTCBridgeNetwork } from "@/constants/chainInfo";
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import { getAddress, getAddressByEIP191 } from "@/helper";
 import { EIP_EIP_STORAGE_KEY_ACC, MetamaskOfflineSigner } from "./eip191";
 import { displayToast, TToastType } from "@/contexts/toasts/Toast";
@@ -27,7 +27,7 @@ export default class Keplr extends CosmosWallet {
     if (window.ethereum)
       return await MetamaskOfflineSigner.connect(
         window.ethereum,
-        network.denom
+        getNetworkConfig.denom
       );
     throw new Error(
       "You have to install Cosmos wallet first if you do not use a mnemonic to sign transactions"
@@ -144,7 +144,7 @@ export default class Keplr extends CosmosWallet {
 
   async getKeplrKey(chainId?: string): Promise<Key | undefined> {
     try {
-      chainId = chainId ?? network.chainId;
+      chainId = chainId ?? getNetworkConfig.chainId;
       if (!chainId) return undefined;
 
       const keplr = await this.getKeplr();
@@ -161,7 +161,7 @@ export default class Keplr extends CosmosWallet {
 
   async getKeplrAddr(chainId?: NetworkChainId): Promise<string | undefined> {
     // not support network.chainId (Oraichain)
-    chainId = chainId ?? network.chainId;
+    chainId = chainId ?? getNetworkConfig.chainId;
     try {
       if (this.typeWallet === ("eip191" as any)) {
         // TODO: cache if type wallet is eip191 ( metamask cosmos )

@@ -6,9 +6,9 @@ import {
   tokenMap,
 } from "@/constants/bridgeTokens";
 import { chainInfos } from "@/constants/chainInfo";
-import { TonNetwork } from "@/constants/ton";
+import { Environment } from "@/constants/ton";
 import { TON_ZERO_ADDRESS, TonTokensContract } from "@/constants/contract";
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import { TonTokenList } from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
@@ -17,13 +17,13 @@ import { StargateClient } from "@cosmjs/stargate";
 import { MulticallQueryClient } from "@oraichain/common-contracts-sdk";
 import { OraiswapTokenTypes } from "@oraichain/oraidex-contracts-sdk";
 import { useEffect } from "react";
-
-import { CW20_DECIMALS, toDisplay } from "@oraichain/oraidex-common";
+import { toDisplay } from "@oraichain/oraidex-common";
 import { JettonMinter, JettonWallet } from "@oraichain/ton-bridge-contracts";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address } from "@ton/core";
 import { TonClient } from "@ton/ton";
 
+const env = process.env.NEXT_PUBLIC_ENV as Environment;
 async function loadNativeBalance(
   dispatch: (amount: AmountDetails) => void,
   address: string,
@@ -50,12 +50,10 @@ async function loadNativeBalance(
 
     dispatch(amountDetails);
   } catch (ex) {
-    console.trace("errror");
+    console.trace("error");
     console.log(ex);
   }
 }
-
-const timer = {};
 
 async function loadTokensCosmos(
   dispatch: (amount: AmountDetails) => void,
@@ -95,7 +93,10 @@ async function loadCw20Balance(
     balance: { address },
   });
 
-  const multicall = new MulticallQueryClient(window.client, network.multicall);
+  const multicall = new MulticallQueryClient(
+    window.client,
+    getNetworkConfig(env).multicall
+  );
 
   const res = await multicall.aggregate({
     queries: cw20Tokens.map((t) => ({
@@ -150,7 +151,10 @@ async function loadCw20BalanceWithSpecificTokens(
     balance: { address },
   });
 
-  const multicall = new MulticallQueryClient(window.client, network.multicall);
+  const multicall = new MulticallQueryClient(
+    window.client,
+    getNetworkConfig(env).multicall
+  );
 
   const res = await multicall.aggregate({
     queries: cw20Tokens.map((t) => ({
@@ -192,10 +196,10 @@ async function loadCw20BalanceWithSpecificTokens(
 
 export const useLoadTonBalance = ({
   tonAddress,
-  tonNetwork = TonNetwork.Mainnet,
+  tonNetwork = Environment.Mainnet,
 }: {
   tonAddress: string;
-  tonNetwork?: TonNetwork;
+  tonNetwork?: Environment;
   // address: string
 }) => {
   const { handleSetTonAmountsCache } = useTokenActions();
@@ -332,7 +336,7 @@ export const useLoadTonBalance = ({
 const loadTonBalance = (
   dispatch: (amount: AmountDetails) => void,
   address: string,
-  tonNetwork: TonNetwork = TonNetwork.Mainnet
+  tonNetwork: Environment = Environment.Mainnet
 ) => {
   return {};
 };
@@ -343,18 +347,36 @@ export const useLoadToken = () => {
 
   const loadToken = ({
     oraiAddress,
+    cosmosAddress,
   }: // tonAddress,
   {
     oraiAddress?: string;
-    // tonAddress?: string;
+    cosmosAddress?: string;
   }) => {
     if (oraiAddress) {
       loadNativeBalance(
         (amounts) => handleSetAmountsCache(amounts),
         oraiAddress,
-        { chainId: network.chainId, rpc: network.rpc }
+        {
+          chainId: getNetworkConfig(env).chainId,
+          rpc: getNetworkConfig(env).rpc,
+        }
       );
       loadCw20Balance((amounts) => handleSetAmountsCache(amounts), oraiAddress);
+    }
+
+    if (cosmosAddress) {
+      const cosmosInfos = chainInfos.filter(
+        (chainInfo) => chainInfo.chainId === "osmosis-1"
+      );
+
+      for (const chainInfo of cosmosInfos) {
+        loadNativeBalance(
+          (amounts) => handleSetAmountsCache(amounts),
+          cosmosAddress,
+          chainInfo
+        );
+      }
     }
 
     // if (tonAddress) {

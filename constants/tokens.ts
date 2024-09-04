@@ -1,4 +1,4 @@
-import { TonNetwork } from "./ton";
+import { Environment } from "./ton";
 import { TonTokensContract } from "./contract";
 import { UsdtIcon, TetherIcon } from "@/assets/icons/token";
 import { USDT_CONTRACT } from "@oraichain/oraidex-common";
@@ -27,6 +27,15 @@ export const OraichainTokenList: TokenType[] = [
     decimal: 6,
   },
   {
+    name: "Tether",
+    symbol: "jUSDT",
+    Icon: UsdtIcon,
+    contractAddress: USDT_CONTRACT,
+    denom: "jusdt",
+    coingeckoId: "bridged-tether-ton-bridge",
+    decimal: 6,
+  },
+  {
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
@@ -37,7 +46,20 @@ export const OraichainTokenList: TokenType[] = [
   },
 ];
 
-export const TonTokenList = (network: TonNetwork): TokenType[] => [
+export const OsmosisTokenList: TokenType[] = [
+  {
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: null,
+    denom:
+      "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+    coingeckoId: "the-open-network",
+    decimal: 9,
+  },
+];
+
+export const TonTokenList = (network: Environment): TokenType[] => [
   {
     name: "Tether",
     symbol: "USDT",
@@ -53,7 +75,7 @@ export const TonTokenList = (network: TonNetwork): TokenType[] => [
     Icon: TetherIcon,
     contractAddress: TonTokensContract[network].jUSDT,
     denom: "ton20_usdt",
-    coingeckoId: "tether",
+    coingeckoId: "bridged-tether-ton-bridge",
     decimal: 6,
   },
   {

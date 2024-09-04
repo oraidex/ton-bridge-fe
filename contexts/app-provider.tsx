@@ -1,7 +1,7 @@
 "use client";
 
-import { TonNetwork } from "@/constants/ton";
-import { network } from "@/constants/networks";
+import { Environment } from "@/constants/ton";
+import { getNetworkConfig } from "@/constants/networks";
 import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import Keplr from "@/libs/keplr";
@@ -23,7 +23,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { isMobile } from "@walletconnect/browser-utils";
 import React, { useEffect } from "react";
 import { TToastType, displayToast } from "./toasts/Toast";
+import { getAddressCosmos } from "@/components/page/bridge/helper";
 
+const env = Environment.Mainnet;
+const network = getNetworkConfig(env);
 if (typeof window !== "undefined") {
   polyfill();
 
@@ -52,7 +55,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const { loadToken } = useLoadToken();
   const { loadAllBalanceTonToken } = useLoadTonBalance({
     tonAddress,
-    tonNetwork: TonNetwork.Mainnet,
+    tonNetwork: Environment.Mainnet,
   });
 
   const keplrHandler = async () => {
@@ -97,9 +100,13 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   }, []);
 
   useEffect(() => {
-    loadToken({
-      oraiAddress,
-    });
+    if (oraiAddress) {
+      const cosmosAddress = getAddressCosmos(oraiAddress);
+      loadToken({
+        oraiAddress,
+        cosmosAddress,
+      });
+    }
   }, [oraiAddress]);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import {
   BSC_SCAN,
   BigDecimal,
@@ -132,14 +132,14 @@ export const getTransactionUrl = (
         case "kawaii_6886-1":
           return `${KWT_SCAN}/tx/${transactionHash}`;
         case "Oraichain":
-          return `${network.explorer}/txs/${transactionHash}`;
+          return `${getNetworkConfig.explorer}/txs/${transactionHash}`;
       }
       return null;
   }
 };
 
 export const getAccountUrl = (account: string) => {
-  return `${network.explorer}/account/${account}`;
+  return `${getNetworkConfig.explorer}/account/${account}`;
 };
 
 export const getNetworkGasPrice = async (chainId): Promise<number> => {

@@ -3,6 +3,7 @@
 import { OraiDEXLogo } from "@/assets/icons/OraiDEXLogo";
 import styles from "./index.module.scss";
 import ConnectButton from "../connectButton";
+import Image from "next/image";
 
 const Header = () => {
   return (

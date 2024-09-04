@@ -1,8 +1,8 @@
-import { TonNetwork } from "@/constants/ton";
-import { network } from "@/constants/networks";
+import { Environment } from "@/constants/ton";
+import { getNetworkConfig } from "@/constants/networks";
 import { TokenType, TonTokenList } from "@/constants/tokens";
 import { useAuthOraiAddress } from "@/stores/authentication/selector";
-import { BigDecimal, toDisplay } from "@oraichain/oraidex-common";
+import { BigDecimal } from "@oraichain/oraidex-common";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { useEffect, useState } from "react";
 
@@ -10,12 +10,13 @@ const useGetFee = ({ token }: { token: TokenType }) => {
   const oraiAddress = useAuthOraiAddress();
   const [bridgeFee, setBridgeFee] = useState(0);
   const [tokenFee, setTokenFee] = useState(0);
+  const network = getNetworkConfig(Environment.Mainnet);
 
   useEffect(() => {
     (async () => {
       try {
         if (token) {
-          const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
+          const tokenInTon = TonTokenList(Environment.Mainnet).find(
             (tk) => tk.coingeckoId === token.coingeckoId
           );
           if (!tokenInTon) {
@@ -56,7 +57,7 @@ const useGetFee = ({ token }: { token: TokenType }) => {
   useEffect(() => {
     (async () => {
       if (token) {
-        const tokenInTon = TonTokenList(TonNetwork.Mainnet).find(
+        const tokenInTon = TonTokenList(Environment.Mainnet).find(
           (tk) => tk.coingeckoId === token.coingeckoId
         );
         if (!tokenInTon) {

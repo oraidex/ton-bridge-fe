@@ -17,7 +17,7 @@ export const initFromNetwork = () => {
     const currentNetwork =
       currentFromNetwork === NetworkList.oraichain.id || !currentFromNetwork
         ? NetworkList.ton
-        : NetworkList.oraichain;
+        : NetworkList[currentFromNetwork];
 
     return currentNetwork || NetworkList.ton;
   }
@@ -29,12 +29,11 @@ export const initToNetwork = () => {
     const queryString = window.location?.search;
 
     const params = new URLSearchParams(queryString || "");
-
     const currentToNetwork = params.get(TO_QUERY_KEY);
     const currentNetwork =
       currentToNetwork === NetworkList.ton.id || !currentToNetwork
         ? NetworkList.oraichain
-        : NetworkList.ton;
+        : NetworkList[currentToNetwork];
 
     return currentNetwork || NetworkList.oraichain;
   }

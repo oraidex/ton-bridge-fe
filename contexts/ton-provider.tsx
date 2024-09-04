@@ -1,6 +1,6 @@
 "use client";
 
-import { TonNetwork } from "@/constants/ton";
+import { Environment } from "@/constants/ton";
 import { MANIFEST_URL } from "@/constants/config";
 import { useLoadTonBalance } from "@/hooks/useLoadToken";
 import { useAuthTonAddress } from "@/stores/authentication/selector";
@@ -12,7 +12,7 @@ export const TonProvider = (props: React.PropsWithChildren<{}>) => {
 
   const { loadAllBalanceTonToken } = useLoadTonBalance({
     tonAddress,
-    tonNetwork: TonNetwork.Mainnet,
+    tonNetwork: Environment.Mainnet,
   });
   const [isMounted, setIsMounted] = useState(false);
 

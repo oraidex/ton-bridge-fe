@@ -4,7 +4,7 @@ import { OfflineSigner } from "@cosmjs/proto-signing";
 import { Coin, GasPrice } from "@cosmjs/stargate";
 import { Tendermint37Client } from "@cosmjs/tendermint-rpc";
 import { Stargate } from "@injectivelabs/sdk-ts";
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import { MetamaskOfflineSigner } from "./eip191";
 import { getWalletByNetworkCosmosFromStorage } from "@/helper";
 export type clientType = "cosmwasm" | "injective";
@@ -13,7 +13,10 @@ const collectWallet = async (chainId: string) => {
   const keplr = await window.Keplr.getKeplr();
   if (keplr) return await keplr.getOfflineSignerAuto(chainId);
   if (window.ethereum)
-    return await MetamaskOfflineSigner.connect(window.ethereum, network.denom);
+    return await MetamaskOfflineSigner.connect(
+      window.ethereum,
+      getNetworkConfig.denom
+    );
   throw new Error(
     "You have to install Cosmos wallet first if you do not use a mnemonic to sign transactions"
   );
@@ -28,7 +31,7 @@ const getCosmWasmClient = async (
     const wallet = signer ?? (await collectWallet(chainId));
     const defaultAddress = (await wallet.getAccounts())[0];
     const tmClient = await Tendermint37Client.connect(
-      rpc ?? (network.rpc as string)
+      rpc ?? (getNetworkConfig.rpc as string)
     );
     const client = await cosmwasm.SigningCosmWasmClient.createWithSigner(
       tmClient,
@@ -36,7 +39,9 @@ const getCosmWasmClient = async (
       options
         ? { ...options, broadcastPollIntervalMs: 600 }
         : {
-            gasPrice: GasPrice.fromString(network.fee.gasPrice + network.denom),
+            gasPrice: GasPrice.fromString(
+              getNetworkConfig.fee.gasPrice + getNetworkConfig.denom
+            ),
             broadcastPollIntervalMs: 600,
           }
     );
@@ -84,7 +89,7 @@ class CosmJs {
       const walletType = this.getWalletByFromStorage();
       const keplr = await window.Keplr.getKeplr();
       if (keplr || (walletType && walletType === "eip191")) {
-        await window.Keplr.suggestChain(network.chainId);
+        await window.Keplr.suggestChain(getNetworkConfig.chainId);
         const result = await window.client.execute(
           data.walletAddr,
           data.address,
@@ -115,7 +120,7 @@ class CosmJs {
       const walletType = this.getWalletByFromStorage();
       const keplr = await window.Keplr.getKeplr();
       if (keplr || (walletType && walletType === "eip191")) {
-        await window.Keplr.suggestChain(network.chainId);
+        await window.Keplr.suggestChain(getNetworkConfig.chainId);
         const result = await window.client.executeMultiple(
           data.walletAddr,
           data.msgs,

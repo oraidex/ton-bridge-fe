@@ -6,6 +6,7 @@ import {
   OraiIcon,
   UsdcIcon,
   UsdtIcon,
+  OsmosisIcon,
 } from "@/assets/icons/token";
 import {
   AIRI_BSC_CONTRACT,
@@ -60,6 +61,21 @@ import {
 } from "@oraichain/oraidex-common";
 import { TonNetworkICon } from "@/assets/icons/network";
 import { TON_DENOM } from "./tokens";
+
+export const NetworkWithIcon = [
+  {
+    chainId: "Ton",
+    Icon: TonNetworkICon,
+  },
+  {
+    chainId: "Oraichain",
+    Icon: OraiIcon,
+  },
+  {
+    chainId: "osmosis-1",
+    Icon: OsmosisIcon,
+  },
+];
 
 export const OraiToken: BridgeAppCurrency = {
   coinDenom: "ORAI",
@@ -132,6 +148,16 @@ export const oraichainNetwork: CustomChainInfo = {
       coinDenom: "USDT",
       coinGeckoId: "tether",
       coinMinimalDenom: "usdt",
+      type: "cw20",
+      contractAddress: USDT_CONTRACT,
+      bridgeTo: ["0x38", "0x2b6653dc", "0x01"],
+      coinDecimals: 6,
+      Icon: UsdtIcon,
+    },
+    {
+      coinDenom: "jUSDT",
+      coinGeckoId: "bridged-tether-ton-bridge",
+      coinMinimalDenom: "jusdt",
       type: "cw20",
       contractAddress: USDT_CONTRACT,
       bridgeTo: ["0x38", "0x2b6653dc", "0x01"],
@@ -659,6 +685,16 @@ export const chainInfos: CustomChainInfo[] = [
         bridgeTo: ["Oraichain"],
         //   Icon: OsmoIcon,
         //   IconLight: OsmoIcon
+      },
+      {
+        coinDenom: "TON",
+        coinMinimalDenom:
+          "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+        coinDecimals: 9,
+        coinGeckoId: "the-open-network",
+        coinImageUrl:
+          "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png?1696517498",
+        bridgeTo: ["Oraichain"],
       },
     ],
   },
