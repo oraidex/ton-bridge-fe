@@ -7,6 +7,9 @@
       "hosting": {
         "ton-bridge": [
           "ton-bridge"
+        ],
+        "ton-bridge-staging": [
+          "ton-bridge-staging"
         ]
       }
     }
