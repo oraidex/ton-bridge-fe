@@ -37,7 +37,6 @@ import {
   CosmosChainId,
   calculateTimeoutTimestamp,
   getCosmosGasPrice,
-  network,
 } from "@oraichain/oraidex-common";
 import {
   BridgeAdapter,
@@ -554,7 +553,7 @@ const Bridge = () => {
             undefined,
             undefined,
             {
-              contractAddress: CW_TON_BRIDGE,
+              contractAddress: network.CW_TON_BRIDGE,
               msg: toBinary({
                 bridge_to_ton: {
                   to: tonAddress,
