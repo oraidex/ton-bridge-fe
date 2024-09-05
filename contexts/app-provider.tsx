@@ -25,7 +25,7 @@ import React, { useEffect } from "react";
 import { TToastType, displayToast } from "./toasts/Toast";
 import { getAddressCosmos } from "@/components/page/bridge/helper";
 
-const env = Environment.Mainnet;
+const env = process.env.NEXT_PUBLIC_ENV as Environment;
 const network = getNetworkConfig(env);
 if (typeof window !== "undefined") {
   polyfill();

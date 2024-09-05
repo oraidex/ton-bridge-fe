@@ -99,7 +99,7 @@ const InputBridge: FC<{
   }
 
   if (networkFrom === NetworkList["osmosis-1"].id)
-    networkList = OsmosisTokenList;
+    networkList = OsmosisTokenList(tonNetwork);
 
   return (
     <div
@@ -212,8 +212,6 @@ const InputBridge: FC<{
                     className={styles.tokenItem}
                     key={`token-${key}`}
                     onClick={() => {
-                      console.log({ eerererere: e });
-
                       setToken(e);
                       setOpen(false);
                     }}

@@ -7,6 +7,7 @@ import { Stargate } from "@injectivelabs/sdk-ts";
 import { getNetworkConfig } from "@/constants/networks";
 import { MetamaskOfflineSigner } from "./eip191";
 import { getWalletByNetworkCosmosFromStorage } from "@/helper";
+import { Environment } from "@/constants/ton";
 export type clientType = "cosmwasm" | "injective";
 
 const collectWallet = async (chainId: string) => {
@@ -23,15 +24,24 @@ const collectWallet = async (chainId: string) => {
 };
 
 const getCosmWasmClient = async (
-  config: { signer?: OfflineSigner; chainId?: string; rpc?: string },
+  config: {
+    signer?: OfflineSigner;
+    chainId?: string;
+    rpc?: string;
+    env?: Environment;
+  },
   options?: cosmwasm.SigningCosmWasmClientOptions
 ) => {
   try {
-    const { chainId, rpc, signer } = config;
+    const { chainId, rpc, signer, env } = config;
+    if (!rpc && !env) {
+      throw new Error("Rpc or env must be provided");
+    }
     const wallet = signer ?? (await collectWallet(chainId));
     const defaultAddress = (await wallet.getAccounts())[0];
+
     const tmClient = await Tendermint37Client.connect(
-      rpc ?? (getNetworkConfig.rpc as string)
+      rpc ?? getNetworkConfig(env).rpc
     );
     const client = await cosmwasm.SigningCosmWasmClient.createWithSigner(
       tmClient,
@@ -40,7 +50,7 @@ const getCosmWasmClient = async (
         ? { ...options, broadcastPollIntervalMs: 600 }
         : {
             gasPrice: GasPrice.fromString(
-              getNetworkConfig.fee.gasPrice + getNetworkConfig.denom
+              getNetworkConfig(env).fee.gasPrice + getNetworkConfig(env).denom
             ),
             broadcastPollIntervalMs: 600,
           }

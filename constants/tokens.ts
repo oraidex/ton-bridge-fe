@@ -46,14 +46,22 @@ export const OraichainTokenList: TokenType[] = [
   },
 ];
 
-export const OsmosisTokenList: TokenType[] = [
+export const OsmosisTokenDenom = {
+  [Environment.Mainnet]: {
+    ton: "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+  },
+  [Environment.Staging]: {
+    ton: "ibc/64BF62F8C7C0B1AADBCFBCB45E778DA144E86804420AC5AD4F29D141A14A031B",
+  },
+};
+
+export const OsmosisTokenList = (network: Environment): TokenType[] => [
   {
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
     contractAddress: null,
-    denom:
-      "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+    denom: OsmosisTokenDenom[network].ton,
     coingeckoId: "the-open-network",
     decimal: 9,
   },
