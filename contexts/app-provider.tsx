@@ -1,7 +1,7 @@
 "use client";
 
-import { TonNetwork } from "@/constants/ton";
-import { network } from "@/constants/networks";
+import { Environment } from "@/constants/ton";
+import { getNetworkConfig } from "@/constants/networks";
 import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import Keplr from "@/libs/keplr";
@@ -25,6 +25,8 @@ import React, { useEffect } from "react";
 import { TToastType, displayToast } from "./toasts/Toast";
 import { getAddressCosmos } from "@/components/page/bridge/helper";
 
+const env = process.env.NEXT_PUBLIC_ENV as Environment;
+const network = getNetworkConfig(env);
 if (typeof window !== "undefined") {
   polyfill();
 
@@ -53,7 +55,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const { loadToken } = useLoadToken();
   const { loadAllBalanceTonToken } = useLoadTonBalance({
     tonAddress,
-    tonNetwork: TonNetwork.Mainnet,
+    tonNetwork: Environment.Mainnet,
   });
 
   const keplrHandler = async () => {
@@ -69,7 +71,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
       }
 
       if (oraiWallet || mobileMode) {
-        oraiAddress = await window.Keplr.getKeplrAddr();
+        oraiAddress = await window.Keplr.getKeplrAddr("Oraichain");
 
         if (oraiAddress) {
           handleSetOraiAddress({ oraiAddress });
@@ -100,6 +102,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   useEffect(() => {
     if (oraiAddress) {
       const cosmosAddress = getAddressCosmos(oraiAddress);
+      console.log("first", cosmosAddress);
       loadToken({
         oraiAddress,
         cosmosAddress,
@@ -111,6 +114,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
     (async () => {
       if (walletType && typeof window !== "undefined") {
         const cosmWasmClient = await getCosmWasmClient({
+          env: process.env.NEXT_PUBLIC_ENV as Environment,
           chainId: network.chainId,
         });
         if (cosmWasmClient && cosmWasmClient.client) {

@@ -5,7 +5,7 @@ import { ArrowDownIcon } from "@/assets/icons/arrow";
 import { SelectOptionIcon } from "@/assets/icons/network";
 import SelectCommon from "@/components/commons/select";
 import { AMOUNT_BALANCE_ENTRIES_UNIVERSAL_SWAP } from "@/constants/config";
-import { TonNetwork } from "@/constants/ton";
+import { Environment } from "@/constants/ton";
 import {
   OraichainTokenList,
   OsmosisTokenList,
@@ -37,7 +37,7 @@ const InputBridge: FC<{
   onChangeAmount?: (amount: number | undefined) => void;
   amount: number;
   token: any;
-  tonNetwork: TonNetwork;
+  tonNetwork: Environment;
   setToken: Dispatch<any>;
   txtSearch: string;
   setTxtSearch: Dispatch<SetStateAction<string>>;
@@ -99,7 +99,7 @@ const InputBridge: FC<{
   }
 
   if (networkFrom === NetworkList["osmosis-1"].id)
-    networkList = OsmosisTokenList;
+    networkList = OsmosisTokenList(tonNetwork);
 
   return (
     <div
@@ -212,8 +212,6 @@ const InputBridge: FC<{
                     className={styles.tokenItem}
                     key={`token-${key}`}
                     onClick={() => {
-                      console.log({ eerererere: e });
-
                       setToken(e);
                       setOpen(false);
                     }}

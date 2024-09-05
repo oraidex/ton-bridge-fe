@@ -1,4 +1,4 @@
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import {
   BSC_SCAN,
   BigDecimal,
@@ -34,6 +34,7 @@ import {
   OraiWallet,
   TonWallet,
 } from "@/stores/authentication/useAuthenticationStore";
+import { Environment } from "@/constants/ton";
 
 export interface Tokens {
   denom?: string;
@@ -132,14 +133,19 @@ export const getTransactionUrl = (
         case "kawaii_6886-1":
           return `${KWT_SCAN}/tx/${transactionHash}`;
         case "Oraichain":
-          return `${network.explorer}/txs/${transactionHash}`;
+          return `${
+            getNetworkConfig(process.env.NEXT_PUBLIC_ENV as Environment)
+              .explorer
+          }/txs/${transactionHash}`;
       }
       return null;
   }
 };
 
 export const getAccountUrl = (account: string) => {
-  return `${network.explorer}/account/${account}`;
+  return `${
+    getNetworkConfig(process.env.NEXT_PUBLIC_ENV as Environment).explorer
+  }/account/${account}`;
 };
 
 export const getNetworkGasPrice = async (chainId): Promise<number> => {

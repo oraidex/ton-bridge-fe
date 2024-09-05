@@ -33,6 +33,7 @@ import classNames from "classnames";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import ConnectedInfo from "../connectedInfo";
 import styles from "./index.module.scss";
+import { Environment } from "@/constants/ton";
 
 export type ConnectStatus =
   | "init"
@@ -84,8 +85,8 @@ const ConnectButton: FC<{ fullWidth?: boolean }> = ({ fullWidth }) => {
 
       window.Keplr = new Keplr(walletType);
       setStorageKey("typeWallet", walletType);
-      await initClient();
-      const oraiAddr = await window.Keplr.getKeplrAddr();
+      await initClient(process.env.NEXT_PUBLIC_ENV as Environment);
+      const oraiAddr = await window.Keplr.getKeplrAddr("Oraichain");
       handleSetOraiAddress({ oraiAddress: oraiAddr });
       handleSetOraiWallet({ oraiWallet: walletType });
       setStep(2);

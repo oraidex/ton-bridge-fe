@@ -155,6 +155,16 @@ export const oraichainNetwork: CustomChainInfo = {
       Icon: UsdtIcon,
     },
     {
+      coinDenom: "jUSDT",
+      coinGeckoId: "bridged-tether-ton-bridge",
+      coinMinimalDenom: "jusdt",
+      type: "cw20",
+      contractAddress: USDT_CONTRACT,
+      bridgeTo: ["0x38", "0x2b6653dc", "0x01"],
+      coinDecimals: 6,
+      Icon: UsdtIcon,
+    },
+    {
       coinDenom: "USDC",
       coinGeckoId: "usd-coin",
       coinMinimalDenom: "usdc",

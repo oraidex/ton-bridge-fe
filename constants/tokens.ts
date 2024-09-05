@@ -1,10 +1,11 @@
-import { TonNetwork } from "./ton";
+import { Environment } from "./ton";
 import { TonTokensContract } from "./contract";
 import { UsdtIcon, TetherIcon } from "@/assets/icons/token";
 import { USDT_CONTRACT } from "@oraichain/oraidex-common";
 import { TonNetworkICon } from "@/assets/icons/network";
 
 export type TokenType = {
+  chainId?: string;
   name: string;
   symbol: string;
   Icon: () => JSX.Element;
@@ -18,6 +19,7 @@ export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6
 
 export const OraichainTokenList: TokenType[] = [
   {
+    chainId: "Oraichain",
     name: "Tether",
     symbol: "USDT",
     Icon: UsdtIcon,
@@ -26,7 +28,18 @@ export const OraichainTokenList: TokenType[] = [
     coingeckoId: "tether",
     decimal: 6,
   },
+  // {
+  //   chainId: "Oraichain",
+  //   name: "Tether",
+  //   symbol: "jUSDT",
+  //   Icon: UsdtIcon,
+  //   contractAddress: USDT_CONTRACT,
+  //   denom: "jusdt",
+  //   coingeckoId: "bridged-tether-ton-bridge",
+  //   decimal: 6,
+  // },
   {
+    chainId: "Oraichain",
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
@@ -37,20 +50,29 @@ export const OraichainTokenList: TokenType[] = [
   },
 ];
 
-export const OsmosisTokenList: TokenType[] = [
+export const OsmosisTokenDenom = {
+  [Environment.Mainnet]: {
+    ton: "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+  },
+  [Environment.Staging]: {
+    ton: "ibc/64BF62F8C7C0B1AADBCFBCB45E778DA144E86804420AC5AD4F29D141A14A031B",
+  },
+};
+
+export const OsmosisTokenList = (network: Environment): TokenType[] => [
   {
+    chainId: "osmosis-1",
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
     contractAddress: null,
-    denom:
-      "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+    denom: OsmosisTokenDenom[network].ton,
     coingeckoId: "the-open-network",
     decimal: 9,
   },
 ];
 
-export const TonTokenList = (network: TonNetwork): TokenType[] => [
+export const TonTokenList = (network: Environment): TokenType[] => [
   {
     name: "Tether",
     symbol: "USDT",
@@ -60,6 +82,15 @@ export const TonTokenList = (network: TonNetwork): TokenType[] => [
     coingeckoId: "tether",
     decimal: 6,
   },
+  // {
+  //   name: "Jetton USDT",
+  //   symbol: "jUSDT",
+  //   Icon: TetherIcon,
+  //   contractAddress: TonTokensContract[network].jUSDT,
+  //   denom: "ton20_usdt",
+  //   coingeckoId: "bridged-tether-ton-bridge",
+  //   decimal: 6,
+  // },
   {
     name: "Ton",
     symbol: "TON",

@@ -1,6 +1,6 @@
 import { Key } from "@keplr-wallet/types";
 
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import { bitcoinChainId } from "@/helper/constants";
 export type BitcoinMode = "core" | "extension" | "mobile-web" | "walletconnect";
 // import { CosmosChainId, BitcoinWallet } from '@oraichain/oraidex-common';
@@ -25,9 +25,9 @@ export interface IBitcoin {
 export default class Bitcoin {
   constructor() {}
   disconnect() {}
-  async getBitcoinKey(chainId?: string): Promise<Key | undefined> {
+  async getBitcoinKey(chainId: string = "Oraichain"): Promise<Key | undefined> {
     try {
-      chainId = chainId ?? network.chainId;
+      chainId = chainId;
       if (!chainId) return undefined;
 
       if (!window.owallet) {

@@ -4,31 +4,41 @@ import { OfflineSigner } from "@cosmjs/proto-signing";
 import { Coin, GasPrice } from "@cosmjs/stargate";
 import { Tendermint37Client } from "@cosmjs/tendermint-rpc";
 import { Stargate } from "@injectivelabs/sdk-ts";
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
 import { MetamaskOfflineSigner } from "./eip191";
 import { getWalletByNetworkCosmosFromStorage } from "@/helper";
+import { Environment } from "@/constants/ton";
 export type clientType = "cosmwasm" | "injective";
 
 const collectWallet = async (chainId: string) => {
   const keplr = await window.Keplr.getKeplr();
   if (keplr) return await keplr.getOfflineSignerAuto(chainId);
   if (window.ethereum)
-    return await MetamaskOfflineSigner.connect(window.ethereum, network.denom);
+    return await MetamaskOfflineSigner.connect(window.ethereum, "orai");
   throw new Error(
     "You have to install Cosmos wallet first if you do not use a mnemonic to sign transactions"
   );
 };
 
 const getCosmWasmClient = async (
-  config: { signer?: OfflineSigner; chainId?: string; rpc?: string },
+  config: {
+    signer?: OfflineSigner;
+    chainId?: string;
+    rpc?: string;
+    env?: Environment;
+  },
   options?: cosmwasm.SigningCosmWasmClientOptions
 ) => {
   try {
-    const { chainId, rpc, signer } = config;
+    const { chainId, rpc, signer, env } = config;
+    if (!rpc && !env) {
+      throw new Error("Rpc or env must be provided");
+    }
     const wallet = signer ?? (await collectWallet(chainId));
     const defaultAddress = (await wallet.getAccounts())[0];
+
     const tmClient = await Tendermint37Client.connect(
-      rpc ?? (network.rpc as string)
+      rpc ?? getNetworkConfig(env).rpc
     );
     const client = await cosmwasm.SigningCosmWasmClient.createWithSigner(
       tmClient,
@@ -36,7 +46,9 @@ const getCosmWasmClient = async (
       options
         ? { ...options, broadcastPollIntervalMs: 600 }
         : {
-            gasPrice: GasPrice.fromString(network.fee.gasPrice + network.denom),
+            gasPrice: GasPrice.fromString(
+              getNetworkConfig(env).fee.gasPrice + getNetworkConfig(env).denom
+            ),
             broadcastPollIntervalMs: 600,
           }
     );
@@ -84,7 +96,7 @@ class CosmJs {
       const walletType = this.getWalletByFromStorage();
       const keplr = await window.Keplr.getKeplr();
       if (keplr || (walletType && walletType === "eip191")) {
-        await window.Keplr.suggestChain(network.chainId);
+        await window.Keplr.suggestChain("Oraichain");
         const result = await window.client.execute(
           data.walletAddr,
           data.address,
@@ -115,7 +127,7 @@ class CosmJs {
       const walletType = this.getWalletByFromStorage();
       const keplr = await window.Keplr.getKeplr();
       if (keplr || (walletType && walletType === "eip191")) {
-        await window.Keplr.suggestChain(network.chainId);
+        await window.Keplr.suggestChain("Oraichain");
         const result = await window.client.executeMultiple(
           data.walletAddr,
           data.msgs,

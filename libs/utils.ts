@@ -1,10 +1,10 @@
 import { cosmosTokens, tokenMap } from "@/constants/bridgeTokens";
 import { chainInfos } from "@/constants/chainInfo";
-import { network } from "@/constants/networks";
+import { getNetworkConfig } from "@/constants/networks";
+import { Environment } from "@/constants/ton";
 import { CoinGeckoPrices } from "@/hooks/useCoingecko";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import {
-  COSMOS_CHAIN_ID_COMMON,
   NetworkChainId,
   TokenItemType,
   getSubAmountDetails,
@@ -254,14 +254,18 @@ export const initEthereum = async () => {
   }
 };
 
-export const initClient = async () => {
+export const initClient = async (env: Environment = Environment.Mainnet) => {
   try {
-    // suggest our chain
-    const arrChainIds = [network.chainId] as NetworkChainId[];
+    const chainId = getNetworkConfig(env).chainId;
+    console.log({ chainId });
+    const arrChainIds = [chainId] as NetworkChainId[];
     for (const chainId of arrChainIds) {
       await window.Keplr.suggestChain(chainId);
     }
-    const { client } = await getCosmWasmClient({ chainId: network.chainId });
+    const { client } = await getCosmWasmClient({
+      chainId: chainId,
+      env,
+    });
     window.client = client;
   } catch (ex) {
     console.log({ errorInitClient: ex });
