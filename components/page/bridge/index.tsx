@@ -355,7 +355,9 @@ const Bridge = () => {
 
       if (!token || !amount) throw "Not valid!";
 
-      // validatePrice(token, amount);
+      if (tonNetwork == "mainnet") {
+        validatePrice(token, amount);
+      }
 
       setLoading(true);
 
@@ -636,8 +638,9 @@ const Bridge = () => {
         }
         return;
       }
-
-      // validatePrice(token, amount);
+      if (tonNetwork == "mainnet") {
+        validatePrice(token, amount);
+      }
 
       const tokenInTon = TonTokenList(tonNetwork).find(
         (tk) => tk.coingeckoId === token.coingeckoId
