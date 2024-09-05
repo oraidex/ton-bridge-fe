@@ -206,7 +206,7 @@ export const OsmosisIcon = () => {
       <path
         d="M34.4085 8.51558C32.4858 6.49173 30.8668 5.96046 28.9188 5.53039C27.4009 5.17622 27.8057 4.31608 29.6524 4.49317C28.767 4.18959 27.9322 4.11369 27.325 4.24018C26.1107 4.49317 25.7565 6.33994 26.0601 7.04829C26.1866 7.32657 26.4649 7.73134 26.8443 8.18671C26.1613 8.64208 25.5794 8.97095 25.0988 9.22394C25.3264 9.32513 25.6047 9.45162 25.9336 9.62871C26.7937 10.0841 27.7298 10.843 27.7298 10.843C26.3131 9.62871 26.6166 9.07215 28.5646 7.70604C29.1718 7.27597 30.2849 7.32657 31.3221 7.85783C32.3593 8.38909 33.5737 9.7299 33.5737 9.7299L32.4099 11.9561C32.4858 11.9814 32.5617 12.0067 32.6376 12.032C33.3713 12.2344 33.9531 12.1838 34.4085 12.0067C34.9398 11.6779 36.3312 10.5647 34.4085 8.51558Z"
         fill="#A98698"
-        fill-opacity="0.6"
+        fillOpacity="0.6"
       />
       <path
         d="M28.8936 6.74449C29.3996 6.94688 30.0573 7.30106 30.8669 7.83232C31.8282 8.46477 32.663 9.17312 33.1943 9.72969C32.3089 10.8934 31.727 12.4872 31.3728 13.6003C31.5499 13.8533 31.7523 14.1063 31.9294 14.3593C32.1065 13.7268 32.4101 12.7908 32.8148 11.8547C32.916 11.88 33.0425 11.88 33.169 11.88C33.4726 11.88 33.8268 11.8294 34.105 11.6018C34.3074 11.45 34.5351 11.1717 34.5098 10.6657C34.5098 10.1851 34.1303 9.5779 33.3461 8.84425C32.7895 8.31298 32.0306 7.73113 31.2716 7.19986C29.096 5.75786 27.5781 5.35309 26.895 6.03614C26.4397 6.49151 26.4903 7.04807 26.6421 7.45285C25.8325 7.98411 25.1495 8.36358 24.6941 8.61656C24.9977 8.71776 25.276 8.84425 25.5795 8.97074C26.3891 8.54067 27.5528 7.80702 28.8936 6.74449ZM33.675 10.3621C33.7509 10.4886 33.7762 10.6151 33.7762 10.691C33.7762 10.9187 33.7003 10.9946 33.6497 11.0452C33.5485 11.1211 33.3461 11.1717 33.169 11.1717C33.3208 10.8681 33.4979 10.6151 33.675 10.3621ZM27.4263 6.5927C27.5022 6.51681 27.7046 6.46621 28.0335 6.51681C27.7805 6.7192 27.5275 6.89628 27.2745 7.07337C27.2492 6.89628 27.2745 6.7192 27.4263 6.5927Z"
@@ -223,7 +223,7 @@ export const OsmosisIcon = () => {
       <path
         d="M19.3561 35.078C11.6402 33.8384 6.40342 26.5778 7.66833 18.8618C8.22489 15.4466 9.94517 12.5373 12.3738 10.4375C8.83205 12.4867 6.20103 16.0537 5.49268 20.405C4.25307 28.121 9.4898 35.3816 17.1805 36.6212C21.4812 37.3295 25.6301 35.9887 28.6912 33.3577C25.9843 34.9262 22.6955 35.6092 19.3561 35.078Z"
         fill="#A98698"
-        fill-opacity="0.6"
+        fillOpacity="0.6"
       />
       <path
         d="M21.7088 8.71762C18.1418 8.13576 14.6759 8.94531 11.8425 10.7415C11.7919 10.7921 11.7413 10.8427 11.7413 10.8427C12.8291 10.1849 14.4229 9.60306 14.4229 9.60306C10.3246 11.9811 9.05969 14.688 9.05969 14.688C10.6535 11.6016 15.3337 9.42597 19.0019 9.27418C22.6701 9.12239 25.0735 10.2102 28.0081 12.563C30.9427 14.941 32.7135 19.7982 32.5365 23.6436C32.3847 27.4889 30.3608 30.6006 30.3608 30.6006C31.7522 28.8044 32.5871 27.4889 33.1183 26.1481C33.2195 25.7433 33.3207 25.3386 33.3713 24.9085C34.6362 17.2178 29.4248 9.95724 21.7088 8.71762Z"
@@ -264,7 +264,7 @@ export const OsmosisIcon = () => {
       <path
         d="M18.5213 33.2058C18.9125 33.2058 19.2297 32.8885 19.2297 32.4974C19.2297 32.1063 18.9125 31.7891 18.5213 31.7891C18.1302 31.7891 17.813 32.1063 17.813 32.4974C17.813 32.8885 18.1302 33.2058 18.5213 33.2058Z"
         fill="white"
-        fill-opacity="0.2"
+        fillOpacity="0.2"
       />
       <path
         d="M18.1165 32.9529C17.8383 32.6746 17.8383 32.2192 18.1165 31.9409C18.1671 31.8903 18.2177 31.865 18.2683 31.8145C18.1671 31.8398 18.0912 31.8903 18.0154 31.9662C17.7371 32.2445 17.7371 32.6999 18.0154 32.9782C18.243 33.2059 18.5972 33.2565 18.8755 33.1047C18.6225 33.2059 18.3189 33.1553 18.1165 32.9529Z"
@@ -273,12 +273,12 @@ export const OsmosisIcon = () => {
       <path
         d="M18.7741 32.2958C18.8578 32.2958 18.9259 32.2277 18.9259 32.144C18.9259 32.0602 18.8578 31.9922 18.7741 31.9922C18.6904 31.9922 18.6223 32.0602 18.6223 32.144C18.6223 32.2277 18.6904 32.2958 18.7741 32.2958Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
       <path
         d="M22.2147 32.8522C22.6058 32.8522 22.923 32.535 22.923 32.1439C22.923 31.7528 22.6058 31.4355 22.2147 31.4355C21.8236 31.4355 21.5063 31.7528 21.5063 32.1439C21.5063 32.535 21.8236 32.8522 22.2147 32.8522Z"
         fill="white"
-        fill-opacity="0.2"
+        fillOpacity="0.2"
       />
       <path
         d="M21.8099 32.5994C21.5316 32.3211 21.5316 31.8657 21.8099 31.5874C21.8605 31.5368 21.9111 31.5115 21.9617 31.4609C21.8605 31.4862 21.7846 31.5368 21.7087 31.6127C21.4304 31.891 21.4304 32.3464 21.7087 32.6247C21.9364 32.8523 22.2906 32.9029 22.5689 32.7511C22.3159 32.8523 22.0123 32.8017 21.8099 32.5994Z"
@@ -287,12 +287,12 @@ export const OsmosisIcon = () => {
       <path
         d="M22.4677 31.9403C22.5514 31.9403 22.6195 31.8722 22.6195 31.7885C22.6195 31.7048 22.5514 31.6367 22.4677 31.6367C22.384 31.6367 22.3159 31.7048 22.3159 31.7885C22.3159 31.8722 22.384 31.9403 22.4677 31.9403Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
       <path
         d="M20.3933 34.4961C20.6868 34.4961 20.9246 34.2583 20.9246 33.9649C20.9246 33.6714 20.6868 33.4336 20.3933 33.4336C20.0999 33.4336 19.8621 33.6714 19.8621 33.9649C19.8621 34.2583 20.0999 34.4961 20.3933 34.4961Z"
         fill="white"
-        fill-opacity="0.2"
+        fillOpacity="0.2"
       />
       <path
         d="M20.0897 34.2938C19.8874 34.0914 19.8874 33.7373 20.0897 33.5349C20.115 33.5096 20.1656 33.4843 20.1909 33.459C20.115 33.4843 20.0644 33.5349 20.0139 33.5855C19.8115 33.7879 19.8115 34.142 20.0139 34.3444C20.1909 34.5215 20.4439 34.5468 20.6716 34.4203C20.4692 34.4962 20.2415 34.4456 20.0897 34.2938Z"
@@ -301,12 +301,12 @@ export const OsmosisIcon = () => {
       <path
         d="M20.5704 33.7883C20.6263 33.7883 20.6716 33.743 20.6716 33.6871C20.6716 33.6312 20.6263 33.5859 20.5704 33.5859C20.5145 33.5859 20.4692 33.6312 20.4692 33.6871C20.4692 33.743 20.5145 33.7883 20.5704 33.7883Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
       <path
         d="M23.6569 34.1172C23.9503 34.1172 24.1881 33.8794 24.1881 33.5859C24.1881 33.2925 23.9503 33.0547 23.6569 33.0547C23.3634 33.0547 23.1256 33.2925 23.1256 33.5859C23.1256 33.8794 23.3634 34.1172 23.6569 34.1172Z"
         fill="white"
-        fill-opacity="0.2"
+        fillOpacity="0.2"
       />
       <path
         d="M23.3533 33.9149C23.1509 33.7125 23.1509 33.3584 23.3533 33.156C23.3786 33.1307 23.4292 33.1054 23.4545 33.0801C23.3786 33.1054 23.328 33.156 23.2774 33.2066C23.075 33.409 23.075 33.7631 23.2774 33.9655C23.4545 34.1426 23.7075 34.1679 23.9352 34.0414C23.7328 34.1173 23.5051 34.0667 23.3533 33.9149Z"
@@ -315,12 +315,12 @@ export const OsmosisIcon = () => {
       <path
         d="M23.8337 33.4094C23.8896 33.4094 23.9349 33.3641 23.9349 33.3082C23.9349 33.2523 23.8896 33.207 23.8337 33.207C23.7778 33.207 23.7325 33.2523 23.7325 33.3082C23.7325 33.3641 23.7778 33.4094 23.8337 33.4094Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
       <path
         d="M15.5108 32.9524C16.1536 32.9524 16.6745 32.4315 16.6745 31.7887C16.6745 31.1461 16.1536 30.625 15.5108 30.625C14.8682 30.625 14.347 31.1461 14.347 31.7887C14.347 32.4315 14.8682 32.9524 15.5108 32.9524Z"
         fill="white"
-        fill-opacity="0.2"
+        fillOpacity="0.2"
       />
       <path
         d="M14.8531 32.5226C14.3977 32.0673 14.3977 31.3336 14.8531 30.8783C14.929 30.8024 15.0048 30.7518 15.106 30.7012C14.9543 30.7518 14.8278 30.853 14.7013 30.9542C14.2459 31.4095 14.2459 32.1432 14.7013 32.5985C15.0807 32.978 15.6626 33.0539 16.118 32.7756C15.6879 32.9527 15.1819 32.8768 14.8531 32.5226Z"
@@ -329,12 +329,12 @@ export const OsmosisIcon = () => {
       <path
         d="M15.9156 31.4357C16.0552 31.4357 16.1686 31.3223 16.1686 31.1827C16.1686 31.043 16.0552 30.9297 15.9156 30.9297C15.7759 30.9297 15.6626 31.043 15.6626 31.1827C15.6626 31.3223 15.7759 31.4357 15.9156 31.4357Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
       <path
         d="M25.9085 30.095C26.5513 30.095 27.0722 29.5741 27.0722 28.9313C27.0722 28.2887 26.5513 27.7676 25.9085 27.7676C25.2659 27.7676 24.7448 28.2887 24.7448 28.9313C24.7448 29.5741 25.2659 30.095 25.9085 30.095Z"
         fill="white"
-        fill-opacity="0.2"
+        fillOpacity="0.2"
       />
       <path
         d="M25.2252 29.6652C24.7699 29.2099 24.7699 28.4762 25.2252 28.0208C25.3011 27.9449 25.377 27.8943 25.4782 27.8438C25.3264 27.8943 25.2 27.9955 25.0735 28.0967C24.6181 28.5521 24.6181 29.2858 25.0735 29.7411C25.4529 30.1206 26.0348 30.1965 26.4902 29.9182C26.0601 30.0953 25.5794 30.0194 25.2252 29.6652Z"
@@ -343,7 +343,7 @@ export const OsmosisIcon = () => {
       <path
         d="M26.3132 28.5763C26.4528 28.5763 26.5661 28.4629 26.5661 28.3233C26.5661 28.1836 26.4528 28.0703 26.3132 28.0703C26.1735 28.0703 26.0602 28.1836 26.0602 28.3233C26.0602 28.4629 26.1735 28.5763 26.3132 28.5763Z"
         fill="white"
-        fill-opacity="0.3"
+        fillOpacity="0.3"
       />
       <defs>
         <radialGradient
@@ -354,9 +354,9 @@ export const OsmosisIcon = () => {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(35.1108 8.08429) scale(11.3069 11.3069)"
         >
-          <stop stop-color="#FFEAFF" stop-opacity="0.6" />
-          <stop offset="0.68" stop-color="#A087C9" />
-          <stop offset="1" stop-color="#10002F" />
+          <stop stopColor="#FFEAFF" stopOpacity="0.6" />
+          <stop offset="0.68" stopColor="#A087C9" />
+          <stop offset="1" stopColor="#10002F" />
         </radialGradient>
         <radialGradient
           id="paint1_radial_2564_42554"
@@ -366,9 +366,9 @@ export const OsmosisIcon = () => {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(28.8204 12.9078) scale(27.6639)"
         >
-          <stop stop-color="#FFEAFF" stop-opacity="0.6" />
-          <stop offset="0.68" stop-color="#A087C9" />
-          <stop offset="1" stop-color="#10002F" />
+          <stop stopColor="#FFEAFF" stopOpacity="0.6" />
+          <stop offset="0.68" stopColor="#A087C9" />
+          <stop offset="1" stopColor="#10002F" />
         </radialGradient>
         <linearGradient
           id="paint2_linear_2564_42554"
@@ -378,9 +378,9 @@ export const OsmosisIcon = () => {
           y2="8.69271"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#81FFFF" stop-opacity="0.6" />
-          <stop offset="0.62" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="#81FFFF" stopOpacity="0.6" />
+          <stop offset="0.62" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_2564_42554"
@@ -390,10 +390,10 @@ export const OsmosisIcon = () => {
           y2="23.7823"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint4_linear_2564_42554"
@@ -403,8 +403,8 @@ export const OsmosisIcon = () => {
           y2="29.2401"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#0002E9" />
-          <stop offset="1" stop-color="#FF00C7" />
+          <stop stopColor="#0002E9" />
+          <stop offset="1" stopColor="#FF00C7" />
         </linearGradient>
         <linearGradient
           id="paint5_linear_2564_42554"
@@ -414,10 +414,10 @@ export const OsmosisIcon = () => {
           y2="37.5339"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint6_linear_2564_42554"
@@ -427,8 +427,8 @@ export const OsmosisIcon = () => {
           y2="29.2401"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#000292" stop-opacity="0.7" />
-          <stop offset="1" stop-color="#7D00C7" stop-opacity="0.7" />
+          <stop stopColor="#000292" stopOpacity="0.7" />
+          <stop offset="1" stopColor="#7D00C7" stopOpacity="0.7" />
         </linearGradient>
         <linearGradient
           id="paint7_linear_2564_42554"
@@ -438,8 +438,8 @@ export const OsmosisIcon = () => {
           y2="23.773"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#000292" />
-          <stop offset="1" stop-color="#BE00C7" />
+          <stop stopColor="#000292" />
+          <stop offset="1" stopColor="#BE00C7" />
         </linearGradient>
         <linearGradient
           id="paint8_linear_2564_42554"
@@ -449,10 +449,10 @@ export const OsmosisIcon = () => {
           y2="12.5119"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint9_linear_2564_42554"
@@ -462,10 +462,10 @@ export const OsmosisIcon = () => {
           y2="32.5193"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint10_linear_2564_42554"
@@ -475,10 +475,10 @@ export const OsmosisIcon = () => {
           y2="32.1609"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint11_linear_2564_42554"
@@ -488,10 +488,10 @@ export const OsmosisIcon = () => {
           y2="33.971"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint12_linear_2564_42554"
@@ -501,10 +501,10 @@ export const OsmosisIcon = () => {
           y2="33.5911"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint13_linear_2564_42554"
@@ -514,10 +514,10 @@ export const OsmosisIcon = () => {
           y2="31.8186"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint14_linear_2564_42554"
@@ -527,10 +527,10 @@ export const OsmosisIcon = () => {
           y2="28.9604"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.29" stop-color="white" stop-opacity="0.6" />
-          <stop offset="0.78" stop-color="white" stop-opacity="0" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.29" stopColor="white" stopOpacity="0.6" />
+          <stop offset="0.78" stopColor="white" stopOpacity="0" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
       </defs>
     </svg>

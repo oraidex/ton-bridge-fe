@@ -9,7 +9,7 @@ import { chainInfos } from "@/constants/chainInfo";
 import { Environment } from "@/constants/ton";
 import { TON_ZERO_ADDRESS, TonTokensContract } from "@/constants/contract";
 import { getNetworkConfig } from "@/constants/networks";
-import { TonTokenList } from "@/constants/tokens";
+import { OsmosisTokenList, TonTokenList } from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
 import { fromBinary, toBinary } from "@cosmjs/cosmwasm-stargate";
@@ -37,7 +37,7 @@ async function loadNativeBalance(
     let amountDetails: AmountDetails = {};
 
     // reset native balances
-    [...cosmosTokens]
+    [...cosmosTokens, ...OsmosisTokenList(env)]
       .filter((t) => t.chainId === tokenInfo.chainId && !t.contractAddress)
       .forEach((t) => {
         amountDetails[t.denom] = "0";
@@ -180,19 +180,6 @@ async function loadCw20BalanceWithSpecificTokens(
 
   return amountDetails;
 }
-
-// async function loadNativeBtcBalance(address: string, chain: CustomChainInfo) {
-//   const data = await getUtxos(address, chain.rest);
-//   const total = reduce(
-//     data,
-//     function (sum, n) {
-//       return sum + n.value;
-//     },
-//     0
-//   );
-
-//   return total;
-// }
 
 export const useLoadTonBalance = ({
   tonAddress,
@@ -378,13 +365,6 @@ export const useLoadToken = () => {
         );
       }
     }
-
-    // if (tonAddress) {
-    //   loadTonBalance(
-    //     (amounts) => handleSetTonAmountsCache(amounts),
-    //     oraiAddress
-    //   );
-    // }
   };
 
   return {

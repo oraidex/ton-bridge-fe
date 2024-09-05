@@ -113,6 +113,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
     (async () => {
       if (walletType && typeof window !== "undefined") {
         const cosmWasmClient = await getCosmWasmClient({
+          env: process.env.NEXT_PUBLIC_ENV as Environment,
           chainId: network.chainId,
         });
         if (cosmWasmClient && cosmWasmClient.client) {

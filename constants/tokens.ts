@@ -5,6 +5,7 @@ import { USDT_CONTRACT } from "@oraichain/oraidex-common";
 import { TonNetworkICon } from "@/assets/icons/network";
 
 export type TokenType = {
+  chainId?: string;
   name: string;
   symbol: string;
   Icon: () => JSX.Element;
@@ -18,6 +19,7 @@ export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6
 
 export const OraichainTokenList: TokenType[] = [
   {
+    chainId: "Oraichain",
     name: "Tether",
     symbol: "USDT",
     Icon: UsdtIcon,
@@ -27,6 +29,7 @@ export const OraichainTokenList: TokenType[] = [
     decimal: 6,
   },
   {
+    chainId: "Oraichain",
     name: "Tether",
     symbol: "jUSDT",
     Icon: UsdtIcon,
@@ -36,6 +39,7 @@ export const OraichainTokenList: TokenType[] = [
     decimal: 6,
   },
   {
+    chainId: "Oraichain",
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
@@ -57,6 +61,7 @@ export const OsmosisTokenDenom = {
 
 export const OsmosisTokenList = (network: Environment): TokenType[] => [
   {
+    chainId: "osmosis-1",
     name: "Ton",
     symbol: "TON",
     Icon: TonNetworkICon,
