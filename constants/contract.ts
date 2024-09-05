@@ -24,7 +24,7 @@ export const TonInteractionContract = {
 export const TonTokensContract = {
   [Environment.Mainnet]: {
     usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
-    jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
+    // jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
     ton: TON_ZERO_ADDRESS,
   },
   [Environment.Staging]: {

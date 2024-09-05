@@ -765,7 +765,7 @@ const Bridge = () => {
   }
 
   // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
-  const isMaintained = true;
+  const isMaintained = false;
 
   return (
     <div className={styles.container}>
