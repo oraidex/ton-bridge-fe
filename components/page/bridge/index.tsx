@@ -92,7 +92,7 @@ const Bridge = () => {
   const tonAddress = useAuthTonAddress();
   const [tonConnectUI] = useTonConnectUI();
   const [txtSearch, setTxtSearch] = useState<string>();
-  const tonNetwork = Environment.Staging;
+  const tonNetwork = process.env.NEXT_PUBLIC_ENV as Environment;
 
   const { loadToken } = useLoadToken();
   const { loadAllBalanceTonToken } = useLoadTonBalance({

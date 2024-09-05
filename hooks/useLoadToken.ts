@@ -9,7 +9,11 @@ import { chainInfos } from "@/constants/chainInfo";
 import { Environment } from "@/constants/ton";
 import { TON_ZERO_ADDRESS, TonTokensContract } from "@/constants/contract";
 import { getNetworkConfig } from "@/constants/networks";
-import { OsmosisTokenList, TonTokenList } from "@/constants/tokens";
+import {
+  OsmosisTokenDenom,
+  OsmosisTokenList,
+  TonTokenList,
+} from "@/constants/tokens";
 import { genAddressCosmos, handleCheckWallet } from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
 import { fromBinary, toBinary } from "@cosmjs/cosmwasm-stargate";
@@ -44,7 +48,13 @@ async function loadNativeBalance(
       });
 
     const tokensAmount = amountAll
-      .filter((coin) => tokenMap[coin.denom])
+      .filter(
+        (coin) =>
+          tokenMap[coin.denom] ||
+          [...Object.values(OsmosisTokenDenom[Environment.Staging])].includes(
+            coin.denom
+          )
+      )
       .map((coin) => [coin.denom, coin.amount]);
     Object.assign(amountDetails, Object.fromEntries(tokensAmount));
 
@@ -52,31 +62,6 @@ async function loadNativeBalance(
   } catch (ex) {
     console.trace("error");
     console.log(ex);
-  }
-}
-
-async function loadTokensCosmos(
-  dispatch: (amount: AmountDetails) => void,
-  kwtAddress: string,
-  oraiAddress: string
-) {
-  if (!kwtAddress && !oraiAddress) return;
-  await handleCheckWallet();
-  const cosmosInfos = chainInfos.filter(
-    (chainInfo) =>
-      (chainInfo.networkType === "cosmos" ||
-        chainInfo.bip44.coinType === 118) &&
-      // TODO: ignore oraibtc
-      chainInfo.chainId !== ("oraibtc-mainnet-1" as string)
-  );
-  for (const chainInfo of cosmosInfos) {
-    const { cosmosAddress } = genAddressCosmos(
-      chainInfo,
-      kwtAddress,
-      oraiAddress
-    );
-    if (!cosmosAddress) continue;
-    loadNativeBalance(dispatch, cosmosAddress, chainInfo);
   }
 }
 
@@ -358,6 +343,8 @@ export const useLoadToken = () => {
       );
 
       for (const chainInfo of cosmosInfos) {
+        console.log("chainInfo", chainInfo);
+
         loadNativeBalance(
           (amounts) => handleSetAmountsCache(amounts),
           cosmosAddress,

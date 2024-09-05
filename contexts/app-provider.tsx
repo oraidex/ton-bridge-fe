@@ -102,6 +102,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   useEffect(() => {
     if (oraiAddress) {
       const cosmosAddress = getAddressCosmos(oraiAddress);
+      console.log("first", cosmosAddress);
       loadToken({
         oraiAddress,
         cosmosAddress,
