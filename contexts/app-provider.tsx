@@ -71,7 +71,7 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
       }
 
       if (oraiWallet || mobileMode) {
-        oraiAddress = await window.Keplr.getKeplrAddr();
+        oraiAddress = await window.Keplr.getKeplrAddr("Oraichain");
 
         if (oraiAddress) {
           handleSetOraiAddress({ oraiAddress });

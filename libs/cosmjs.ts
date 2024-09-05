@@ -14,10 +14,7 @@ const collectWallet = async (chainId: string) => {
   const keplr = await window.Keplr.getKeplr();
   if (keplr) return await keplr.getOfflineSignerAuto(chainId);
   if (window.ethereum)
-    return await MetamaskOfflineSigner.connect(
-      window.ethereum,
-      getNetworkConfig.denom
-    );
+    return await MetamaskOfflineSigner.connect(window.ethereum, "orai");
   throw new Error(
     "You have to install Cosmos wallet first if you do not use a mnemonic to sign transactions"
   );
@@ -99,7 +96,7 @@ class CosmJs {
       const walletType = this.getWalletByFromStorage();
       const keplr = await window.Keplr.getKeplr();
       if (keplr || (walletType && walletType === "eip191")) {
-        await window.Keplr.suggestChain(getNetworkConfig.chainId);
+        await window.Keplr.suggestChain("Oraichain");
         const result = await window.client.execute(
           data.walletAddr,
           data.address,
@@ -130,7 +127,7 @@ class CosmJs {
       const walletType = this.getWalletByFromStorage();
       const keplr = await window.Keplr.getKeplr();
       if (keplr || (walletType && walletType === "eip191")) {
-        await window.Keplr.suggestChain(getNetworkConfig.chainId);
+        await window.Keplr.suggestChain("Oraichain");
         const result = await window.client.executeMultiple(
           data.walletAddr,
           data.msgs,

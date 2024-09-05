@@ -156,7 +156,9 @@ export default class Keplr extends CosmosWallet {
     }
   }
 
-  async getKeplrAddr(chainId: NetworkChainId): Promise<string | undefined> {
+  async getKeplrAddr(
+    chainId: NetworkChainId = "Oraichain"
+  ): Promise<string | undefined> {
     // not support network.chainId (Oraichain)
     chainId = chainId;
     try {

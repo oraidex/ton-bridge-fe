@@ -25,9 +25,9 @@ export interface IBitcoin {
 export default class Bitcoin {
   constructor() {}
   disconnect() {}
-  async getBitcoinKey(chainId?: string): Promise<Key | undefined> {
+  async getBitcoinKey(chainId: string = "Oraichain"): Promise<Key | undefined> {
     try {
-      chainId = chainId ?? getNetworkConfig.chainId;
+      chainId = chainId;
       if (!chainId) return undefined;
 
       if (!window.owallet) {

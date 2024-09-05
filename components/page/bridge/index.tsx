@@ -145,7 +145,7 @@ const Bridge = () => {
         });
         const bridgeAdapter = TonInteractionContract[tonNetwork].bridgeAdapter;
         const jettonWallet = await Promise.all(
-          values.map((value) => {
+          [...values].map((value) => {
             if (value.contractAddress === TON_ZERO_ADDRESS)
               return Address.parse(TON_ZERO_ADDRESS);
             const jettonMinter = client.open(
