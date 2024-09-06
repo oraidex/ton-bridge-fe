@@ -32,17 +32,6 @@ const useGetFee = ({ token }: { token: TokenType }) => {
 
           // TODO: change to jetton wallet address of bridge adapter instead
 
-          console.log(
-            MappingJettonWalletAddress[tokenInTon?.contractAddress] ==
-              "EQAacZPtQpnIHS1PlQgVaceb_I4v2HE3rvrZC91ynSRqXd9d"
-          );
-          if (
-            MappingJettonWalletAddress[tokenInTon?.contractAddress] ==
-            "EQAacZPtQpnIHS1PlQgVaceb_I4v2HE3rvrZC91ynSRqXd9d"
-          ) {
-            setTokenFee(15);
-            return;
-          }
           const tokenFeeConfig = await tonBridgeClient.tokenFee({
             remoteTokenDenom:
               MappingJettonWalletAddress[tokenInTon?.contractAddress],
