@@ -274,6 +274,9 @@ export const useLoadTonBalance = ({
       const token = TonTokenList(tonNetwork).find(
         (e) => e.contractAddress === data.token
       );
+      console.log({
+        data: data,
+      });
 
       amountDetail = {
         ...amountDetail,

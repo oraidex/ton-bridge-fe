@@ -24,19 +24,30 @@ export const TonInteractionContract = {
 export const TonTokensContract = {
   [Environment.Mainnet]: {
     usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+    jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     // jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
     ton: TON_ZERO_ADDRESS,
   },
   [Environment.Staging]: {
     usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
     jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
+    jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     ton: TON_ZERO_ADDRESS,
   },
   [Environment.Testnet]: {
     usdt: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
     jUSDT: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
+    jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     ton: TON_ZERO_ADDRESS,
   },
+};
+
+export const MappingJettonWalletAddress = {
+  "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728":
+    "EQAacZPtQpnIHS1PlQgVaceb_I4v2HE3rvrZC91ynSRqXd9d",
+  EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs:
+    "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+  EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c: TON_ZERO_ADDRESS,
 };
 
 export const CwInteractionContract = {
