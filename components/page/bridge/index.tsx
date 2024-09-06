@@ -335,13 +335,9 @@ const Bridge = () => {
   };
 
   const validatePrice = (token: TokenType, amount: number) => {
-    console.log(token?.coingeckoId);
     const usdPrice = new BigDecimal(amount || 0)
       .mul(prices?.[token?.coingeckoId] || 0)
       .toNumber();
-    console.log({
-      usdPrice,
-    });
 
     const minimumAmount =
       Math.ceil((MINIMUM_BRIDGE_PER_USD * amount * 100) / usdPrice) / 100;
