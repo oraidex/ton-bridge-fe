@@ -361,9 +361,9 @@ const Bridge = () => {
 
       setLoading(true);
 
-      const tokenInOrai = OraichainTokenList.find(
-        (tk) => tk.coingeckoId === token.coingeckoId
-      );
+      const tokenInOrai = OraichainTokenList(
+        process.env.NEXT_PUBLIC_ENV as Environment
+      ).find((tk) => tk.coingeckoId === token.coingeckoId);
       const balanceMax = await checkBalanceBridgeByNetwork(
         NetworkList.ton.id,
         tokenInOrai

@@ -7,7 +7,7 @@ import { oraichainNetwork } from "./chainInfo";
 import { CwInteractionContract } from "./contract";
 import { Environment } from "./ton";
 
-export const getNetworkConfig = (env: Environment) => {
+export const getNetworkConfig = (env: Environment = Environment.Mainnet) => {
   return {
     ...oraichainNetwork,
     prefix: oraichainNetwork.bech32Config.bech32PrefixAccAddr,

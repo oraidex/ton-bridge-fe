@@ -17,7 +17,7 @@ export type TokenType = {
 
 export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9/ton`;
 
-export const OraichainTokenList: TokenType[] = [
+export const OraichainTokenList = (network: Environment): TokenType[] => [
   {
     chainId: "Oraichain",
     name: "Tether",
@@ -28,26 +28,7 @@ export const OraichainTokenList: TokenType[] = [
     coingeckoId: "tether",
     decimal: 6,
   },
-  {
-    chainId: "Oraichain",
-    name: "USD Coin",
-    symbol: "USDC",
-    Icon: UsdcIcon,
-    contractAddress: USDC_CONTRACT,
-    denom: "usdc",
-    coingeckoId: "usd-coin",
-    decimal: 6,
-  },
-  // {
-  //   chainId: "Oraichain",
-  //   name: "Tether",
-  //   symbol: "jUSDT",
-  //   Icon: UsdtIcon,
-  //   contractAddress: USDT_CONTRACT,
-  //   denom: "jusdt",
-  //   coingeckoId: "bridged-tether-ton-bridge",
-  //   decimal: 6,
-  // },
+
   {
     chainId: "Oraichain",
     name: "Ton",
@@ -58,6 +39,34 @@ export const OraichainTokenList: TokenType[] = [
     coingeckoId: "the-open-network",
     decimal: 9,
   },
+  ...(TonTokensContract[network as Environment.Mainnet]?.jUSDC
+    ? [
+        {
+          chainId: "Oraichain",
+          name: "USD Coin",
+          symbol: "USDC",
+          Icon: UsdcIcon,
+          contractAddress: USDC_CONTRACT,
+          denom: "usdc",
+          coingeckoId: "bridged-usd-coin-ton-bridge",
+          decimal: 6,
+        },
+      ]
+    : []),
+  // ...(TonTokensContract[network as Environment.Staging]?.jUSDT
+  //   ? [
+  //       {
+  //         chainId: "Oraichain",
+  //         name: "Tether",
+  //         symbol: "jUSDT",
+  //         Icon: UsdtIcon,
+  //         contractAddress: USDT_CONTRACT,
+  //         denom: "jusdt",
+  //         coingeckoId: "bridged-tether-ton-bridge",
+  //         decimal: 6,
+  //       },
+  //     ]
+  //   : []),
 ];
 
 export const OsmosisTokenDenom = {
@@ -88,28 +97,10 @@ export const TonTokenList = (network: Environment): TokenType[] => [
     symbol: "USDT",
     Icon: TetherIcon,
     contractAddress: TonTokensContract[network].usdt,
-    denom: "ton20_usdt",
+    denom: "ton20_tether",
     coingeckoId: "tether",
     decimal: 6,
   },
-  {
-    name: "USD Coin",
-    symbol: "USDC",
-    Icon: UsdcIcon,
-    contractAddress: TonTokensContract[network]?.jUSDC,
-    denom: "ton20_usdc",
-    coingeckoId: "usd-coin",
-    decimal: 6,
-  },
-  // {
-  //   name: "Jetton USDT",
-  //   symbol: "jUSDT",
-  //   Icon: TetherIcon,
-  //   contractAddress: TonTokensContract[network].jUSDT,
-  //   denom: "ton20_usdt",
-  //   coingeckoId: "bridged-tether-ton-bridge",
-  //   decimal: 6,
-  // },
   {
     name: "Ton",
     symbol: "TON",
@@ -119,4 +110,32 @@ export const TonTokenList = (network: Environment): TokenType[] => [
     coingeckoId: "the-open-network",
     decimal: 9,
   },
+  ...(TonTokensContract[network as Environment.Mainnet]?.jUSDC
+    ? [
+        {
+          name: "USD Coin",
+          symbol: "USDC",
+          Icon: UsdcIcon,
+          contractAddress:
+            TonTokensContract[network as Environment.Mainnet]?.jUSDC,
+          denom: "ton20_usdc",
+          coingeckoId: "bridged-usd-coin-ton-bridge",
+          decimal: 6,
+        },
+      ]
+    : []),
+  // ...(TonTokensContract[network as Environment.Staging]?.jUSDT
+  //   ? [
+  //       {
+  //         name: "Jetton USDT",
+  //         symbol: "jUSDT",
+  //         Icon: UsdtIcon,
+  //         contractAddress:
+  //           TonTokensContract[network as Environment.Staging].jUSDT,
+  //         denom: "ton20_usdt",
+  //         coingeckoId: "bridged-tether-ton-bridge",
+  //         decimal: 6,
+  //       },
+  //     ]
+  //   : []),
 ];

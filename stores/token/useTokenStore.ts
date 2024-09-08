@@ -7,12 +7,14 @@ interface IToken {
   prices: CoinGeckoPrices<string>;
   amounts: AmountDetails;
   amountsTon: AmountDetails;
+  walletsTon: WalletTonDetails; // ton wallets for bridge adapter
 }
 
 export interface TokenActions {
   handleSetPricesCache: (prices: CoinGeckoPrices<string>) => void;
   handleSetAmountsCache: (amounts: AmountDetails) => void;
   handleSetTonAmountsCache: (amountsTon: AmountDetails) => void;
+  handleSetWalletsTonCache: (walletsTon: WalletTonDetails) => void;
   handleResetAmountsCache: () => void;
   handleResetTonAmountsCache: () => void;
 }
@@ -21,6 +23,7 @@ const initialState: IToken = {
   prices: {},
   amounts: {},
   amountsTon: {},
+  walletsTon: {},
 };
 
 const useTokenStore = create<IToken & { actions: TokenActions }>()(
@@ -47,6 +50,13 @@ const useTokenStore = create<IToken & { actions: TokenActions }>()(
             state.amountsTon = {
               ...state.amountsTon,
               ...amountsTon,
+            };
+          }),
+        handleSetWalletsTonCache: (walletsTon) =>
+          set((state) => {
+            state.walletsTon = {
+              ...state.walletsTon,
+              ...walletsTon,
             };
           }),
         handleResetTonAmountsCache() {

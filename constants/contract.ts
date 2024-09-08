@@ -1,5 +1,6 @@
 import { Environment } from "./ton";
 
+console.log("ENV", process.env.NEXT_PUBLIC_ENV);
 export const TON_ZERO_ADDRESS =
   "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
 
@@ -16,8 +17,8 @@ export const TonInteractionContract = {
   },
   [Environment.Testnet]: {
     lightClient: "",
-    whitelist: "EQD2xPIqdeggqtP3q852Y-7yD-RRHi12Zy7M4iUx4-7q0E1",
-    bridgeAdapter: "EQDZfQX89gMo3HAiW1tSK9visb2gouUvDCt6PODo3qkXKeox",
+    whitelist: "",
+    bridgeAdapter: "",
   },
 };
 
@@ -31,23 +32,12 @@ export const TonTokensContract = {
   [Environment.Staging]: {
     usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
     jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
-    jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     ton: TON_ZERO_ADDRESS,
   },
   [Environment.Testnet]: {
-    usdt: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
-    jUSDT: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
-    jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
-    ton: TON_ZERO_ADDRESS,
+    usdt: "",
+    ton: "",
   },
-};
-
-export const MappingJettonWalletAddress = {
-  ["EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728"]:
-    "EQAacZPtQpnIHS1PlQgVaceb_I4v2HE3rvrZC91ynSRqXd9d",
-  ["EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"]:
-    "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
-  [TON_ZERO_ADDRESS]: TON_ZERO_ADDRESS,
 };
 
 export const CwInteractionContract = {

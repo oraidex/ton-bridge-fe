@@ -191,7 +191,7 @@ export const useLoadTonBalance = ({
         });
         return {
           balance: balance,
-          jettonWalletAddress: "",
+          jettonWalletAddress: TON_ZERO_ADDRESS,
         };
       }
 
@@ -213,7 +213,6 @@ export const useLoadTonBalance = ({
       handleSetTonAmountsCache({
         [token.denom]: toDisplay(balance.amount || "0").toString(),
       });
-
       return {
         balance: balance.amount,
         jettonWalletAddress,
@@ -241,7 +240,7 @@ export const useLoadTonBalance = ({
 
           return {
             balance: balance,
-            jettonWalletAddress: "",
+            jettonWalletAddress: TON_ZERO_ADDRESS,
             token: item,
           };
         }
@@ -274,17 +273,10 @@ export const useLoadTonBalance = ({
       const token = TonTokenList(tonNetwork).find(
         (e) => e.contractAddress === data.token
       );
-      console.log({
-        data: data,
-      });
 
       amountDetail = {
         ...amountDetail,
-        // [token.denom]: toDisplay(
-        //   data.balance || "0",
-        //   token.decimal || CW20_DECIMALS
-        // ).toString(),
-        [token.denom]: (data.balance || "0").toString(),
+        [token?.denom]: (data.balance || "0").toString(),
       };
     });
 
