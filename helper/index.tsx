@@ -641,7 +641,7 @@ export const getAddressByEIP191 = async (isSwitchWallet?: boolean) => {
   return accounts[0].address;
 };
 
-export const retryOrbs = async (fn, retryTimes = 10, delay = 1000) => {
+export const retryOrbs = async (fn, retryTimes = 30, delay = 1000) => {
   try {
     return await fn();
   } catch (error) {
@@ -651,7 +651,7 @@ export const retryOrbs = async (fn, retryTimes = 10, delay = 1000) => {
       return;
     }
     if (message?.includes("No working liteservers")) {
-      await sleep(delay);
+      await sleep(delay * 2);
       return await retryOrbs(fn, retryTimes, delay);
     }
     await sleep(delay * 5);
