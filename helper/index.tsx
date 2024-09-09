@@ -35,6 +35,7 @@ import {
   TonWallet,
 } from "@/stores/authentication/useAuthenticationStore";
 import { Environment } from "@/constants/ton";
+import { Jersey_10 } from "next/font/google";
 
 export interface Tokens {
   denom?: string;
@@ -640,15 +641,20 @@ export const getAddressByEIP191 = async (isSwitchWallet?: boolean) => {
   return accounts[0].address;
 };
 
-export const retryOrbs = async (fn, delay = 1000) => {
+export const retryOrbs = async (fn, retryTimes = 10, delay = 1000) => {
   try {
-    await fn();
+    return await fn();
   } catch (error) {
     let response = error?.response;
     let message = response?.data?.error;
-    if (message.includes("No working liteservers")) {
-      await sleep(delay);
-      await retryOrbs(fn, delay);
+    if (retryTimes <= 0) {
+      return;
     }
+    if (message?.includes("No working liteservers")) {
+      await sleep(delay);
+      return await retryOrbs(fn, retryTimes, delay);
+    }
+    await sleep(delay * 5);
+    return await retryOrbs(fn, retryTimes - 1, delay);
   }
 };
