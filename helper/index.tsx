@@ -641,7 +641,7 @@ export const getAddressByEIP191 = async (isSwitchWallet?: boolean) => {
   return accounts[0].address;
 };
 
-export const retryOrbs = async (fn, retryTimes = 30, delay = 1000) => {
+export const retryOrbs = async (fn, retryTimes = 30, delay = 2000) => {
   try {
     return await fn();
   } catch (error) {
