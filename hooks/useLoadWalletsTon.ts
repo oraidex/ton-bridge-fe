@@ -17,19 +17,19 @@ export const useLoadWalletsTon = ({
   const { handleSetWalletsTonCache } = useTokenActions();
 
   const loadWalletsTon = async () => {
-    await retryOrbs(async () => {
-      let tokenOnTons = TonTokenList(tonNetwork);
+    let tokenOnTons = TonTokenList(tonNetwork);
 
-      let walletsTon = {};
-      for (const tokenOnTon of tokenOnTons) {
-        if (tokenOnTon.contractAddress == TON_ZERO_ADDRESS) {
-          walletsTon = {
-            ...walletsTon,
-            [tokenOnTon.denom]: TON_ZERO_ADDRESS,
-          };
-          continue;
-        }
+    let walletsTon = {};
+    for (const tokenOnTon of tokenOnTons) {
+      if (tokenOnTon.contractAddress == TON_ZERO_ADDRESS) {
+        walletsTon = {
+          ...walletsTon,
+          [tokenOnTon.denom]: TON_ZERO_ADDRESS,
+        };
+        continue;
+      }
 
+      await retryOrbs(async () => {
         const endpoint = await getHttpEndpoint();
         const client = new TonClient({
           endpoint,
@@ -45,9 +45,9 @@ export const useLoadWalletsTon = ({
           ...walletsTon,
           [tokenOnTon.denom]: jettonWalletAddress.toString(),
         };
-      }
-      handleSetWalletsTonCache(walletsTon);
-    });
+      });
+    }
+    handleSetWalletsTonCache(walletsTon);
   };
 
   useEffect(() => {
