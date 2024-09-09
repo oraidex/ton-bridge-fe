@@ -113,8 +113,8 @@ export const TonTokenList = (network: Environment): TokenType[] => [
   ...(TonTokensContract[network as Environment.Mainnet]?.jUSDC
     ? [
         {
-          name: "USD Coin",
-          symbol: "USDC",
+          name: "Jetton USDC",
+          symbol: "jUSDC",
           Icon: UsdcIcon,
           contractAddress:
             TonTokensContract[network as Environment.Mainnet]?.jUSDC,
