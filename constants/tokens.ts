@@ -48,7 +48,7 @@ export const OraichainTokenList = (network: Environment): TokenType[] => [
           Icon: UsdcIcon,
           contractAddress: USDC_CONTRACT,
           denom: "usdc",
-          coingeckoId: "bridged-usd-coin-ton-bridge",
+          coingeckoId: "usd-coin",
           decimal: 6,
         },
       ]
@@ -119,7 +119,7 @@ export const TonTokenList = (network: Environment): TokenType[] => [
           contractAddress:
             TonTokensContract[network as Environment.Mainnet]?.jUSDC,
           denom: "ton20_usdc",
-          coingeckoId: "bridged-usd-coin-ton-bridge",
+          coingeckoId: "usd-coin",
           decimal: 6,
         },
       ]

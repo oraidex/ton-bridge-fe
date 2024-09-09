@@ -14,7 +14,7 @@ import {
   OsmosisTokenList,
   TonTokenList,
 } from "@/constants/tokens";
-import { genAddressCosmos, handleCheckWallet } from "@/helper";
+import { genAddressCosmos, handleCheckWallet, retryOrbs } from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
 import { fromBinary, toBinary } from "@cosmjs/cosmwasm-stargate";
 import { StargateClient } from "@cosmjs/stargate";
@@ -226,61 +226,64 @@ export const useLoadTonBalance = ({
   const loadAllBalanceTonToken = async () => {
     if (!tonAddress) return;
 
-    const allTokens = Object.values(TonTokensContract[tonNetwork]);
-    const endpoint = await getHttpEndpoint();
-    const client = new TonClient({
-      endpoint,
-    });
+    await retryOrbs(async () => {
+      const allTokens = Object.values(TonTokensContract[tonNetwork]);
+      const endpoint = await getHttpEndpoint();
+      const client = new TonClient({
+        endpoint,
+      });
 
-    const fullData = await Promise.all(
-      allTokens.map(async (item) => {
-        if (item === TON_ZERO_ADDRESS) {
-          // native token: TON
-          const balance = await client.getBalance(Address.parse(tonAddress));
+      const fullData = await Promise.all(
+        allTokens.map(async (item) => {
+          if (item === TON_ZERO_ADDRESS) {
+            // native token: TON
+            const balance = await client.getBalance(Address.parse(tonAddress));
+
+            return {
+              balance: balance,
+              jettonWalletAddress: TON_ZERO_ADDRESS,
+              token: item,
+            };
+          }
+          const jettonMinter = JettonMinter.createFromAddress(
+            Address.parse(item)
+          );
+
+          const jettonMinterContract = client.open(jettonMinter);
+
+          const jettonWalletAddress =
+            await jettonMinterContract.getWalletAddress(
+              Address.parse(tonAddress)
+            );
+
+          // console.log("294-jettonWalletAddress", jettonWalletAddress);
+          const jettonWallet =
+            JettonWallet.createFromAddress(jettonWalletAddress);
+          const jettonWalletContract = client.open(jettonWallet);
+          const balance = await jettonWalletContract.getBalance();
 
           return {
-            balance: balance,
-            jettonWalletAddress: TON_ZERO_ADDRESS,
+            balance: balance.amount,
+            jettonWalletAddress,
             token: item,
           };
-        }
-        const jettonMinter = JettonMinter.createFromAddress(
-          Address.parse(item)
-        );
-
-        const jettonMinterContract = client.open(jettonMinter);
-
-        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
-          Address.parse(tonAddress)
-        );
-
-        // console.log("294-jettonWalletAddress", jettonWalletAddress);
-        const jettonWallet =
-          JettonWallet.createFromAddress(jettonWalletAddress);
-        const jettonWalletContract = client.open(jettonWallet);
-        const balance = await jettonWalletContract.getBalance();
-
-        return {
-          balance: balance.amount,
-          jettonWalletAddress,
-          token: item,
-        };
-      })
-    );
-
-    let amountDetail: AmountDetails = {};
-    fullData?.map((data) => {
-      const token = TonTokenList(tonNetwork).find(
-        (e) => e.contractAddress === data.token
+        })
       );
 
-      amountDetail = {
-        ...amountDetail,
-        [token?.denom]: (data.balance || "0").toString(),
-      };
-    });
+      let amountDetail: AmountDetails = {};
+      fullData?.map((data) => {
+        const token = TonTokenList(tonNetwork).find(
+          (e) => e.contractAddress === data.token
+        );
 
-    handleSetTonAmountsCache(amountDetail);
+        amountDetail = {
+          ...amountDetail,
+          [token?.denom]: (data.balance || "0").toString(),
+        };
+      });
+
+      handleSetTonAmountsCache(amountDetail);
+    });
   };
 
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)

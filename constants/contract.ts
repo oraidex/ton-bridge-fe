@@ -1,6 +1,5 @@
 import { Environment } from "./ton";
 
-console.log("ENV", process.env.NEXT_PUBLIC_ENV);
 export const TON_ZERO_ADDRESS =
   "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
 

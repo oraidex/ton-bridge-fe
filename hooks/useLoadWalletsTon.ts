@@ -1,6 +1,7 @@
 import { TON_ZERO_ADDRESS, TonInteractionContract } from "@/constants/contract";
 import { TonTokenList } from "@/constants/tokens";
 import { Environment } from "@/constants/ton";
+import { retryOrbs } from "@/helper";
 import { useTokenActions } from "@/stores/token/selector";
 import { JettonMinter } from "@oraichain/ton-bridge-contracts";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
@@ -16,35 +17,37 @@ export const useLoadWalletsTon = ({
   const { handleSetWalletsTonCache } = useTokenActions();
 
   const loadWalletsTon = async () => {
-    let tokenOnTons = TonTokenList(tonNetwork);
+    await retryOrbs(async () => {
+      let tokenOnTons = TonTokenList(tonNetwork);
 
-    let walletsTon = {};
-    for (const tokenOnTon of tokenOnTons) {
-      if (tokenOnTon.contractAddress == TON_ZERO_ADDRESS) {
+      let walletsTon = {};
+      for (const tokenOnTon of tokenOnTons) {
+        if (tokenOnTon.contractAddress == TON_ZERO_ADDRESS) {
+          walletsTon = {
+            ...walletsTon,
+            [tokenOnTon.denom]: TON_ZERO_ADDRESS,
+          };
+          continue;
+        }
+
+        const endpoint = await getHttpEndpoint();
+        const client = new TonClient({
+          endpoint,
+        });
+        const jettonMinter = JettonMinter.createFromAddress(
+          Address.parse(tokenOnTon.contractAddress)
+        );
+        const jettonMinterContract = client.open(jettonMinter);
+        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+          Address.parse(TonInteractionContract[tonNetwork].bridgeAdapter)
+        );
         walletsTon = {
           ...walletsTon,
-          [tokenOnTon.denom]: TON_ZERO_ADDRESS,
+          [tokenOnTon.denom]: jettonWalletAddress.toString(),
         };
-        continue;
       }
-
-      const endpoint = await getHttpEndpoint();
-      const client = new TonClient({
-        endpoint,
-      });
-      const jettonMinter = JettonMinter.createFromAddress(
-        Address.parse(tokenOnTon.contractAddress)
-      );
-      const jettonMinterContract = client.open(jettonMinter);
-      const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
-        Address.parse(TonInteractionContract[tonNetwork].bridgeAdapter)
-      );
-      walletsTon = {
-        ...walletsTon,
-        [tokenOnTon.denom]: jettonWalletAddress.toString(),
-      };
-    }
-    handleSetWalletsTonCache(walletsTon);
+      handleSetWalletsTonCache(walletsTon);
+    });
   };
 
   useEffect(() => {
