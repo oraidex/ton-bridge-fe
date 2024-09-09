@@ -226,15 +226,15 @@ export const useLoadTonBalance = ({
   const loadAllBalanceTonToken = async () => {
     if (!tonAddress) return;
 
-    await retryOrbs(async () => {
-      const allTokens = Object.values(TonTokensContract[tonNetwork]);
-      const endpoint = await getHttpEndpoint();
-      const client = new TonClient({
-        endpoint,
-      });
+    const allTokens = Object.values(TonTokensContract[tonNetwork]);
+    const endpoint = await getHttpEndpoint();
+    const client = new TonClient({
+      endpoint,
+    });
 
-      const fullData = await Promise.all(
-        allTokens.map(async (item) => {
+    const fullData = await Promise.all(
+      allTokens.map(async (item) => {
+        return retryOrbs(async () => {
           if (item === TON_ZERO_ADDRESS) {
             // native token: TON
             const balance = await client.getBalance(Address.parse(tonAddress));
@@ -267,23 +267,23 @@ export const useLoadTonBalance = ({
             jettonWalletAddress,
             token: item,
           };
-        })
+        });
+      })
+    );
+
+    let amountDetail: AmountDetails = {};
+    fullData?.map((data) => {
+      const token = TonTokenList(tonNetwork).find(
+        (e) => e.contractAddress === data.token
       );
 
-      let amountDetail: AmountDetails = {};
-      fullData?.map((data) => {
-        const token = TonTokenList(tonNetwork).find(
-          (e) => e.contractAddress === data.token
-        );
-
-        amountDetail = {
-          ...amountDetail,
-          [token?.denom]: (data.balance || "0").toString(),
-        };
-      });
-
-      handleSetTonAmountsCache(amountDetail);
+      amountDetail = {
+        ...amountDetail,
+        [token?.denom]: (data.balance || "0").toString(),
+      };
     });
+
+    handleSetTonAmountsCache(amountDetail);
   };
 
   // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)

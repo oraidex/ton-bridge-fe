@@ -647,14 +647,13 @@ export const retryOrbs = async (fn, retryTimes = 30, delay = 2000) => {
   } catch (error) {
     let response = error?.response;
     let message = response?.data?.error;
-    if (retryTimes <= 0) {
-      return;
-    }
     if (message?.includes("No working liteservers")) {
       await sleep(delay * 2);
       return await retryOrbs(fn, retryTimes, delay);
     }
-    await sleep(delay * 5);
-    return await retryOrbs(fn, retryTimes - 1, delay);
+    if (retryTimes > 0) {
+      await sleep(delay * 5);
+      return await retryOrbs(fn, retryTimes - 1, delay);
+    }
   }
 };
