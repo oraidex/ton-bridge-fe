@@ -13,6 +13,7 @@ import Bitcoin, { IBitcoin } from "libs/bitcoin";
 
 declare global {
   type AmountDetails = { [denom: string]: string };
+  type WalletTonDetails = { [denom: string]: string };
   type IBCInfoMsg = {
     sourcePort: string;
     sourceChannel: string;

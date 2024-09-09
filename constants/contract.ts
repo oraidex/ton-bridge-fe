@@ -16,14 +16,15 @@ export const TonInteractionContract = {
   },
   [Environment.Testnet]: {
     lightClient: "",
-    whitelist: "EQD2xPIqdeggqtP3q852Y-7yD-RRHi12Zy7M4iUx4-7q0E1",
-    bridgeAdapter: "EQDZfQX89gMo3HAiW1tSK9visb2gouUvDCt6PODo3qkXKeox",
+    whitelist: "",
+    bridgeAdapter: "",
   },
 };
 
 export const TonTokensContract = {
   [Environment.Mainnet]: {
     usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+    jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     // jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
     ton: TON_ZERO_ADDRESS,
   },
@@ -33,9 +34,8 @@ export const TonTokensContract = {
     ton: TON_ZERO_ADDRESS,
   },
   [Environment.Testnet]: {
-    usdt: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
-    jUSDT: "EQA5FnPP13uZPJQq7aj6UHLEukJJZSZW053cU1Wu6R6BpYYB",
-    ton: TON_ZERO_ADDRESS,
+    usdt: "",
+    ton: "",
   },
 };
 

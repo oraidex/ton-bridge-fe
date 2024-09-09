@@ -89,11 +89,12 @@ const InputBridge: FC<{
   }
 
   let networkList = TonTokenList(tonNetwork);
-  if (networkTo === NetworkList.ton.id) networkList = OraichainTokenList;
+  if (networkTo === NetworkList.ton.id)
+    networkList = OraichainTokenList(tonNetwork);
   if (networkTo === NetworkList["osmosis-1"].id) {
     const tokenList =
       networkFrom === NetworkList.oraichain.id
-        ? OraichainTokenList
+        ? OraichainTokenList(tonNetwork)
         : TonTokenList(tonNetwork);
     networkList = filterByCoingeckoId(tokenList);
   }

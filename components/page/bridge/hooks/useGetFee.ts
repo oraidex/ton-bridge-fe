@@ -5,21 +5,27 @@ import { useAuthOraiAddress } from "@/stores/authentication/selector";
 import { BigDecimal } from "@oraichain/oraidex-common";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { useEffect, useState } from "react";
+import { useWalletsTonCache } from "@/stores/token/selector";
 
 const useGetFee = ({ token }: { token: TokenType }) => {
   const oraiAddress = useAuthOraiAddress();
   const [bridgeFee, setBridgeFee] = useState(0);
   const [tokenFee, setTokenFee] = useState(0);
-  const network = getNetworkConfig(Environment.Mainnet);
+  const network = getNetworkConfig(process.env.NEXT_PUBLIC_ENV as Environment);
+  const walletsTon = useWalletsTonCache();
 
   useEffect(() => {
     (async () => {
       try {
         if (token) {
-          const tokenInTon = TonTokenList(Environment.Mainnet).find(
-            (tk) => tk.coingeckoId === token.coingeckoId
-          );
+          const tokenInTon = TonTokenList(
+            process.env.NEXT_PUBLIC_ENV as Environment
+          ).find((tk) => tk.coingeckoId === token.coingeckoId);
           if (!tokenInTon) {
+            return;
+          }
+          const walletTon = walletsTon[tokenInTon.denom];
+          if (!walletTon) {
             return;
           }
 
@@ -29,8 +35,9 @@ const useGetFee = ({ token }: { token: TokenType }) => {
             network.CW_TON_BRIDGE
           );
 
+          // TODO: change to jetton wallet address of bridge adapter instead
           const tokenFeeConfig = await tonBridgeClient.tokenFee({
-            remoteTokenDenom: tokenInTon?.contractAddress,
+            remoteTokenDenom: walletTon,
           });
 
           if (tokenFeeConfig) {
@@ -52,15 +59,20 @@ const useGetFee = ({ token }: { token: TokenType }) => {
         }
       }
     })();
-  }, [token, oraiAddress]);
+  }, [token, oraiAddress, walletsTon]);
 
   useEffect(() => {
     (async () => {
       if (token) {
-        const tokenInTon = TonTokenList(Environment.Mainnet).find(
-          (tk) => tk.coingeckoId === token.coingeckoId
-        );
+        const tokenInTon = TonTokenList(
+          process.env.NEXT_PUBLIC_ENV as Environment
+        ).find((tk) => tk.coingeckoId === token.coingeckoId);
         if (!tokenInTon) {
+          return;
+        }
+
+        const walletTon = walletsTon[tokenInTon.denom];
+        if (!walletTon) {
           return;
         }
 
@@ -71,7 +83,7 @@ const useGetFee = ({ token }: { token: TokenType }) => {
         );
 
         const config = await tonBridgeClient.pairMapping({
-          key: tokenInTon?.contractAddress,
+          key: walletTon,
         });
         const pairMapping = config.pair_mapping;
 
@@ -80,7 +92,7 @@ const useGetFee = ({ token }: { token: TokenType }) => {
         );
       }
     })();
-  }, [token, oraiAddress]);
+  }, [token, oraiAddress, walletsTon]);
 
   return {
     bridgeFee,

@@ -24,6 +24,7 @@ import { isMobile } from "@walletconnect/browser-utils";
 import React, { useEffect } from "react";
 import { TToastType, displayToast } from "./toasts/Toast";
 import { getAddressCosmos } from "@/components/page/bridge/helper";
+import { useLoadWalletsTon } from "@/hooks/useLoadWalletsTon";
 
 const env = process.env.NEXT_PUBLIC_ENV as Environment;
 const network = getNetworkConfig(env);
@@ -49,13 +50,15 @@ export const AppProvider = (props: React.PropsWithChildren<{}>) => {
   const oraiWallet = useAuthOraiWallet();
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
-  const { handleSetOraiWallet, handleSetOraiAddress } =
-    useAuthenticationActions();
-
+  const { handleSetOraiAddress } = useAuthenticationActions();
   const { loadToken } = useLoadToken();
-  const { loadAllBalanceTonToken } = useLoadTonBalance({
+  const env = process.env.NEXT_PUBLIC_ENV as Environment;
+  const {} = useLoadTonBalance({
     tonAddress,
-    tonNetwork: Environment.Mainnet,
+    tonNetwork: env,
+  });
+  const {} = useLoadWalletsTon({
+    tonNetwork: env,
   });
 
   const keplrHandler = async () => {

@@ -639,3 +639,16 @@ export const getAddressByEIP191 = async (isSwitchWallet?: boolean) => {
   const accounts = await metamaskOfflineSinger.getAccounts(isSwitchWallet);
   return accounts[0].address;
 };
+
+export const retryOrbs = async (fn, delay = 1000) => {
+  try {
+    await fn();
+  } catch (error) {
+    let response = error?.response;
+    let message = response?.data?.error;
+    if (message.includes("No working liteservers")) {
+      await sleep(delay);
+      await retryOrbs(fn, delay);
+    }
+  }
+};
