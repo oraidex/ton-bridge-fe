@@ -183,7 +183,7 @@ export const useLoadTonBalance = ({
   const loadBalanceByToken = async (address?: string) => {
     try {
       // get the decentralized RPC endpoint
-      const client = getTonClient();
+      const client = await getTonClient();
       if (address === TON_ZERO_ADDRESS) {
         const balance = await client.getBalance(Address.parse(tonAddress));
 
@@ -228,7 +228,7 @@ export const useLoadTonBalance = ({
     if (!tonAddress) return;
 
     const allTokens = Object.values(TonTokensContract[tonNetwork]);
-    const client = getTonClient();
+    const client = await getTonClient();
 
     const fullData = await Promise.all(
       allTokens.map(async (item) => {

@@ -29,7 +29,7 @@ export const useLoadWalletsTon = ({
       }
 
       await retryOrbs(async () => {
-        const client = getTonClient();
+        const client = await getTonClient();
 
         const jettonMinter = JettonMinter.createFromAddress(
           Address.parse(tokenOnTon.contractAddress)
