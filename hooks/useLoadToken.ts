@@ -14,7 +14,12 @@ import {
   OsmosisTokenList,
   TonTokenList,
 } from "@/constants/tokens";
-import { genAddressCosmos, handleCheckWallet, retryOrbs } from "@/helper";
+import {
+  genAddressCosmos,
+  getTonClient,
+  handleCheckWallet,
+  retryOrbs,
+} from "@/helper";
 import { useAmountsCache, useTokenActions } from "@/stores/token/selector";
 import { fromBinary, toBinary } from "@cosmjs/cosmwasm-stargate";
 import { StargateClient } from "@cosmjs/stargate";
@@ -23,7 +28,6 @@ import { OraiswapTokenTypes } from "@oraichain/oraidex-contracts-sdk";
 import { useEffect } from "react";
 import { toDisplay } from "@oraichain/oraidex-common";
 import { JettonMinter, JettonWallet } from "@oraichain/ton-bridge-contracts";
-import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address } from "@ton/core";
 import { TonClient } from "@ton/ton";
 
@@ -179,10 +183,7 @@ export const useLoadTonBalance = ({
   const loadBalanceByToken = async (address?: string) => {
     try {
       // get the decentralized RPC endpoint
-      const endpoint = await getHttpEndpoint();
-      const client = new TonClient({
-        endpoint,
-      });
+      const client = getTonClient();
       if (address === TON_ZERO_ADDRESS) {
         const balance = await client.getBalance(Address.parse(tonAddress));
 
@@ -227,10 +228,7 @@ export const useLoadTonBalance = ({
     if (!tonAddress) return;
 
     const allTokens = Object.values(TonTokensContract[tonNetwork]);
-    const endpoint = await getHttpEndpoint();
-    const client = new TonClient({
-      endpoint,
-    });
+    const client = getTonClient();
 
     const fullData = await Promise.all(
       allTokens.map(async (item) => {

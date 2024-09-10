@@ -1,10 +1,9 @@
 import { TON_ZERO_ADDRESS, TonInteractionContract } from "@/constants/contract";
 import { TonTokenList } from "@/constants/tokens";
 import { Environment } from "@/constants/ton";
-import { retryOrbs } from "@/helper";
+import { getTonClient, retryOrbs } from "@/helper";
 import { useTokenActions } from "@/stores/token/selector";
 import { JettonMinter } from "@oraichain/ton-bridge-contracts";
-import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address, TonClient } from "@ton/ton";
 import { useEffect } from "react";
 
@@ -30,10 +29,8 @@ export const useLoadWalletsTon = ({
       }
 
       await retryOrbs(async () => {
-        const endpoint = await getHttpEndpoint();
-        const client = new TonClient({
-          endpoint,
-        });
+        const client = getTonClient();
+
         const jettonMinter = JettonMinter.createFromAddress(
           Address.parse(tokenOnTon.contractAddress)
         );
