@@ -19,7 +19,11 @@ import {
   TonTokenList,
 } from "@/constants/tokens";
 import { TToastType, displayToast } from "@/contexts/toasts/Toast";
-import { getTransactionUrl, handleErrorTransaction } from "@/helper";
+import {
+  getTonClient,
+  getTransactionUrl,
+  handleErrorTransaction,
+} from "@/helper";
 import { useLoadToken, useLoadTonBalance } from "@/hooks/useLoadToken";
 import {
   useAuthOraiAddress,
@@ -44,7 +48,6 @@ import {
   JettonWallet,
 } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
-import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address, Cell, beginCell, toNano } from "@ton/core";
 import { TonClient } from "@ton/ton";
 import { Base64 } from "@tonconnect/protocol";
@@ -176,10 +179,7 @@ const Bridge = () => {
   const handleCheckBalanceBridgeOfTonNetwork = async (token: TokenType) => {
     try {
       // get the decentralized RPC endpoint
-      const endpoint = await getHttpEndpoint();
-      const client = new TonClient({
-        endpoint,
-      });
+      const client = getTonClient();
       const bridgeAdapter = TonInteractionContract[tonNetwork].bridgeAdapter;
 
       if (token.contractAddress === TON_ZERO_ADDRESS) {

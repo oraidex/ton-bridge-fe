@@ -36,6 +36,8 @@ import {
 } from "@/stores/authentication/useAuthenticationStore";
 import { Environment } from "@/constants/ton";
 import { Jersey_10 } from "next/font/google";
+import { TonClient } from "@ton/ton";
+import { getHttpEndpoint, getHttpEndpoints } from "@orbs-network/ton-access";
 
 export interface Tokens {
   denom?: string;
@@ -656,4 +658,13 @@ export const retryOrbs = async (fn, retryTimes = 30, delay = 2000) => {
       return await retryOrbs(fn, retryTimes - 1, delay);
     }
   }
+};
+
+export const getTonClient = () => {
+  const endpoint =
+    "https://ton.access.orbs.network/55013c0ff5Bd3F8B62C092Ab4D238bEE463E5501/1/mainnet/toncenter-api-v2/jsonRPC";
+  const client = new TonClient({
+    endpoint,
+  });
+  return client;
 };
