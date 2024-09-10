@@ -660,11 +660,19 @@ export const retryOrbs = async (fn, retryTimes = 30, delay = 2000) => {
   }
 };
 
-export const getTonClient = () => {
-  const endpoint =
-    "https://ton.access.orbs.network/55013c0ff5Bd3F8B62C092Ab4D238bEE463E5501/1/mainnet/toncenter-api-v2/jsonRPC";
-  const client = new TonClient({
-    endpoint,
-  });
-  return client;
+export const getTonClient = async () => {
+  try {
+    const endpoint = await getHttpEndpoint({
+      network: "mainnet",
+    });
+    const client = new TonClient({
+      endpoint,
+    });
+    return client;
+  } catch (err) {
+    return new TonClient({
+      endpoint:
+        "https://ton.access.orbs.network/55013c0ff5Bd3F8B62C092Ab4D238bEE463E5501/1/mainnet/toncenter-api-v2/jsonRPC",
+    });
+  }
 };

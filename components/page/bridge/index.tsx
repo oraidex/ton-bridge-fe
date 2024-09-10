@@ -179,7 +179,7 @@ const Bridge = () => {
   const handleCheckBalanceBridgeOfTonNetwork = async (token: TokenType) => {
     try {
       // get the decentralized RPC endpoint
-      const client = getTonClient();
+      const client = await getTonClient();
       const bridgeAdapter = TonInteractionContract[tonNetwork].bridgeAdapter;
 
       if (token.contractAddress === TON_ZERO_ADDRESS) {
