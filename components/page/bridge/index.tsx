@@ -29,7 +29,7 @@ import {
   useAuthOraiAddress,
   useAuthTonAddress,
 } from "@/stores/authentication/selector";
-import { toBinary } from "@cosmjs/cosmwasm-stargate";
+import { ExecuteInstruction, toBinary } from "@cosmjs/cosmwasm-stargate";
 import {
   BigDecimal,
   CW20_DECIMALS,
@@ -41,6 +41,8 @@ import {
   CosmosChainId,
   calculateTimeoutTimestamp,
   getCosmosGasPrice,
+  OSMOSIS_ROUTER_CONTRACT,
+  getEncodedExecuteContractMsgs,
 } from "@oraichain/oraidex-common";
 import {
   BridgeAdapter,
@@ -84,14 +86,16 @@ import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
 import SelectCommon from "@/components/commons/select";
 import { NetworkWithIcon } from "@/constants/chainInfo";
 import {
+  SwapAndAction,
   UniversalSwapHelper,
   buildUniversalSwapMemo,
 } from "@oraichain/oraidex-universal-swap";
-import { coin } from "@cosmjs/proto-signing";
+import { Coin, coin, coins } from "@cosmjs/proto-signing";
 import { getCosmWasmClient } from "@/libs/cosmjs";
 import { GasPrice } from "@cosmjs/stargate";
-import { getAddressCosmos } from "./helper";
+import { canConvertToAlloyedToken, getAddressCosmos } from "./helper";
 import { ArrowDownIcon } from "@/assets/icons/arrow";
+
 
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
@@ -304,6 +308,46 @@ const Bridge = () => {
     }
   };
 
+  const buildOsorSwapMsg = ({ user_swap, min_asset, timeout_timestamp, post_swap_action, affiliates }: SwapAndAction, isInitial: boolean, fromAddress?: string, funds?: Coin[]) => {
+    const msg = {
+      msg: {
+        swap_and_action: {
+          user_swap,
+          min_asset,
+          timeout_timestamp,
+          post_swap_action,
+          affiliates,
+        },
+      }
+    };
+
+    if (isInitial) {
+      if (!fromAddress) {
+        throw new Error("Missing fromAddress");
+      }
+      return {
+        msgActionSwap: {
+          sender: fromAddress,
+          contractAddress: OSMOSIS_ROUTER_CONTRACT,
+          funds,
+          ...msg
+        }
+      };
+    }
+
+    return {
+      msgActionSwap: {
+        wasm: {
+          contract: OSMOSIS_ROUTER_CONTRACT,
+          ...msg
+        }
+      }
+    };
+  };
+
+
+
+
   const handleBridgeFromTon = async () => {
     try {
       if (!oraiAddress) throw "Please connect OWallet or Kelpr!";
@@ -348,10 +392,45 @@ const Bridge = () => {
         : BRIDGE_TON_TO_ORAI_MINIMUM_GAS.toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
 
+
       let memo = beginCell().endCell();
+
       if (toNetwork.id === NetworkList["osmosis-1"].id) {
         const osmosisAddress = await window.Keplr.getKeplrAddr(toNetwork.id);
+        let osmosisReceiver = osmosisAddress;
         if (!osmosisAddress) throw "Please connect OWallet or Kelpr!";
+
+        let osorRouterMemo = "";
+        let hasAlloyedPool = canConvertToAlloyedToken(token.coingeckoId);
+        if (hasAlloyedPool) {
+          osmosisReceiver = OSMOSIS_ROUTER_CONTRACT;
+          let { msgActionSwap } = buildOsorSwapMsg({
+            user_swap: {
+              swap_exact_asset_in: {
+                swap_venue_name: "osmosis-poolmanager",
+                operations: [{
+                  pool: hasAlloyedPool.poolId,
+                  denom_in: hasAlloyedPool.sourceToken,
+                  denom_out: hasAlloyedPool.alloyedToken
+                }]
+              }
+            },
+            min_asset: {
+              native: {
+                denom: hasAlloyedPool.alloyedToken,
+                amount: "0"
+              }
+            }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
+            timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
+            post_swap_action: {
+              transfer: {
+                to_address: osmosisAddress,
+              },
+            },
+            affiliates: []
+          }, false);
+          osorRouterMemo = JSON.stringify(msgActionSwap);
+        }
 
         const buildMemoSwap = buildUniversalSwapMemo(
           {
@@ -364,8 +443,8 @@ const Bridge = () => {
           {
             sourceChannel: "channel-13",
             sourcePort: "transfer",
-            receiver: osmosisAddress,
-            memo: "",
+            receiver: osmosisReceiver,
+            memo: osorRouterMemo,
             recoverAddress: oraiAddress,
           },
           undefined
@@ -541,24 +620,99 @@ const Bridge = () => {
             },
           });
         }
+        if (isFromOraichainToOsmosis) {
+          let hasAlloyedPool = canConvertToAlloyedToken(token.coingeckoId);
+          if (hasAlloyedPool) {
+            let { msgActionSwap } = buildOsorSwapMsg({
+              user_swap: {
+                swap_exact_asset_in: {
+                  swap_venue_name: "osmosis-poolmanager",
+                  operations: [{
+                    pool: hasAlloyedPool.poolId,
+                    denom_in: hasAlloyedPool.sourceToken,
+                    denom_out: hasAlloyedPool.alloyedToken
+                  }]
+                }
+              },
+              min_asset: {
+                native: {
+                  denom: hasAlloyedPool.alloyedToken,
+                  amount: "0"
+                }
+              }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
+              timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
+              post_swap_action: {
+                transfer: {
+                  to_address: toAddress,
+                },
+              },
+              affiliates: []
+            }, false);
+            memo = JSON.stringify(msgActionSwap);
+            toAddress = OSMOSIS_ROUTER_CONTRACT;
+          }
+        }
+
         const ibcInfo = UniversalSwapHelper.getIbcInfo(fromChainId, toChainId);
-        const msgTransfer = [
-          {
-            typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
-            value: MsgTransfer.fromPartial({
-              sourcePort: ibcInfo.source,
-              sourceChannel: ibcInfo.channel,
-              token: coin(
-                toAmount(amount, token.decimal).toString(),
-                token.denom
-              ),
-              sender: fromAddress,
-              receiver: toAddress,
-              memo,
-              timeoutTimestamp: calculateTimeoutTimestamp(ibcInfo.timeout),
-            }),
-          },
-        ];
+        let executeMsg;
+        if (fromNetwork.id === NetworkList["osmosis-1"].id && token.alloyedToken) {
+          let hasAlloyedPool = canConvertToAlloyedToken(token.coingeckoId);
+          if (!hasAlloyedPool) throw new Error("AlloyPool does not exist!");
+          // need convert from alloyed  first
+          let { msgActionSwap } = buildOsorSwapMsg({
+            user_swap: {
+              swap_exact_asset_in: {
+                swap_venue_name: "osmosis-poolmanager",
+                operations: [{
+                  pool: hasAlloyedPool.poolId,
+                  denom_in: hasAlloyedPool.alloyedToken,
+                  denom_out: hasAlloyedPool.sourceToken
+                }]
+              }
+            },
+            min_asset: {
+              native: {
+                denom: hasAlloyedPool.sourceToken,
+                amount: "0"
+              }
+            }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
+            timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
+            post_swap_action: {
+              ibc_transfer: {
+                ibc_info: {
+                  source_channel: ibcInfo.channel,
+                  receiver: toAddress,
+                  memo,
+                  recover_address: fromAddress
+                }
+              }
+            },
+            affiliates: []
+          }, true, fromAddress, coins(
+            toAmount(amount, token.decimal).toString(),
+            token.denom
+          ));
+
+          executeMsg = getEncodedExecuteContractMsgs(fromAddress, [msgActionSwap as ExecuteInstruction])
+
+        } else
+          executeMsg = [
+            {
+              typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
+              value: MsgTransfer.fromPartial({
+                sourcePort: ibcInfo.source,
+                sourceChannel: ibcInfo.channel,
+                token: coin(
+                  toAmount(amount, token.decimal).toString(),
+                  token.denom
+                ),
+                sender: fromAddress,
+                receiver: toAddress,
+                memo,
+                timeoutTimestamp: calculateTimeoutTimestamp(ibcInfo.timeout),
+              }),
+            },
+          ];
 
         const findCosmosChain = cosmosChains.find(
           (chain) => chain.chainId === fromNetwork.id
@@ -576,7 +730,7 @@ const Bridge = () => {
         );
         const tx = await client.signAndBroadcast(
           fromAddress,
-          msgTransfer,
+          executeMsg,
           "auto"
         );
 
@@ -979,10 +1133,10 @@ const Bridge = () => {
               {/* <span className={styles.value}>1 TON</span> */}
               <span className={styles.value}>
                 {toNetwork.id === NetworkList.ton.id ||
-                fromNetwork.id === NetworkList.ton.id
+                  fromNetwork.id === NetworkList.ton.id
                   ? numberWithCommas(bridgeFee || 0, undefined, {
-                      maximumFractionDigits: CW20_DECIMALS,
-                    })
+                    maximumFractionDigits: CW20_DECIMALS,
+                  })
                   : "0"}{" "}
                 {token?.symbol}
               </span>
@@ -994,9 +1148,9 @@ const Bridge = () => {
                 {!token
                   ? "--"
                   : formatDisplayNumber(
-                      new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
-                      DECIMAL_TOKEN_FEE
-                    )}{" "}
+                    new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
+                    DECIMAL_TOKEN_FEE
+                  )}{" "}
                 {token?.symbol}
               </span>
             </div>
