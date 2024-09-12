@@ -55,9 +55,7 @@ async function loadNativeBalance(
       .filter(
         (coin) =>
           tokenMap[coin.denom] ||
-          [...Object.values(OsmosisTokenDenom[Environment.Staging])].includes(
-            coin.denom
-          )
+          [...Object.values(OsmosisTokenDenom[env])].includes(coin.denom)
       )
       .map((coin) => [coin.denom, coin.amount]);
     Object.assign(amountDetails, Object.fromEntries(tokensAmount));
