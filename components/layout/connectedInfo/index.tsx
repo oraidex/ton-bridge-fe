@@ -93,7 +93,7 @@ export const CopyButton = ({ value }: { value: string }) => {
 
   const handleCopy = (text) => {
     navigator.clipboard
-      .writeText(text)
+      ?.writeText(text)
       .then(() => {
         setIsCopied(true);
         setCopiedValue(text);
