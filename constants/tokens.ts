@@ -86,7 +86,7 @@ export const OsmosisTokenList = (network: Environment): TokenType[] => [
   {
     chainId: "osmosis-1",
     name: "Ton",
-    symbol: "TON",
+    symbol: "TON.orai",
     Icon: TonNetworkICon,
     contractAddress: null,
     denom: OsmosisTokenDenom[network].ton,
@@ -95,8 +95,8 @@ export const OsmosisTokenList = (network: Environment): TokenType[] => [
   },
   {
     chainId: "osmosis-1",
-    name: "Alloyed Ton",
-    symbol: "allTON",
+    name: "Ton",
+    symbol: "TON",
     Icon: TonNetworkICon,
     contractAddress: null,
     denom: OsmosisTokenDenom[network].allTon,
