@@ -299,7 +299,7 @@ export const MetamaskIcon = () => {
 };
 
 export const KeplrIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
-  const id = crypto.randomUUID();
+  const id = Math.random().toString();
   return (
     <svg
       width="49"
@@ -457,7 +457,7 @@ export const TronLinkIcon = () => {
 };
 
 export const TonKeeperIcon = () => {
-  const id = crypto.randomUUID();
+  const id = Math.random();
   return (
     <svg
       width="41"
@@ -499,7 +499,7 @@ export const TonKeeperIcon = () => {
 };
 
 export const MyTonWalletIcon = () => {
-  const id = crypto.randomUUID();
+  const id = Math.random();
   return (
     <svg
       width="41"

@@ -13,6 +13,7 @@ export type TokenType = {
   denom: string;
   coingeckoId: string;
   decimal: number;
+  alloyedToken?: boolean;
 };
 
 export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9/ton`;
@@ -72,9 +73,12 @@ export const OraichainTokenList = (network: Environment): TokenType[] => [
 export const OsmosisTokenDenom = {
   [Environment.Mainnet]: {
     ton: "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+    allTon:
+      "factory/osmo12lnwf54yd30p6amzaged2atln8k0l32n7ncxf04ctg7u7ymnsy7qkqgsw4/alloyed/allTON",
   },
   [Environment.Staging]: {
     ton: "ibc/64BF62F8C7C0B1AADBCFBCB45E778DA144E86804420AC5AD4F29D141A14A031B",
+    alloyedTon: "", // not exist
   },
 };
 
@@ -82,12 +86,23 @@ export const OsmosisTokenList = (network: Environment): TokenType[] => [
   {
     chainId: "osmosis-1",
     name: "Ton",
-    symbol: "TON",
+    symbol: "TON.orai",
     Icon: TonNetworkICon,
     contractAddress: null,
     denom: OsmosisTokenDenom[network].ton,
     coingeckoId: "the-open-network",
     decimal: 9,
+  },
+  {
+    chainId: "osmosis-1",
+    name: "Ton",
+    symbol: "TON",
+    Icon: TonNetworkICon,
+    contractAddress: null,
+    denom: OsmosisTokenDenom[network].allTon,
+    coingeckoId: "the-open-network",
+    decimal: 9,
+    alloyedToken: true,
   },
 ];
 
@@ -138,4 +153,20 @@ export const TonTokenList = (network: Environment): TokenType[] => [
   //       },
   //     ]
   //   : []),
+];
+
+export type AlloyedPool = {
+  poolId: string;
+  alloyedToken: string;
+  sourceToken: string;
+};
+
+export const OsmosisAlloyedPools: AlloyedPool[] = [
+  {
+    poolId: "2161",
+    alloyedToken:
+      "factory/osmo12lnwf54yd30p6amzaged2atln8k0l32n7ncxf04ctg7u7ymnsy7qkqgsw4/alloyed/allTON",
+    sourceToken:
+      "ibc/905889A7F0B94F1CE1506D9BADF13AE9141E4CBDBCD565E1DFC7AE418B3E3E98",
+  },
 ];

@@ -538,7 +538,7 @@ export const OsmosisIcon = () => {
 };
 
 export const OraiIcon = () => {
-  const id = crypto.randomUUID();
+  const id = Math.random();
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
