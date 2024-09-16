@@ -568,6 +568,9 @@ const Bridge = () => {
         isFromOraichainToOsmosis ||
         isFromOsmosisToTon
       ) {
+        if (isFromOsmosisToTon && tonNetwork == "mainnet") {
+          validatePrice(token, amount);
+        }
         const timeout = Math.floor(new Date().getTime() / 1000) + 3600;
         const fromChainId = fromNetwork.id as CosmosChainId;
         const toChainId = isFromOsmosisToTon
