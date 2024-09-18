@@ -895,33 +895,36 @@ const Bridge = () => {
   });
 
   useEffect(() => {
-    const isTonSource = fromNetwork.id === NetworkList.ton.id;
-    const isTonDestination = toNetwork.id === NetworkList.ton.id;
-    const numAmount = Number(amount);
+    if (token) {
+      const isTonSource = fromNetwork.id === NetworkList.ton.id;
+      const isTonDestination = toNetwork.id === NetworkList.ton.id;
+      const numAmount = Number(amount);
 
-    let newValidateAmount = {
-      status: numAmount > bridgeFee,
-      minAmount: bridgeFee,
-      denom: token?.symbol,
-    };
+      let newValidateAmount = {
+        status: numAmount > bridgeFee,
+        minAmount: bridgeFee,
+        denom: token?.symbol,
+      };
 
-    let newIsInsufficientBalance = false;
+      let newIsInsufficientBalance = false;
 
-    if (isTonSource) {
-      newIsInsufficientBalance =
-        numAmount > toDisplay(amounts[token?.denom] || "0");
+      if (isTonSource) {
+        newIsInsufficientBalance =
+          numAmount > toDisplay(amounts[token?.denom] || "0");
 
-      if (token?.contractAddress === TON_ZERO_ADDRESS) {
-        newValidateAmount.status = numAmount > bridgeFee + 1;
-        newValidateAmount.minAmount = bridgeFee + 1;
+        if (token?.contractAddress === TON_ZERO_ADDRESS) {
+          newValidateAmount.status = numAmount > bridgeFee + 1;
+          newValidateAmount.minAmount = bridgeFee + 1;
+        }
+      } else if (isTonDestination) {
+        newIsInsufficientBalance =
+          numAmount >
+          toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
       }
-    } else if (isTonDestination) {
-      newIsInsufficientBalance =
-        numAmount > toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
-    }
 
-    setValidateAmount(newValidateAmount);
-    setIsInsufficientBalance(newIsInsufficientBalance);
+      setValidateAmount(newValidateAmount);
+      setIsInsufficientBalance(newIsInsufficientBalance);
+    }
   }, [
     token,
     fromNetwork.id,
