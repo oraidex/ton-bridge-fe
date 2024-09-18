@@ -96,7 +96,6 @@ import { GasPrice } from "@cosmjs/stargate";
 import { canConvertToAlloyedToken, getAddressCosmos } from "./helper";
 import { ArrowDownIcon } from "@/assets/icons/arrow";
 
-
 const Bridge = () => {
   const oraiAddress = useAuthOraiAddress();
   const tonAddress = useAuthTonAddress();
@@ -308,7 +307,18 @@ const Bridge = () => {
     }
   };
 
-  const buildOsorSwapMsg = ({ user_swap, min_asset, timeout_timestamp, post_swap_action, affiliates }: SwapAndAction, isInitial: boolean, fromAddress?: string, funds?: Coin[]) => {
+  const buildOsorSwapMsg = (
+    {
+      user_swap,
+      min_asset,
+      timeout_timestamp,
+      post_swap_action,
+      affiliates,
+    }: SwapAndAction,
+    isInitial: boolean,
+    fromAddress?: string,
+    funds?: Coin[]
+  ) => {
     const msg = {
       msg: {
         swap_and_action: {
@@ -318,7 +328,7 @@ const Bridge = () => {
           post_swap_action,
           affiliates,
         },
-      }
+      },
     };
 
     if (isInitial) {
@@ -330,8 +340,8 @@ const Bridge = () => {
           sender: fromAddress,
           contractAddress: OSMOSIS_ROUTER_CONTRACT,
           funds,
-          ...msg
-        }
+          ...msg,
+        },
       };
     }
 
@@ -339,14 +349,11 @@ const Bridge = () => {
       msgActionSwap: {
         wasm: {
           contract: OSMOSIS_ROUTER_CONTRACT,
-          ...msg
-        }
-      }
+          ...msg,
+        },
+      },
     };
   };
-
-
-
 
   const handleBridgeFromTon = async () => {
     try {
@@ -392,7 +399,6 @@ const Bridge = () => {
         : BRIDGE_TON_TO_ORAI_MINIMUM_GAS.toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
 
-
       let memo = beginCell().endCell();
 
       if (toNetwork.id === NetworkList["osmosis-1"].id) {
@@ -404,31 +410,36 @@ const Bridge = () => {
         let hasAlloyedPool = canConvertToAlloyedToken(token.coingeckoId);
         if (hasAlloyedPool) {
           osmosisReceiver = OSMOSIS_ROUTER_CONTRACT;
-          let { msgActionSwap } = buildOsorSwapMsg({
-            user_swap: {
-              swap_exact_asset_in: {
-                swap_venue_name: "osmosis-poolmanager",
-                operations: [{
-                  pool: hasAlloyedPool.poolId,
-                  denom_in: hasAlloyedPool.sourceToken,
-                  denom_out: hasAlloyedPool.alloyedToken
-                }]
-              }
-            },
-            min_asset: {
-              native: {
-                denom: hasAlloyedPool.alloyedToken,
-                amount: "0"
-              }
-            }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
-            timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
-            post_swap_action: {
-              transfer: {
-                to_address: osmosisAddress,
+          let { msgActionSwap } = buildOsorSwapMsg(
+            {
+              user_swap: {
+                swap_exact_asset_in: {
+                  swap_venue_name: "osmosis-poolmanager",
+                  operations: [
+                    {
+                      pool: hasAlloyedPool.poolId,
+                      denom_in: hasAlloyedPool.sourceToken,
+                      denom_out: hasAlloyedPool.alloyedToken,
+                    },
+                  ],
+                },
               },
+              min_asset: {
+                native: {
+                  denom: hasAlloyedPool.alloyedToken,
+                  amount: "0",
+                },
+              }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
+              timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
+              post_swap_action: {
+                transfer: {
+                  to_address: osmosisAddress,
+                },
+              },
+              affiliates: [],
             },
-            affiliates: []
-          }, false);
+            false
+          );
           osorRouterMemo = JSON.stringify(msgActionSwap);
         }
 
@@ -626,31 +637,36 @@ const Bridge = () => {
         if (isFromOraichainToOsmosis) {
           let hasAlloyedPool = canConvertToAlloyedToken(token.coingeckoId);
           if (hasAlloyedPool) {
-            let { msgActionSwap } = buildOsorSwapMsg({
-              user_swap: {
-                swap_exact_asset_in: {
-                  swap_venue_name: "osmosis-poolmanager",
-                  operations: [{
-                    pool: hasAlloyedPool.poolId,
-                    denom_in: hasAlloyedPool.sourceToken,
-                    denom_out: hasAlloyedPool.alloyedToken
-                  }]
-                }
-              },
-              min_asset: {
-                native: {
-                  denom: hasAlloyedPool.alloyedToken,
-                  amount: "0"
-                }
-              }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
-              timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
-              post_swap_action: {
-                transfer: {
-                  to_address: toAddress,
+            let { msgActionSwap } = buildOsorSwapMsg(
+              {
+                user_swap: {
+                  swap_exact_asset_in: {
+                    swap_venue_name: "osmosis-poolmanager",
+                    operations: [
+                      {
+                        pool: hasAlloyedPool.poolId,
+                        denom_in: hasAlloyedPool.sourceToken,
+                        denom_out: hasAlloyedPool.alloyedToken,
+                      },
+                    ],
+                  },
                 },
+                min_asset: {
+                  native: {
+                    denom: hasAlloyedPool.alloyedToken,
+                    amount: "0",
+                  },
+                }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
+                timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
+                post_swap_action: {
+                  transfer: {
+                    to_address: toAddress,
+                  },
+                },
+                affiliates: [],
               },
-              affiliates: []
-            }, false);
+              false
+            );
             memo = JSON.stringify(msgActionSwap);
             toAddress = OSMOSIS_ROUTER_CONTRACT;
           }
@@ -658,46 +674,54 @@ const Bridge = () => {
 
         const ibcInfo = UniversalSwapHelper.getIbcInfo(fromChainId, toChainId);
         let executeMsg;
-        if (fromNetwork.id === NetworkList["osmosis-1"].id && token.alloyedToken) {
+        if (
+          fromNetwork.id === NetworkList["osmosis-1"].id &&
+          token.alloyedToken
+        ) {
           let hasAlloyedPool = canConvertToAlloyedToken(token.coingeckoId);
           if (!hasAlloyedPool) throw new Error("AlloyPool does not exist!");
           // need convert from alloyed  first
-          let { msgActionSwap } = buildOsorSwapMsg({
-            user_swap: {
-              swap_exact_asset_in: {
-                swap_venue_name: "osmosis-poolmanager",
-                operations: [{
-                  pool: hasAlloyedPool.poolId,
-                  denom_in: hasAlloyedPool.alloyedToken,
-                  denom_out: hasAlloyedPool.sourceToken
-                }]
-              }
+          let { msgActionSwap } = buildOsorSwapMsg(
+            {
+              user_swap: {
+                swap_exact_asset_in: {
+                  swap_venue_name: "osmosis-poolmanager",
+                  operations: [
+                    {
+                      pool: hasAlloyedPool.poolId,
+                      denom_in: hasAlloyedPool.alloyedToken,
+                      denom_out: hasAlloyedPool.sourceToken,
+                    },
+                  ],
+                },
+              },
+              min_asset: {
+                native: {
+                  denom: hasAlloyedPool.sourceToken,
+                  amount: "0",
+                },
+              }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
+              timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
+              post_swap_action: {
+                ibc_transfer: {
+                  ibc_info: {
+                    source_channel: ibcInfo.channel,
+                    receiver: toAddress,
+                    memo,
+                    recover_address: fromAddress,
+                  },
+                },
+              },
+              affiliates: [],
             },
-            min_asset: {
-              native: {
-                denom: hasAlloyedPool.sourceToken,
-                amount: "0"
-              }
-            }, //  consider add minimum receive (Currently, alloy pool is swap 1-1, so no't need to add min_asset
-            timeout_timestamp: Number(calculateTimeoutTimestamp(3600)),
-            post_swap_action: {
-              ibc_transfer: {
-                ibc_info: {
-                  source_channel: ibcInfo.channel,
-                  receiver: toAddress,
-                  memo,
-                  recover_address: fromAddress
-                }
-              }
-            },
-            affiliates: []
-          }, true, fromAddress, coins(
-            toAmount(amount, token.decimal).toString(),
-            token.denom
-          ));
+            true,
+            fromAddress,
+            coins(toAmount(amount, token.decimal).toString(), token.denom)
+          );
 
-          executeMsg = getEncodedExecuteContractMsgs(fromAddress, [msgActionSwap as ExecuteInstruction])
-
+          executeMsg = getEncodedExecuteContractMsgs(fromAddress, [
+            msgActionSwap as ExecuteInstruction,
+          ]);
         } else
           executeMsg = [
             {
@@ -863,17 +887,50 @@ const Bridge = () => {
     }
   };
 
-  let isInsufficientBalance = true;
-  if (fromNetwork.id === NetworkList.ton.id) {
-    isInsufficientBalance =
-      Number(amount) > toDisplay(amounts[token?.denom] || "0");
-  }
+  const [isInsufficientBalance, setIsInsufficientBalance] = useState(false);
+  const [validateAmount, setValidateAmount] = useState({
+    status: false,
+    minAmount: 0,
+    denom: token?.symbol,
+  });
 
-  if (toNetwork.id === NetworkList.ton.id) {
-    isInsufficientBalance =
-      Number(amount) >
-      toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
-  }
+  useEffect(() => {
+    const isTonSource = fromNetwork.id === NetworkList.ton.id;
+    const isTonDestination = toNetwork.id === NetworkList.ton.id;
+    const numAmount = Number(amount);
+
+    let newValidateAmount = {
+      status: numAmount > bridgeFee,
+      minAmount: bridgeFee,
+      denom: token?.symbol,
+    };
+
+    let newIsInsufficientBalance = false;
+
+    if (isTonSource) {
+      newIsInsufficientBalance =
+        numAmount > toDisplay(amounts[token?.denom] || "0");
+
+      if (token?.contractAddress === TON_ZERO_ADDRESS) {
+        newValidateAmount.status = numAmount > bridgeFee + 1;
+        newValidateAmount.minAmount = bridgeFee + 1;
+      }
+    } else if (isTonDestination) {
+      newIsInsufficientBalance =
+        numAmount > toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
+    }
+
+    setValidateAmount(newValidateAmount);
+    setIsInsufficientBalance(newIsInsufficientBalance);
+  }, [
+    token,
+    fromNetwork.id,
+    toNetwork.id,
+    amount,
+    amounts,
+    amountsTon,
+    bridgeFee,
+  ]);
 
   // const isMaintained = fromNetwork.id === NetworkList.oraichain.id;
   const isMaintained = false;
@@ -1136,10 +1193,10 @@ const Bridge = () => {
               {/* <span className={styles.value}>1 TON</span> */}
               <span className={styles.value}>
                 {toNetwork.id === NetworkList.ton.id ||
-                  fromNetwork.id === NetworkList.ton.id
+                fromNetwork.id === NetworkList.ton.id
                   ? numberWithCommas(bridgeFee || 0, undefined, {
-                    maximumFractionDigits: CW20_DECIMALS,
-                  })
+                      maximumFractionDigits: CW20_DECIMALS,
+                    })
                   : "0"}{" "}
                 {token?.symbol}
               </span>
@@ -1151,19 +1208,31 @@ const Bridge = () => {
                 {!token
                   ? "--"
                   : formatDisplayNumber(
-                    new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
-                    DECIMAL_TOKEN_FEE
-                  )}{" "}
+                      new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
+                      DECIMAL_TOKEN_FEE
+                    )}{" "}
                 {token?.symbol}
               </span>
             </div>
+            {token && !!!validateAmount.status && (
+              <div className={styles.itemEst}>
+                <span className={styles.value}>
+                  More than {validateAmount.minAmount} {validateAmount.denom} is
+                  required to execute this transaction.
+                </span>
+              </div>
+            )}
           </div>
 
           <div className={styles.button}>
             {oraiAddress && tonAddress ? (
               <button
                 disabled={
-                  loading || !token || !amount || !isInsufficientBalance
+                  loading ||
+                  !token ||
+                  !amount ||
+                  !isInsufficientBalance ||
+                  !validateAmount.status
                 }
                 onClick={() => {
                   fromNetwork.id === NetworkList.ton.id
