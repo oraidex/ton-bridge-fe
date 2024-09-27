@@ -210,7 +210,6 @@ const Bridge = () => {
   const handleCheckBalanceBridgeOfOraichain = async (token: TokenType) => {
     try {
       if (token) {
-        console.log("token:", token)
         if (!token.contractAddress) {
           const data = await window.client.getBalance(
             network.CW_TON_BRIDGE,
