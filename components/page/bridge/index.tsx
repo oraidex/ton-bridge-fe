@@ -118,6 +118,7 @@ const Bridge = () => {
   const [token, setToken] = useState<TokenType>(null);
   const [fromNetwork, setFromNetwork] = useState(initFromNetwork);
   const [toNetwork, setToNetwork] = useState(initToNetwork);
+  // This is jetton wallet address of current logged in
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
   });
@@ -155,7 +156,7 @@ const Bridge = () => {
     setDeductNativeAmount(0n);
   }, [toNetwork, token]);
 
-  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
+  // @dev: this function will changed based on token minter address of logged account (which is USDT, USDC, bla bla bla)
   useEffect(() => {
     try {
       (async () => {
@@ -164,13 +165,21 @@ const Bridge = () => {
         if (token?.contractAddress === TON_ZERO_ADDRESS) {
           setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
           setTokenInfo({
-            jettonWalletAddress: walletsTon[token.denom],
+            jettonWalletAddress: null,
           });
           return;
         }
 
+        const client = await getTonClient();
+        const jettonMinter = JettonMinter.createFromAddress(
+          Address.parse(token.contractAddress)
+        );
+        const jettonMinterContract = client.open(jettonMinter);
+        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+          Address.parse(tonAddress)
+        );
         setTokenInfo({
-          jettonWalletAddress: walletsTon[token.denom],
+          jettonWalletAddress,
         });
         setDeductNativeAmount(0n);
       })();
@@ -390,6 +399,7 @@ const Bridge = () => {
       const toAddress: string = isNativeTon
         ? bridgeAdapterAddress.toString()
         : tokenInfo.jettonWalletAddress?.toString();
+      console.log("THIS IS TO ADDRESS:", { toAddress }, { walletsTon });
       const oraiAddressBech32 = fromBech32(oraiAddress).data;
       const gasAmount = isNativeTon
         ? fmtAmount.add(BRIDGE_TON_TO_ORAI_MINIMUM_GAS).toString()
@@ -460,6 +470,7 @@ const Bridge = () => {
         memo = beginCell().storeStringRefTail(buildMemoSwap).endCell();
       }
 
+      console.log("contractAddress:", token.contractAddress);
       const getNativeBridgePayload = () =>
         BridgeAdapter.buildBridgeTonBody(
           {
@@ -1193,10 +1204,10 @@ const Bridge = () => {
               {/* <span className={styles.value}>1 TON</span> */}
               <span className={styles.value}>
                 {toNetwork.id === NetworkList.ton.id ||
-                  fromNetwork.id === NetworkList.ton.id
+                fromNetwork.id === NetworkList.ton.id
                   ? numberWithCommas(bridgeFee || 0, undefined, {
-                    maximumFractionDigits: CW20_DECIMALS,
-                  })
+                      maximumFractionDigits: CW20_DECIMALS,
+                    })
                   : "0"}{" "}
                 {token?.symbol}
               </span>
@@ -1208,9 +1219,9 @@ const Bridge = () => {
                 {!token
                   ? "--"
                   : formatDisplayNumber(
-                    new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
-                    DECIMAL_TOKEN_FEE
-                  )}{" "}
+                      new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
+                      DECIMAL_TOKEN_FEE
+                    )}{" "}
                 {token?.symbol}
               </span>
             </div>
