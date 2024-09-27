@@ -210,6 +210,7 @@ const Bridge = () => {
   const handleCheckBalanceBridgeOfOraichain = async (token: TokenType) => {
     try {
       if (token) {
+        console.log("token:", token)
         if (!token.contractAddress) {
           const data = await window.client.getBalance(
             network.CW_TON_BRIDGE,
@@ -377,10 +378,7 @@ const Bridge = () => {
         tokenInOrai
       );
 
-      if (
-        Number(balanceMax) < Number(amount) &&
-        token.contractAddress !== TON_ZERO_ADDRESS
-      ) {
+      if (!tokenInOrai?.mintBurn && Number(balanceMax) < Number(amount)) {
         setLoading(false);
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${balanceMax} ${token.symbol}`;
       }
@@ -1196,10 +1194,10 @@ const Bridge = () => {
               {/* <span className={styles.value}>1 TON</span> */}
               <span className={styles.value}>
                 {toNetwork.id === NetworkList.ton.id ||
-                fromNetwork.id === NetworkList.ton.id
+                  fromNetwork.id === NetworkList.ton.id
                   ? numberWithCommas(bridgeFee || 0, undefined, {
-                      maximumFractionDigits: CW20_DECIMALS,
-                    })
+                    maximumFractionDigits: CW20_DECIMALS,
+                  })
                   : "0"}{" "}
                 {token?.symbol}
               </span>
@@ -1211,9 +1209,9 @@ const Bridge = () => {
                 {!token
                   ? "--"
                   : formatDisplayNumber(
-                      new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
-                      DECIMAL_TOKEN_FEE
-                    )}{" "}
+                    new BigDecimal(tokenFee).mul(amount || 0).toNumber(),
+                    DECIMAL_TOKEN_FEE
+                  )}{" "}
                 {token?.symbol}
               </span>
             </div>
