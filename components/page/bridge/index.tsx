@@ -118,6 +118,7 @@ const Bridge = () => {
   const [token, setToken] = useState<TokenType>(null);
   const [fromNetwork, setFromNetwork] = useState(initFromNetwork);
   const [toNetwork, setToNetwork] = useState(initToNetwork);
+  // This is jetton wallet address of current logged in
   const [tokenInfo, setTokenInfo] = useState({
     jettonWalletAddress: null,
   });
@@ -155,7 +156,7 @@ const Bridge = () => {
     setDeductNativeAmount(0n);
   }, [toNetwork, token]);
 
-  // @dev: this function will changed based on token minter address (which is USDT, USDC, bla bla bla)
+  // @dev: this function will changed based on token minter address of logged account (which is USDT, USDC, bla bla bla)
   useEffect(() => {
     try {
       (async () => {
@@ -164,13 +165,21 @@ const Bridge = () => {
         if (token?.contractAddress === TON_ZERO_ADDRESS) {
           setDeductNativeAmount(BRIDGE_TON_TO_ORAI_MINIMUM_GAS);
           setTokenInfo({
-            jettonWalletAddress: walletsTon[token.denom],
+            jettonWalletAddress: null,
           });
           return;
         }
 
+        const client = await getTonClient();
+        const jettonMinter = JettonMinter.createFromAddress(
+          Address.parse(token.contractAddress)
+        );
+        const jettonMinterContract = client.open(jettonMinter);
+        const jettonWalletAddress = await jettonMinterContract.getWalletAddress(
+          Address.parse(tonAddress)
+        );
         setTokenInfo({
-          jettonWalletAddress: walletsTon[token.denom],
+          jettonWalletAddress,
         });
         setDeductNativeAmount(0n);
       })();
@@ -363,6 +372,10 @@ const Bridge = () => {
 
       if (!token || !amount) throw "Not valid!";
 
+      console.log({ amount, deductNativeAmount });
+      if (Number(deductNativeAmount) < Number(amount))
+        throw "Insufficient funds";
+
       if (tonNetwork == "mainnet") {
         validatePrice(token, amount);
       }
@@ -377,10 +390,7 @@ const Bridge = () => {
         tokenInOrai
       );
 
-      if (
-        Number(balanceMax) < Number(amount) &&
-        token.contractAddress !== TON_ZERO_ADDRESS
-      ) {
+      if (!tokenInOrai?.mintBurn && Number(balanceMax) < Number(amount)) {
         setLoading(false);
         throw `The bridge contract does not have enough balance to process this bridge transaction. Wanted ${amount} ${token.symbol}, have ${balanceMax} ${token.symbol}`;
       }
@@ -393,6 +403,7 @@ const Bridge = () => {
       const toAddress: string = isNativeTon
         ? bridgeAdapterAddress.toString()
         : tokenInfo.jettonWalletAddress?.toString();
+      console.log("THIS IS TO ADDRESS:", { toAddress }, { walletsTon });
       const oraiAddressBech32 = fromBech32(oraiAddress).data;
       const gasAmount = isNativeTon
         ? fmtAmount.add(BRIDGE_TON_TO_ORAI_MINIMUM_GAS).toString()
@@ -463,6 +474,7 @@ const Bridge = () => {
         memo = beginCell().storeStringRefTail(buildMemoSwap).endCell();
       }
 
+      console.log("contractAddress:", token.contractAddress);
       const getNativeBridgePayload = () =>
         BridgeAdapter.buildBridgeTonBody(
           {

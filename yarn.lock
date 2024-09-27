@@ -1600,10 +1600,32 @@
     serialize-error "^8.1.0"
     varuint-bitcoin "^1.1.2"
 
-"@oraichain/oraidex-common@^1.0.91", "@oraichain/oraidex-common@^1.1.6":
+"@oraichain/oraidex-common@^1.0.91":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@oraichain/oraidex-common/-/oraidex-common-1.1.6.tgz#e5fbc8edd911f8c6924b87ce0fe75cc5a3b484f4"
   integrity sha512-XUTpvukbtff6UkK25kfE+wHxraFeum6QDZOnHy0k/VVv44FUUlWzWyo/h/D85LyDuKD4u01ryHMmU8XR7M0X7w==
+  dependencies:
+    "@cosmjs/amino" "0.31.3"
+    "@cosmjs/cosmwasm-stargate" "0.31.3"
+    "@cosmjs/crypto" "0.31.3"
+    "@cosmjs/proto-signing" "0.31.3"
+    "@cosmjs/stargate" "0.31.3"
+    "@cosmjs/tendermint-rpc" "0.31.3"
+    "@ethersproject/providers" "^5.0.10"
+    "@injectivelabs/sdk-ts" "1.12.1"
+    "@keplr-wallet/types" "^0.11.38"
+    "@oraichain/oraidex-contracts-sdk" latest
+    axios "1.7.2"
+    axios-extensions "3.1.7"
+    bignumber.js "^9.1.2"
+    cosmjs-types "0.8.0"
+    ethers "^5.0.15"
+    tronweb "6.0.0-beta.4"
+
+"@oraichain/oraidex-common@^1.1.21":
+  version "1.1.21"
+  resolved "https://registry.yarnpkg.com/@oraichain/oraidex-common/-/oraidex-common-1.1.21.tgz#12c778191146bb05511446e7098795cd45cc59c8"
+  integrity sha512-/yxtjTTagTyfCmmnULpt3QfGcSYtRUz6iy/01kvNW/XtKQrCNNAxsotfKmn1LUOTWVkKD1jxvPpcRWeswGgX9g==
   dependencies:
     "@cosmjs/amino" "0.31.3"
     "@cosmjs/cosmwasm-stargate" "0.31.3"

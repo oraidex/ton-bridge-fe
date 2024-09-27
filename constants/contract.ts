@@ -27,15 +27,18 @@ export const TonTokensContract = {
     jUSDC: "EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     // jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
     ton: TON_ZERO_ADDRESS,
+    hmstr: "EQAJ8uWd7EBqsmpSWaRdf_I-8R8-XHwh3gsNKhy-UrdrPcUo",
   },
   [Environment.Staging]: {
     usdt: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
     jUSDT: "EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA",
     ton: TON_ZERO_ADDRESS,
+    hmstr: "EQAJ8uWd7EBqsmpSWaRdf_I-8R8-XHwh3gsNKhy-UrdrPcUo",
   },
   [Environment.Testnet]: {
     usdt: "",
     ton: "",
+    hmstr: "",
   },
 };
 

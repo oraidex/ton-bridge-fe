@@ -1,6 +1,11 @@
 import { Environment } from "./ton";
 import { TonTokensContract } from "./contract";
-import { UsdtIcon, TetherIcon, UsdcIcon } from "@/assets/icons/token";
+import {
+  UsdtIcon,
+  TetherIcon,
+  UsdcIcon,
+  HmstrIcon,
+} from "@/assets/icons/token";
 import { USDC_CONTRACT, USDT_CONTRACT } from "@oraichain/oraidex-common";
 import { TonNetworkICon } from "@/assets/icons/network";
 
@@ -14,9 +19,11 @@ export type TokenType = {
   coingeckoId: string;
   decimal: number;
   alloyedToken?: boolean;
+  mintBurn?: boolean;
 };
 
 export const TON_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9/ton`;
+export const HMSTR_DENOM = `factory/orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9/HMSTR`;
 
 export const OraichainTokenList = (network: Environment): TokenType[] => [
   {
@@ -29,7 +36,6 @@ export const OraichainTokenList = (network: Environment): TokenType[] => [
     coingeckoId: "tether",
     decimal: 6,
   },
-
   {
     chainId: "Oraichain",
     name: "Ton",
@@ -39,6 +45,18 @@ export const OraichainTokenList = (network: Environment): TokenType[] => [
     denom: TON_DENOM,
     coingeckoId: "the-open-network",
     decimal: 9,
+    mintBurn: true,
+  },
+  {
+    chainId: "Oraichain",
+    name: "Hamster Kombat",
+    symbol: "HMSTR",
+    Icon: HmstrIcon,
+    contractAddress: null,
+    denom: HMSTR_DENOM,
+    coingeckoId: "hamster-kombat",
+    decimal: 9,
+    mintBurn: true,
   },
   ...(TonTokensContract[network as Environment.Mainnet]?.jUSDC
     ? [
@@ -123,6 +141,15 @@ export const TonTokenList = (network: Environment): TokenType[] => [
     contractAddress: TonTokensContract[network].ton,
     denom: "ton",
     coingeckoId: "the-open-network",
+    decimal: 9,
+  },
+  {
+    name: "Hamster Kombat",
+    symbol: "HMSTR",
+    Icon: HmstrIcon,
+    contractAddress: TonTokensContract[network].hmstr,
+    denom: "ton20_hamster_kombat",
+    coingeckoId: "hamster-kombat",
     decimal: 9,
   },
   ...(TonTokensContract[network as Environment.Mainnet]?.jUSDC
