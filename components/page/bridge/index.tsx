@@ -372,7 +372,10 @@ const Bridge = () => {
 
       if (!token || !amount) throw "Not valid!";
 
-      if (toDisplay(amountsTon[token.denom], token.decimal) < Number(amount))
+      if (
+        toDisplay(amountsTon?.[token.denom] || "0", token.decimal) <
+        Number(amount)
+      )
         throw "Insufficient funds";
 
       if (tonNetwork == "mainnet") {
