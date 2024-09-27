@@ -41,8 +41,10 @@ async function loadNativeBalance(
   try {
     const client = await StargateClient.connect(tokenInfo.rpc);
     const amountAll = await client.getAllBalances(address);
+    console.log("amountAll", amountAll);
 
     let amountDetails: AmountDetails = {};
+    console.log("oraichainTokens", oraichainTokens);
 
     // reset native balances
     [...cosmosTokens, ...OsmosisTokenList(env)]

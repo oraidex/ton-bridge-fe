@@ -57,6 +57,7 @@ import {
   WRAP_BNB_CONTRACT,
   WRAP_ETH_CONTRACT,
   WRAP_TRON_TRX_CONTRACT,
+  HMSTR_ORAICHAIN_DENOM,
   defaultBech32Config,
 } from "@oraichain/oraidex-common";
 import { TonNetworkICon } from "@/assets/icons/network";
@@ -313,6 +314,14 @@ export const oraichainNetwork: CustomChainInfo = {
       Icon: BtcIcon,
       IconLight: BtcIcon,
       coinImageUrl: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png",
+    },
+    {
+      coinDenom: "HMSTR",
+      coinMinimalDenom: HMSTR_ORAICHAIN_DENOM,
+      coinDecimals: 9,
+      coinGeckoId: "hamster-kombat",
+      coinImageUrl:
+        "https://assets.coingecko.com/coins/images/39102/standard/hamster-removebg-preview.png?1720514486",
     },
   ],
 };
