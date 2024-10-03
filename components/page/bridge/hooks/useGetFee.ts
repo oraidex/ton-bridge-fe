@@ -7,7 +7,19 @@ import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
 import { useEffect, useState } from "react";
 import { useWalletsTonCache } from "@/stores/token/selector";
 
-const useGetFee = ({ token }: { token: TokenType }) => {
+const useGetFee = ({
+  token,
+  fromNetwork,
+  toNetwork,
+}: {
+  token: TokenType;
+  fromNetwork: {
+    id: string;
+  };
+  toNetwork: {
+    id: string;
+  };
+}) => {
   const oraiAddress = useAuthOraiAddress();
   const [bridgeFee, setBridgeFee] = useState(0);
   const [tokenFee, setTokenFee] = useState(0);
@@ -17,6 +29,10 @@ const useGetFee = ({ token }: { token: TokenType }) => {
   useEffect(() => {
     (async () => {
       try {
+        if (![fromNetwork.id, toNetwork.id].includes("Ton")) {
+          return setTokenFee(0);
+        }
+
         if (token) {
           const tokenInTon = TonTokenList(
             process.env.NEXT_PUBLIC_ENV as Environment
@@ -59,10 +75,14 @@ const useGetFee = ({ token }: { token: TokenType }) => {
         }
       }
     })();
-  }, [token, oraiAddress, walletsTon]);
+  }, [token, oraiAddress, walletsTon, fromNetwork.id, toNetwork.id]);
 
   useEffect(() => {
     (async () => {
+      if (![fromNetwork.id, toNetwork.id].includes("Ton")) {
+        return setBridgeFee(0);
+      }
+
       if (token) {
         const tokenInTon = TonTokenList(
           process.env.NEXT_PUBLIC_ENV as Environment
@@ -92,7 +112,7 @@ const useGetFee = ({ token }: { token: TokenType }) => {
         );
       }
     })();
-  }, [token, oraiAddress, walletsTon]);
+  }, [token, oraiAddress, walletsTon, fromNetwork.id, toNetwork.id]);
 
   return {
     bridgeFee,

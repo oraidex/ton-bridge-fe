@@ -138,6 +138,8 @@ const Bridge = () => {
 
   const { bridgeFee, tokenFee } = useGetFee({
     token,
+    fromNetwork,
+    toNetwork,
   });
 
   const { handleUpdateQueryURL } = useFillNetwork({
@@ -920,7 +922,9 @@ const Bridge = () => {
         denom: token?.symbol,
       };
 
-      let newIsInsufficientBalance = false;
+      // FIXME: default when isTonSource is false and isTonDestination is false
+      // osmosis <-> oraichain
+      let newIsInsufficientBalance = true;
 
       if (isTonSource) {
         newIsInsufficientBalance =
@@ -930,7 +934,9 @@ const Bridge = () => {
           newValidateAmount.status = numAmount > bridgeFee + 1;
           newValidateAmount.minAmount = bridgeFee + 1;
         }
-      } else if (isTonDestination) {
+      }
+
+      if (isTonDestination) {
         newIsInsufficientBalance =
           numAmount >
           toDisplay(amountsTon[token?.denom] || "0", token?.decimal);
@@ -1231,14 +1237,16 @@ const Bridge = () => {
                 {token?.symbol}
               </span>
             </div>
-            {token && !!!validateAmount.status && (
-              <div className={styles.itemEst}>
-                <span className={styles.value}>
-                  More than {validateAmount.minAmount} {validateAmount.denom} is
-                  required to execute this transaction.
-                </span>
-              </div>
-            )}
+            {token &&
+              !!!validateAmount.status &&
+              [toNetwork.id, fromNetwork.id].includes("Ton") && (
+                <div className={styles.itemEst}>
+                  <span className={styles.value}>
+                    More than {validateAmount.minAmount} {validateAmount.denom}{" "}
+                    is required to execute this transaction.
+                  </span>
+                </div>
+              )}
           </div>
 
           <div className={styles.button}>
