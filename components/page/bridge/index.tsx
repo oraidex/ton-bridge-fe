@@ -50,7 +50,14 @@ import {
   JettonWallet,
 } from "@oraichain/ton-bridge-contracts";
 import { TonbridgeBridgeClient } from "@oraichain/tonbridge-contracts-sdk";
-import { Address, Cell, beginCell, toNano } from "@ton/core";
+import {
+  Address,
+  Cell,
+  Sender,
+  beginCell,
+  storeStateInit,
+  toNano,
+} from "@ton/core";
 import { TonClient } from "@ton/ton";
 import { Base64 } from "@tonconnect/protocol";
 import { useEffect, useState } from "react";
@@ -76,12 +83,11 @@ import {
 } from "@/hooks/useFillNetwork";
 import {
   FWD_AMOUNT,
-  TON_MESSAGE_VALID_UNTIL,
   BRIDGE_TON_TO_ORAI_MINIMUM_GAS,
-  MINIMUM_BRIDGE_PER_USD,
+  BRIDGE_JETTON_TO_ORAI_MINIMUM_GAS,
 } from "./constants";
 import { getMixPanelClient } from "@/libs/mixpanel";
-import { useTonConnectUI } from "@tonconnect/ui-react";
+import { TonConnectUI, useTonConnectUI } from "@tonconnect/ui-react";
 import { useCoinGeckoPrices } from "@/hooks/useCoingecko";
 import SelectCommon from "@/components/commons/select";
 import { NetworkWithIcon } from "@/constants/chainInfo";
@@ -386,6 +392,8 @@ const Bridge = () => {
 
       setLoading(true);
 
+      const tonClient = await getTonClient();
+
       const tokenInOrai = OraichainTokenList(
         process.env.NEXT_PUBLIC_ENV as Environment
       ).find((tk) => tk.coingeckoId === token.coingeckoId);
@@ -402,6 +410,9 @@ const Bridge = () => {
       const bridgeAdapterAddress = Address.parse(
         TonInteractionContract[tonNetwork].bridgeAdapter
       );
+      const bridgeAdapterClient = tonClient.open(
+        BridgeAdapter.createFromAddress(bridgeAdapterAddress)
+      );
       const fmtAmount = new BigDecimal(10).pow(token.decimal).mul(amount);
       const isNativeTon: boolean = token.contractAddress === TON_ZERO_ADDRESS;
       const toAddress: string = isNativeTon
@@ -411,10 +422,10 @@ const Bridge = () => {
       const oraiAddressBech32 = fromBech32(oraiAddress).data;
       const gasAmount = isNativeTon
         ? fmtAmount.add(BRIDGE_TON_TO_ORAI_MINIMUM_GAS).toString()
-        : BRIDGE_TON_TO_ORAI_MINIMUM_GAS.toString();
+        : BRIDGE_JETTON_TO_ORAI_MINIMUM_GAS.toString();
       const timeout = BigInt(Math.floor(new Date().getTime() / 1000) + 3600);
 
-      let memo = beginCell().endCell();
+      let memo = beginCell().storeStringRefTail("").endCell();
 
       if (toNetwork.id === NetworkList["osmosis-1"].id) {
         const osmosisAddress = await window.Keplr.getKeplrAddr(toNetwork.id);
@@ -514,7 +525,7 @@ const Bridge = () => {
         : getOtherBridgeTokenPayload();
 
       const tx = await tonConnectUI.sendTransaction({
-        validUntil: TON_MESSAGE_VALID_UNTIL,
+        validUntil: Date.now() + 5 * 60 * 1000,
         messages: [
           {
             address: toAddress, // dia chi token
@@ -752,7 +763,9 @@ const Bridge = () => {
                 sender: fromAddress,
                 receiver: toAddress,
                 memo,
-                timeoutTimestamp: calculateTimeoutTimestamp(ibcInfo.timeout),
+                timeoutTimestamp: calculateTimeoutTimestamp(
+                  ibcInfo.timeout
+                ) as any,
               }),
             },
           ];
@@ -931,8 +944,8 @@ const Bridge = () => {
           numAmount > toDisplay(amounts[token?.denom] || "0");
 
         if (token?.contractAddress === TON_ZERO_ADDRESS) {
-          newValidateAmount.status = numAmount > bridgeFee + 1;
-          newValidateAmount.minAmount = bridgeFee + 1;
+          newValidateAmount.status = numAmount > bridgeFee;
+          newValidateAmount.minAmount = bridgeFee;
         }
       }
 
